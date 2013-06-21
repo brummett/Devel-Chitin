@@ -43,9 +43,9 @@ is(scalar($c->_clients), 0, 'client list is still empty');
 
 package TestDB;
 
-use Devel::hdb::DB;
+use Devel::CommonDB;
 BEGIN {
-    our @ISA = qw(Devel::hdb::DB);
+    our @ISA = qw(Devel::CommonDB);
 }
 
 sub new {

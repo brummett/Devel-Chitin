@@ -1,4 +1,4 @@
-package Devel::hdb::DB::Stack;
+package Devel::CommonDB::Stack;
 
 use strict;
 use warnings;
@@ -60,11 +60,11 @@ sub new {
 
         $caller{level} = $level;
 
-        push @frames, Devel::hdb::DB::StackFrame->_new(%caller);
+        push @frames, Devel::CommonDB::StackFrame->_new(%caller);
     }
 
     # fab up a frame for the main program
-    push @frames, Devel::hdb::DB::StackFrame->_new(
+    push @frames, Devel::CommonDB::StackFrame->_new(
                     'package'   => 'main',
                     filename    => $prev_loc[0],
                     line        => $prev_loc[1],
@@ -116,7 +116,7 @@ sub frames {
 }
 
 
-package Devel::hdb::DB::StackFrame;
+package Devel::CommonDB::StackFrame;
 
 sub _new {
     my($class, %params) = @_;
@@ -147,12 +147,12 @@ __END__
 
 =head1 NAME
 
-Devel::hdb::DB::Stack - An object representing the current execution stack
+Devel::CommonDB::Stack - An object representing the current execution stack
 
 =head1 SYNOPSIS
 
   # Get the stack
-  my $stack = Devel::hdb::DB::Stack->new();
+  my $stack = Devel::CommonDB::Stack->new();
   my $depth = $stack->depth();
 
   # Get one particular stack frame
@@ -174,7 +174,7 @@ but differs from the raw caller data in that the stack frame locations
 reflect the currently executing line in each frame.  The difference is
 subtle, but tailored for what a debugger is likely interested in.
 
-The Stack object is composed of several L<Devel::hdb::DB::StackFrame>
+The Stack object is composed of several L<Devel::CommonDB::StackFrame>
 objects, one for each call frame.
 
 =head1 "TOP" AND "BOTTOM" OF THE STACK
@@ -207,9 +207,9 @@ The call frame for the main program will look like this:
 
 =head1 CONSTRUCTOR
 
-  my $stack = Devel::hdb::DB::stack->new();
+  my $stack = Devel::CommonDB::Stack->new();
 
-Returns an instance of Devel::hdb::DB::stack.  The call frames it contains
+Returns an instance of Devel::CommonDB::stack.  The call frames it contains
 does not include any stack frames within the debugger.
 
 =head1 METHODS
@@ -238,7 +238,7 @@ iterator will return undef.
 
 =head1 StackFrame METHODS
 
-These methods may be called on Devel::hdb::StackFrame instances:
+These methods may be called on Devel::CommonStackFrame instances:
 
 =over 4
 
@@ -321,7 +321,7 @@ frames within the debugger.
 
 =head1 SEE ALSO
 
-L<Devel::hdb::DB>, L<Devel::StackTrace>
+L<Devel::CommonDB>, L<Devel::StackTrace>
 
 =head1 AUTHOR
 

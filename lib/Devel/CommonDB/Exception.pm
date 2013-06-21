@@ -1,9 +1,9 @@
-package Devel::hdb::DB::Exception;
+package Devel::CommonDB::Exception;
 
 use strict;
 use warnings;
 
-use base 'Devel::hdb::DB::Location';
+use base 'Devel::CommonDB::Location';
 
 sub _required_properties {
     my $class = shift;
@@ -24,11 +24,11 @@ __END__
 
 =head1 NAME
 
-Devel::hdb::DB::Exception - A class to represent an exception
+Devel::CommonDB::Exception - A class to represent an exception
 
 =head1 SYNOPSIS
 
-  my $exp = Devel::hdb::DB::Exception->new(
+  my $exp = Devel::CommonDB::Exception->new(
                 package     => 'main',
                 subroutine  => 'main::foo,
                 filename    => '/usr/local/bin/program.pl',
@@ -47,7 +47,7 @@ program.
 
 =head1 METHODS
 
-  Devel::hdb::DB::Location->new(%params)
+  Devel::CommonDB::Location->new(%params)
 
 Construct a new instnce.  The following parameters are accepted.  The values
 should be self-explanatory.  All parameters are required.
@@ -70,7 +70,7 @@ Each construction parameter also has a read-only method to retrieve the value.
 
 =head1 SEE ALSO
 
-L<Devel::hdb::DB::Location>, L<Devel::hdb::DB>
+L<Devel::CommonDB::Location>, L<Devel::CommonDB>
 
 =head1 AUTHOR
 

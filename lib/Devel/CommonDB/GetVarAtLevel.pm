@@ -1,6 +1,6 @@
-package Devel::hdb::DB::GetVarAtLevel;
+package Devel::CommonDB::GetVarAtLevel;
 
-use Devel::hdb::DB::Eval;
+use Devel::CommonDB::Eval;
 
 sub evaluate_complex_var_at_level {
     my($expr, $level) = @_;

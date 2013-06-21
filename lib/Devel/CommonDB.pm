@@ -1,16 +1,16 @@
 use warnings;
 use strict;
 
-package Devel::hdb::DB;
+package Devel::CommonDB;
 
 use Scalar::Util;
 use IO::File;
 
-use Devel::hdb::DB::Actionable;  # Breakpoints and Actions
-use Devel::hdb::DB::Eval;
-use Devel::hdb::DB::Stack;
-use Devel::hdb::DB::Location;
-use Devel::hdb::DB::Exception;
+use Devel::CommonDB::Actionable;  # Breakpoints and Actions
+use Devel::CommonDB::Eval;
+use Devel::CommonDB::Stack;
+use Devel::CommonDB::Location;
+use Devel::CommonDB::Exception;
 
 # lexicals shared between the interface package and the DB package
 my(%attached_clients,
@@ -30,9 +30,10 @@ sub attach {
 
 sub detach {
     my $self = shift;
-    delete $attached_clients{$self};
+    my $deleted = delete $attached_clients{$self};
     delete $trace_clients{$self};
     $DB::trace = %trace_clients ? 1 : 0;
+    return $deleted;
 }
 
 sub _clients {
@@ -105,7 +106,7 @@ sub eval_at {
 }
 
 sub stack {
-    return Devel::hdb::DB::Stack->new();
+    return Devel::CommonDB::Stack->new();
 }
 
 sub current_location {
@@ -140,16 +141,16 @@ sub is_breakable {
 
 sub add_break {
     my $self = shift;
-    Devel::hdb::DB::Breakpoint->new(@_);
+    Devel::CommonDB::Breakpoint->new(@_);
 }
 
 sub get_breaks {
     my $self = shift;
     my %params = @_;
     if (defined $params{file}) {
-        return Devel::hdb::DB::Breakpoint->get(@_);
+        return Devel::CommonDB::Breakpoint->get(@_);
     } else {
-        return map { Devel::hdb::DB::Breakpoint->get(@_, file => $_) }
+        return map { Devel::CommonDB::Breakpoint->get(@_, file => $_) }
                 $self->loaded_files;
     }
 }
@@ -161,13 +162,13 @@ sub remove_break {
         shift->delete();
     } else {
         # given breakpoint params
-        Devel::hdb::DB::Breakpoint->delete(@_);
+        Devel::CommonDB::Breakpoint->delete(@_);
     }
 }
 
 sub add_action {
     my $self = shift;
-    Devel::hdb::DB::Action->new(@_);
+    Devel::CommonDB::Action->new(@_);
 }
 
 sub remove_action {
@@ -177,7 +178,7 @@ sub remove_action {
         shift->delete();
     } else {
         # given breakpoint params
-        Devel::hdb::DB::Action->delete(@_);
+        Devel::CommonDB::Action->delete(@_);
     }
 }
 
@@ -185,9 +186,9 @@ sub get_actions {
     my $self = shift;
     my %params = @_;
     if (defined $params{file}) {
-        Devel::hdb::DB::Action->get(@_);
+        Devel::CommonDB::Action->get(@_);
     } else {
-        return map { Devel::hdb::DB::Action->get(@_, file => $_) }
+        return map { Devel::CommonDB::Action->get(@_, file => $_) }
                 $self->loaded_files;
     }
 }
@@ -324,7 +325,7 @@ sub is_breakpoint {
     local(*dbline)= $main::{'_<' . $filename};
 
     my $should_break = 0;
-    my $breakpoint_key = Devel::hdb::DB::Breakpoint->type;
+    my $breakpoint_key = Devel::CommonDB::Breakpoint->type;
     if ($dbline{$line} && $dbline{$line}->{$breakpoint_key}) {
         my @delete;
         foreach my $condition ( @{ $dbline{$line}->{$breakpoint_key} }) {
@@ -361,7 +362,7 @@ BEGIN {
         return $pid unless $ready;
 
         my($package, $filename, $line, $subname) = _parent_stack_location();
-        my $location = Devel::hdb::DB::Location->new(
+        my $location = Devel::CommonDB::Location->new(
             'package'   => $package,
             line        => $line,
             filename    => $filename,
@@ -369,7 +370,7 @@ BEGIN {
         );
 
         my $notify = $pid ? 'notify_fork_parent' : 'notify_fork_child';
-        Devel::hdb::DB::_do_each_client($notify, $location, $pid);
+        Devel::CommonDB::_do_each_client($notify, $location, $pid);
         return $pid;
     };
 };
@@ -392,7 +393,7 @@ $SIG{__DIE__} = sub {
         # We'll work around it by calling it twice
         my($package, $filename, $line, $subname) = _parent_stack_location();
 
-        $uncaught_exception = Devel::hdb::DB::Exception->new(
+        $uncaught_exception = Devel::CommonDB::Exception->new(
             'package'   => $package,
             line        => $line,
             filename    => $filename,
@@ -431,7 +432,7 @@ sub DB {
 
     unless ($is_initialized) {
         $is_initialized = 1;
-        Devel::hdb::DB::_do_each_client('init');
+        Devel::CommonDB::_do_each_client('init');
     }
 
     # set up the context for DB::eval, so it can properly execute
@@ -441,7 +442,7 @@ sub DB {
     local $usercontext =
         'no strict; no warnings; ($@, $!, $^E, $,, $/, $\, $^W) = @DB::saved;' . "package $package;";
 
-    $current_location = Devel::hdb::DB::Location->new(
+    $current_location = Devel::CommonDB::Location->new(
         'package'   => $package,
         filename    => $filename,
         line        => $line,
@@ -459,7 +460,7 @@ sub DB {
     }
     $step_over_depth = undef;
 
-    Devel::hdb::DB::_do_each_client('notify_stopped', $current_location);
+    Devel::CommonDB::_do_each_client('notify_stopped', $current_location);
 
     STOPPED_LOOP:
     foreach (1) {
@@ -478,14 +479,14 @@ sub DB {
 
         redo if ($finished || @pending_eval);
     }
-    Devel::hdb::DB::_do_each_client('notify_resumed', $current_location);
+    Devel::CommonDB::_do_each_client('notify_resumed', $current_location);
     undef $current_location;
     restore();
 }
 
 sub sub {
     no strict 'refs';
-    goto &$sub if (! $ready or index($sub, 'hdbStackTracker') == 0 or $debugger_disabled);
+    goto &$sub if (! $ready or index($sub, 'Devel::CommonDB::StackTracker') == 0 or $debugger_disabled);
 
     local @AUTOLOAD_names = @AUTOLOAD_names;
     if (index($sub, '::AUTOLOAD', -10) >= 0) {
@@ -505,10 +506,10 @@ sub sub {
 
 sub _new_stack_tracker {
     my $token = shift;
-    my $self = bless \$token, 'hdbStackTracker';
+    my $self = bless \$token, 'Devel::CommonDB::StackTracker';
 }
 
-sub hdbStackTracker::DESTROY {
+sub Devel::CommonDB::StackTracker::DESTROY {
     $stack_depth--;
     $single = 1 if (defined($step_over_depth) and $step_over_depth >= $stack_depth);
 }
@@ -517,8 +518,8 @@ sub hdbStackTracker::DESTROY {
 sub get_var_at_level {
     my($class, $varname, $level) = @_;
 
-    require Devel::hdb::DB::GetVarAtLevel;
-    return Devel::hdb::DB::GetVarAtLevel::get_var_at_level($varname, $level+1);
+    require Devel::CommonDB::GetVarAtLevel;
+    return Devel::CommonDB::GetVarAtLevel::get_var_at_level($varname, $level+1);
 }
 
 
@@ -545,21 +546,21 @@ END {
     $in_debugger = 1;
 
     eval {
-        Devel::hdb::DB::_do_each_client('notify_uncaught_exception', $uncaught_exception) if $uncaught_exception;
+        Devel::CommonDB::_do_each_client('notify_uncaught_exception', $uncaught_exception) if $uncaught_exception;
 
         if ($user_requested_exit) {
-            Devel::hdb::DB::_do_each_client('notify_program_exit');
+            Devel::CommonDB::_do_each_client('notify_program_exit');
         } else {
-            Devel::hdb::DB::_do_each_client('notify_program_terminated', $?);
+            Devel::CommonDB::_do_each_client('notify_program_terminated', $?);
             # These two will trigger DB::DB and the event loop
             $in_debugger = 0;
             $single=1;
-            Devel::hdb::DB::exiting::at_exit();
+            Devel::CommonDB::exiting::at_exit();
         }
     }
 }
 
-package Devel::hdb::DB::exiting;
+package Devel::CommonDB::exiting;
 sub at_exit {
     1;
 }
@@ -575,12 +576,12 @@ __END__
 
 =head1 NAME
 
-Devel::hdb::DB - Programmatic interface to the Perl debugging API
+Devel::CommonDB - Programmatic interface to the Perl debugging API
 
 =head1 SYNOPSIS
 
   package CLIENT;
-  use base 'Devel::hdb::DB';
+  use base 'Devel::CommonDB';
 
   # These inherited methods can be called by the client class
   CLIENT->attach();             # Register with the debugging system
@@ -595,7 +596,8 @@ Devel::hdb::DB - Programmatic interface to the Perl debugging API
   CLIENT->loaded_files();       # Return a list of loaded file names
   CLIENT->postpone($file, $subref);     # Run $subref->() when $file is loaded
   CLIENT->is_breakable($file, $line);   # Return true if the line is executable
-  CLIENT->stack();              # Return Devel::hdb::DB::Stack
+  CLIENT->stack();              # Return Devel::CommonDB::Stack
+  CLIENT->current_location();   # Where is the program stopped at?
 
   CLIENT->add_break(%params);   # Create a breakpoint
   CLIENT->get_breaks([%params]);# Get breakpoint info
@@ -620,9 +622,17 @@ Devel::hdb::DB - Programmatic interface to the Perl debugging API
 
 =head1 DESCRIPTION
 
-This class is meant to expose the Perl debugger API used by debuggers,
-tracers, profilers, etc so they can all benefit from common code.  It
-supports multiple "front-ends" using the API together.
+This class exposes the Perl debugging facilities as an API useful for
+implementing debuggers, tracers, profilers, etc so they can all benefit from
+common code.
+
+CommonDB is not a usable debugger per se.  It has no mechanism for interacting
+with a user such as reading command input or printing retults.  Instead,
+clients of this API may call methods to inspect the debugged program state.
+The debugger core calls methods on clients when certain events occur, such
+as when the program is stopped by breakpoint or when the program exits.
+Multiple clients can attach themselves to CommonDB simultaneously within
+the same debugged program.
 
 =head1 CONSTRUCTOR
 
@@ -749,12 +759,12 @@ IF the named function does not exist, it returns an empty list.
 
 =item CLIENT->stack()
 
-Return an instance of L<Devel::hdb::DB::Stack>.  This object represents the
+Return an instance of L<Devel::CommonDB::Stack>.  This object represents the
 execution/call stack of the debugged program.
 
 =item CLIENT->current_location()
 
-Return an instance of L<Devel::hdb::DB::Location> representing the currently
+Return an instance of L<Devel::CommonDB::Location> representing the currently
 stopped location in the debugged program.  This method returns undef if
 called when the debugged program is actively running.
 
@@ -771,7 +781,7 @@ Return a list of strings containing the source code for a loaded file.
 =item CLIENT->add_break(%params)
 
 Create a breakpoint.  The %params are passed along to the
-L<Devel::hdb::DB::Breakpoint> constructor.  Returns the Breakpoint instance.
+L<Devel::CommonDB::Breakpoint> constructor.  Returns the Breakpoint instance.
 
 Lines may contain more than one breakpoint.  The debugger will stop before
 the next statement on a line if that line contains a breakpoint, and one of
@@ -780,18 +790,18 @@ generally have the condition "1" so they are always true.
 
 =item  CLIENT->get_breaks([%params]);
 
-Return a list of L<Devel::hdb::DB::Breakpoint> instances.  This is a wrapper
-around the C<get> method of Devel::hdb::DB::Breakpoint
+Return a list of L<Devel::CommonDB::Breakpoint> instances.  This is a wrapper
+around the C<get> method of Devel::CommonDB::Breakpoint
 
 =item CLIENT->remove_break(...)
 
 Remove a breakpoint.  This is a wrapper around the C<delete> method of
-L<Devel::hdb::DB::Breakpoint>.
+L<Devel::CommonDB::Breakpoint>.
 
 =item CLIENT->add_action(%params)
 
 Create a line-action.  The %params are passed along to the
-L<Devel::hdb::DB::Action> constructor.  Returns the Action instance.
+L<Devel::CommonDB::Action> constructor.  Returns the Action instance.
 
 Lines may contain more than one action.  Before the next statement on a line,
 all the actions are executed and the values are ignored, though they may have
@@ -799,13 +809,13 @@ other side-effects.
 
 =item CLIENT->get_actions([%params])
 
-Return a list of L<Devel::hdb::DB::Action> instances.  This is a wrapper
-around the C<get> method of Devel::hdb::DB::Action
+Return a list of L<Devel::CommonDB::Action> instances.  This is a wrapper
+around the C<get> method of Devel::CommonDB::Action
 
 =item CLIENT->remove_action(...)
 
 Remove an action.  This is a wrapper around the C<delete> method of
-L<Devel::hdb::DB::Action>.
+L<Devel::CommonDB::Action>.
 
 =back
 
@@ -842,7 +852,7 @@ true.
 
 If a client has turned on the trace flag, this method will be called before
 each executable statement.  The return value is ignored.  $location is an
-instance of L<Devel::hdb::DB::Location> indicating the next statement to be
+instance of L<Devel::CommonDB::Location> indicating the next statement to be
 executed in the debugged program.
 
 notify_trace() will be called only on clients that have requested tracing by
@@ -894,14 +904,14 @@ debugger's END block as the interpreter is cleaning up.
 The debugger system installs a __DIE__ handler to trap exceptions that are
 not otherwise handled by the debugged program.  When an uncaught exception
 occurs, this method is called.  $exception is an instance of
-L<Devel::hdb::DB::Exception>.
+L<Devel::CommonDB::Exception>.
 
 =back
 
 =head1 SEE ALSO
 
-L<Devel::hdb::DB::Location>, L<Devel::hdb::DB::Exception>,
-L<Devel::hdb::DB::Stack>, L<Devel::hdb::DB::Actionable>
+L<Devel::CommonDB::Location>, L<Devel::CommonDB::Exception>,
+L<Devel::CommonDB::Stack>, L<Devel::CommonDB::Actionable>
 
 =head1 AUTHOR
 

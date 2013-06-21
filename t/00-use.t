@@ -4,5 +4,5 @@ use warnings;
 use Test::More tests => 1;
 
 BEGIN {
-    use_ok('Devel::hdb::DB');
+    use_ok('Devel::CommonDB');
 }

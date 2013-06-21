@@ -1,4 +1,4 @@
-package Devel::hdb::DB::Actionable;
+package Devel::CommonDB::Actionable;
 
 use strict;
 use warnings;
@@ -142,15 +142,15 @@ sub inactive {
     return $self->{inactive};
 }
 
-package Devel::hdb::DB::Breakpoint;
+package Devel::CommonDB::Breakpoint;
 
-use base 'Devel::hdb::DB::Actionable';
+use base 'Devel::CommonDB::Actionable';
 
 sub type() { 'condition' };
 
-package Devel::hdb::DB::Action;
+package Devel::CommonDB::Action;
 
-use base 'Devel::hdb::DB::Actionable';
+use base 'Devel::CommonDB::Actionable';
 
 sub type() { 'action' };
 

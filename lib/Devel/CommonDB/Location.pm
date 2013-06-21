@@ -1,4 +1,4 @@
-package Devel::hdb::DB::Location;
+package Devel::CommonDB::Location;
 
 use strict;
 use warnings;
@@ -72,11 +72,11 @@ __END__
 
 =head1 NAME
 
-Devel::hdb::DB::Location - A class to represent an executable location
+Devel::CommonDB::Location - A class to represent an executable location
 
 =head1 SYNOPSIS
 
-  my $loc = Devel::hdb::DB::Location->new(
+  my $loc = Devel::CommonDB::Location->new(
                 package     => 'main',
                 subroutine  => 'main::foo',
                 filename    => '/usr/local/bin/program.pl',
@@ -92,7 +92,7 @@ This class is used to represent a location in the debugged program.
 
 =head1 METHODS
 
-  Devel::hdb::DB::Location->new(%params)
+  Devel::CommonDB::Location->new(%params)
 
 Construct a new instnce.  The following parameters are accepted.  The values
 should be self-explanatory.  All parameters are required.
@@ -113,7 +113,7 @@ Each construction parameter also has a read-only method to retrieve the value.
 
 =head1 SEE ALSO
 
-L<Devel::hdb::DB::Exception>, L<Devel::hdb::DB>
+L<Devel::CommonDB::Exception>, L<Devel::CommonDB>
 
 =head1 AUTHOR
 

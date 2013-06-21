@@ -1,4 +1,4 @@
-package Devel::hdb::DB::Eval;
+package Devel::CommonDB::Eval;
 
 use strict;
 use warnings;
