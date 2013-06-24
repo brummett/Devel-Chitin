@@ -49,16 +49,19 @@ sub step {
 sub stepover {
     $DB::single=1;
     $DB::step_over_depth = $DB::stack_depth;
+    return 1;
 }
 
 sub stepout {
     $DB::single=0;
     $DB::step_over_depth = $DB::stack_depth - 1;
+    return 1;
 }
 
 # Should support running to a subname, or file+line
 sub continue {
     $DB::single=0;
+    return 1;
 }
 
 sub trace {
