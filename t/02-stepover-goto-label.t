@@ -10,6 +10,7 @@ sub do_goto {
 }
 
 use Test::More tests => 2;
+use lib 't/lib';
 use TestDB;
 
 sub test_1 {

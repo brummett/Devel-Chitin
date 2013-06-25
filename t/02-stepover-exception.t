@@ -15,6 +15,7 @@ sub do_die {
 }
 
 use Test::More tests => 10;
+use lib 't/lib';
 use TestDB;
 
 sub test_1 {
