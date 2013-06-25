@@ -1,7 +1,7 @@
 #!/usr/bin/env perl -d:CommonDB
 use strict;
 use warnings; no warnings 'void';
-use Test::More tests => 16;
+use Test::More tests => 12;
 
 5;
 foo();
