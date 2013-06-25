@@ -25,6 +25,13 @@ sub _required_properties {
     qw( package filename line subroutine );
 }
 
+sub at_end {
+    my $self = shift;
+    return (($self->package eq 'Devel::CommonDB::exiting')
+            &&
+            ($self->subroutine eq 'Devel::CommonDB::exiting::at_exit'));
+}
+
 sub current {
     my $class = shift;
     my %props = @_;
@@ -110,6 +117,15 @@ should be self-explanatory.  All parameters are required.
 =back
 
 Each construction parameter also has a read-only method to retrieve the value.
+
+=over 4
+
+=item at_end
+
+Return true if the location refers not to any location in the program, but
+after the program has ended.
+
+=back
 
 =head1 SEE ALSO
 
