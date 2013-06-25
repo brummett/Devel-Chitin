@@ -125,6 +125,7 @@ sub delete {
         # No breakpoints or actions left on this line
         $dbline{$line} = undef;
     }
+    return $self;
 }
 
  
