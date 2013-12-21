@@ -216,6 +216,14 @@ sub get_actions {
     }
 }
 
+sub get_var_at_level {
+    my($class, $varname, $level) = @_;
+
+    require Devel::Chitin::GetVarAtLevel;
+    return Devel::Chitin::GetVarAtLevel::get_var_at_level($varname, $level);
+}
+
+
 sub subroutine_location {
     my $class = shift;
     my $subname = shift;
@@ -534,13 +542,6 @@ sub Devel::Chitin::StackTracker::DESTROY {
     $single = 1 if (defined($step_over_depth) and $step_over_depth >= $stack_depth);
 }
 
-
-sub get_var_at_level {
-    my($class, $varname, $level) = @_;
-
-    require Devel::Chitin::GetVarAtLevel;
-    return Devel::Chitin::GetVarAtLevel::get_var_at_level($varname, $level+1);
-}
 
 
 # This gets called after a require'd file is compiled, but before it's executed

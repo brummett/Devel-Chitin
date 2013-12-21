@@ -3,6 +3,21 @@ package Devel::Chitin::Eval;
 use strict;
 use warnings;
 
+# Count how many stack frames we should discard when we're
+# interested in the debugged program's stack frames
+sub _first_program_frame {
+    for(my $level = 1;
+        my ($package, $filename, $line, $subroutine) = caller($level);
+        $level++
+    ) {
+        if ($subroutine eq 'DB::DB') {
+            return $level;
+        }
+    }
+    return;
+}
+
+
 package DB;
 
 our($single, $trace, $usercontext, @saved);
@@ -31,16 +46,20 @@ sub _eval_in_program_context {
         { ($eval_string) = $eval_string =~ /(.*)/s; }
 
         # Fill in the appropriate @_
-        () = caller(_first_program_frame() );
-        @_ = @DB::args;
+        () = caller(Devel::Chitin::Eval::_first_program_frame() );
+        #@_ = @DB::args;
+        my $do_eval = sub { eval "$usercontext $eval_string;\n" };
 
         if ($wantarray) {
-            my @eval_result = eval "$usercontext $eval_string;\n";
+            #my @eval_result = eval "$usercontext $eval_string;\n";
+            my @eval_result = $do_eval->(@DB::args);
             $eval_result = \@eval_result;
         } elsif (defined $wantarray) {
-            $eval_result = eval "$usercontext $eval_string;\n";
+            #$eval_result = eval "$usercontext $eval_string;\n";
+            $eval_result = $do_eval->(@DB::args);
         } else {
-            eval "$usercontext $eval_string;\n";
+            #eval "$usercontext $eval_string;\n";
+            $do_eval->(@DB::args);
         }
 
         # restore old values
@@ -57,20 +76,6 @@ sub _eval_in_program_context {
 
     $cb->($eval_result, $exception) if $cb;
     return ($eval_result, $exception);
-}
-
-# Count how many stack frames we should discard when we're
-# interested in the debugged program's stack frames
-sub _first_program_frame {
-    for(my $level = 1;
-        my ($package, $filename, $line, $subroutine) = caller($level);
-        $level++
-    ) {
-        if ($subroutine eq 'DB::DB') {
-            return $level;
-        }
-    }
-    return;
 }
 
 1;
