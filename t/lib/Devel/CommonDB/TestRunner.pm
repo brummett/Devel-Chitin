@@ -119,8 +119,21 @@ sub step {
     last COMMAND_LOOP;
 }
 
+sub continue {
+     my $db = shift;
+    $db->SUPER::continue();
+    last COMMAND_LOOP;
+}
+
+sub stepout {
+    my $db = shift;
+    $db->SUPER::stepout();
+    last COMMAND_LOOP;
+}
+
 sub done {
     my $db = shift;
+    $at_end = 1;
     $db->user_requested_exit();
     $db->continue;
     last COMMAND_LOOP;

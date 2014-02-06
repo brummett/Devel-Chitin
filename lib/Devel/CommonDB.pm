@@ -426,6 +426,8 @@ sub _execute_actions {
 sub DB {
     return if (!$ready or $debugger_disabled);
 
+    local($in_debugger) = 1;
+
     my($package, $filename, $line) = caller;
     my(undef, undef, undef, $subroutine) = caller(1);
     if ($package eq 'DB::fake') {
@@ -467,7 +469,6 @@ sub DB {
 
     STOPPED_LOOP:
     foreach (1) {
-        local($in_debugger) = 1;
 
         while (my $e = shift @pending_eval) {
             _eval_in_program_context(@$e);
