@@ -131,6 +131,12 @@ sub stepout {
     last COMMAND_LOOP;
 }
 
+sub stepover {
+    my $db = shift;
+    $db->SUPER::stepover();
+    last COMMAND_LOOP;
+}
+
 sub done {
     my $db = shift;
     $at_end = 1;

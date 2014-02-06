@@ -1,28 +1,24 @@
-#!/usr/bin/env perl -d:CommonDB
+#!/usr/bin/env perl
 use strict;
 use warnings; no warnings 'void';
 
-do_goto();
-GOTO_TARGET:
-1;
-sub do_goto {
-    goto GOTO_TARGET;
-}
-
-use Test::More tests => 2;
+use lib 'lib';
 use lib 't/lib';
-use TestDB;
+use Devel::CommonDB::TestRunner;
 
-sub test_1 {
-    my($tester, $loc) = @_;
-    # step over a sub that uses goto to leave a subroutine for a higher
-    # frame
-    ok($tester->stepover(), 'Step over do_goto');
-}
-
-sub test_2 {
-    my($tester, $loc) = @_;
-    is($loc->line, 6, 'Stopped on line 6');
-    $tester->__done__;
-}
-    
+run_test(
+    2,
+    sub {
+        do_goto();
+        GOTO_TARGET:
+        14; # actually 13
+        sub do_goto {
+            $DB::single = 1;
+            goto GOTO_TARGET; # line 17
+        }
+    },
+    loc(subroutine => 'main::do_goto', line => 17),
+    'stepover',
+    loc(line => 13),
+    'done'
+);
