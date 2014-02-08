@@ -1,54 +1,53 @@
-#!/usr/bin/env perl -d:CommonDB
+#!/usr/bin/env perl
 use strict;
 use warnings; no warnings 'void';
 
-my $a = 1;
-6;
-$a = 2;
-8;
-$a = 3;
-10;
-$DB::single=1;
-12;
-
-use Test::More tests => 8;
+use lib 'lib';
 use lib 't/lib';
-use TestDB;
+use Devel::CommonDB::TestRunner;
 
-sub test_1 {
-    my($tester, $loc) = @_;
-    ok(Devel::CommonDB::Breakpoint->new(
+run_test(
+    6,
+    sub { $DB::single=1;
+        my $a = 1;
+        13;
+        $a = 2;
+        15;
+        $a = 3;
+        17;
+        18;
+        19;
+    },
+    \&create_breakpoints,
+    'continue',
+    loc(line => 15),
+    'continue',
+    'at_end',
+    'done',
+);
+    
+
+sub create_breakpoints {
+    my($db, $loc) = @_;
+    Test::More::ok(Devel::CommonDB::Breakpoint->new(
             file => $loc->filename,
-            line => 6,
+            line => 13,
             code => '$a == 2',
-        ), 'Set conditional breakpoint on line 6');
-    ok(Devel::CommonDB::Breakpoint->new(
+        ), 'Set conditional breakpoint on line 13');
+    Test::More::ok(Devel::CommonDB::Breakpoint->new(
             file => $loc->filename,
-            line => 8,
+            line => 15,
             code => '$a == 2',
-        ), 'Set conditional breakpoint that will fire on line 8');
-    ok(Devel::CommonDB::Breakpoint->new(
+        ), 'Set conditional breakpoint that will fire on line 15');
+    Test::More::ok(Devel::CommonDB::Breakpoint->new(
             file => $loc->filename,
-            line => 10,
+            line => 17,
             code => '$a == 2',
-        ), 'Set conditional breakpoint on line 10');
-    ok(Devel::CommonDB::Breakpoint->new(
+        ), 'Set conditional breakpoint on line 17');
+    Test::More::ok(Devel::CommonDB::Breakpoint->new(
             file => $loc->filename,
             line => 10,
             code => 0,
-        ), 'Set breakpoint that will never fire on line 10');
-
-    ok($tester->continue(), 'continue');
+        ), 'Set breakpoint that will never fire on line 17');
 }
 
-sub test_2 {
-    my($tester, $loc) = @_;
-    is($loc->line, 8, 'Stopped on line 8');
-    ok($tester->continue(), 'continue');
-}
-
-sub test_3 {
-    my($tester, $loc) = @_;
-    is($loc->line, 12, 'Stopped on line 12');
-    $tester->__done__;
-}
