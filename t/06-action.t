@@ -1,33 +1,37 @@
-#!/usr/bin/env perl -d:CommonDB
+#!/usr/bin/env perl
 use strict;
 use warnings; no warnings 'void';
-use Test::More tests => 4;
 
-my $a = 1;
-7;
-is($a, 2, 'Action changed the value of $a to 2');
-
+use lib 'lib';
 use lib 't/lib';
-use TestDB;
+use Devel::CommonDB::TestRunner;
 
-sub test_1 {
-    my($tester, $loc) = @_;
-    ok(Devel::CommonDB::Action->new(
-            file => $loc->filename,
-            line => 7,
-            code => '$a++',
-        ), 'Set action on line 7');
-    ok(Devel::CommonDB::Breakpoint->new(
-            file => $loc->filename,
-            line => 7,
-            code => '$a++',
-            inactive => 1,
-        ), 'Set inactive action also on line 7');
-    ok($tester->continue(), 'continue');
-}
-
-sub test_2 {
-    my $tester = shift;
-    $tester->__done__;
-}
+run_test(
+    4,
+    sub { $DB::single=1;
+        my $a = 1;
+        13;
+        Test::More::is($a, 2, 'Action changed the value of $a to 2');
+        $DB::single=1;
+        14;
+    },
+    \&create_action,
+    'continue',
+    'done',
+);
     
+sub create_action {
+    my($db, $loc) = @_;
+    Test::More::ok(Devel::CommonDB::Action->new(
+            file => $loc->filename,
+            line => 13,
+            code => 'Test::More::ok(1, "action fired"); $a++',
+        ), 'Set action on line 13');
+    Test::More::ok(Devel::CommonDB::Breakpoint->new(
+            file => $loc->filename,
+            line => 13,
+            code => 'Test::More::ok(1, "Inactive action not fired"); $a++',
+            inactive => 1,
+        ), 'Set inactive action also on line 13');
+}
+
