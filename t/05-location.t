@@ -1,70 +1,38 @@
-#!/usr/bin/env perl -d:CommonDB
+#!/usr/bin/env perl
 use strict;
 use warnings; no warnings 'void';
 
-foo();
-sub foo {
-    $DB::single=1;
-    8;
-    Bar::bar();
-}
-sub Bar::bar {
-    $DB::single=1;
-    13;
-    Bar::baz();
-}
-package Bar;
-sub baz {
-    $DB::single=1;
-    19;
-}
-
-package main;
-
-use Test::More tests => 7;
+use lib 'lib';
 use lib 't/lib';
-use TestDB;
+use Devel::CommonDB::TestRunner;
 
-sub test_1 {
-    my($tester, $loc) = @_;
-    is_deeply($loc,
-            {   filename    => __FILE__,
-                'package'   => 'main',
-                subroutine  => 'MAIN',
-                line        => 5 },
-            'Stopped at first executable line');
-    ok($tester->continue(), 'continue');
-}
+run_test(
+    4,
+    sub { $DB::single=1;
+        foo(); 12;
+        sub foo {
+            $DB::single=1;
+            15;
+            Bar::bar();
+        }
+        sub Bar::bar {
+            $DB::single=1;
+            20;
+            Bar::baz();
+        }
+        package Bar;
+        sub baz {
+            $DB::single=1;
+            26;
+        }
+    },
+    loc(filename => __FILE__, package => 'main', line => 12),
+    'continue',
+    loc(filename => __FILE__, package => 'main', subroutine => 'main::foo', line => 15),
+    'continue',
+    loc(filename => __FILE__, package => 'main', subroutine => 'Bar::bar', line => 20),
+    'continue',
+    loc(filename => __FILE__, package => 'Bar', subroutine => 'Bar::baz', line => 26),
+    'done',
+);
 
-sub test_2 {
-    my($tester, $loc) = @_;
-    is_deeply($loc,
-            {   filename    => __FILE__,
-                'package'   => 'main',
-                subroutine  => 'main::foo',
-                line        => 8 },
-            'Stopped inside foo()');
-    ok($tester->continue(), 'continue');
-}
-
-sub test_3 {
-    my($tester, $loc) = @_;
-    is_deeply($loc,
-            {   filename    => __FILE__,
-                'package'   => 'main',
-                subroutine  => 'Bar::bar',
-                line        => 13 },
-            'Stopped inside Bar::bar()');
-    ok($tester->continue(), 'continue');
-}
-
-sub test_4 {
-    my($tester, $loc) = @_;
-    is_deeply($loc,
-            {   filename    => __FILE__,
-                'package'   => 'Bar',
-                subroutine  => 'Bar::baz',
-                line        => 19 },
-            'Stopped inside Bar::baz()');
-    $tester->__done__;
-}
