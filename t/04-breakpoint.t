@@ -1,60 +1,54 @@
-#!/usr/bin/env perl -d:CommonDB
+#!/usr/bin/env perl
 use strict;
 use warnings; no warnings 'void';
 
-5;
-6;
-7;
-8;
-9;
-10;
-
-use Test::More tests => 9;
+use lib 'lib';
 use lib 't/lib';
-use TestDB;
+use Devel::CommonDB::TestRunner;
 
-sub test_1 {
-    my($tester, $loc) = @_;
-    ok(Devel::CommonDB::Breakpoint->new(
+run_test(
+    7,
+    sub {
+        $DB::single=1; 12;
+        13;
+        14;
+        15;
+        16;
+    },
+    \&set_breakpoints,
+    'continue',
+    loc(line => 13),
+    'continue',
+    loc(line => 16),
+    'done'
+);
+
+sub set_breakpoints {
+    my($db, $loc) = @_;
+
+    Test::More::ok(Devel::CommonDB::Breakpoint->new(
             file => $loc->filename,
-            line => 7,
-            code => 1,
-        ), 'Set unconditional breakpoint on line 7');
-    ok(Devel::CommonDB::Breakpoint->new(
+            line => 13,
+        ), 'Set unconditional breakpoint on line 13');
+    Test::More::ok(Devel::CommonDB::Breakpoint->new(
             file => $loc->filename,
-            line => 8,
+            line => 14,
             code => 0,
-        ), 'Set breakpoint that will never fire on line 8');
-    ok(Devel::CommonDB::Breakpoint->new(
+        ), 'Set breakpoint that will never fire on line 14');
+    Test::More::ok(Devel::CommonDB::Breakpoint->new(
             file => $loc->filename,
-            line => 9,
+            line => 15,
             code => 1,
             inactive => 1,
-        ), 'Set unconditional, inactive breakpoint on line 9');
-    ok(Devel::CommonDB::Breakpoint->new(
+        ), 'Set unconditional, inactive breakpoint on line 15');
+    Test::More::ok(Devel::CommonDB::Breakpoint->new(
             file => $loc->filename,
-            line => 10,
+            line => 16,
             code => 0,
-        ), 'Set breakpoint that will never fire on line 10');
-    ok(Devel::CommonDB::Breakpoint->new(
+        ), 'Set breakpoint that will never fire on line 16');
+    Test::More::ok(Devel::CommonDB::Breakpoint->new(
             file => $loc->filename,
-            line => 10,
-            code => 1,
-        ), 'Set second unconditional breakpoint line 10');
-
-
-    ok($tester->continue(), 'continue');
+            line => 16,
+        ), 'Set second unconditional breakpoint line 16');
 }
 
-sub test_2 {
-    my($tester, $loc) = @_;
-    is($loc->line, 7, 'Stopped on line 7');
-    ok($tester->continue(), 'continue');
-}
-
-sub test_3 {
-    my($tester, $loc) = @_;
-    is($loc->line, 10, 'Stopped on line 10');
-    $tester->__done__;
-}
-    
