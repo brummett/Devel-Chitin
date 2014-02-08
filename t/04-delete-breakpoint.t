@@ -1,40 +1,43 @@
-#!/usr/bin/env perl -d:CommonDB
+#!/usr/bin/env perl
 use strict;
 use warnings; no warnings 'void';
 
-5;
-for(my $i = 0; $i < 10; $i++) {
-    7;
-}
-$DB::single=1;
-10;
-
-use Test::More tests => 6;
+use lib 'lib';
 use lib 't/lib';
-use TestDB;
+use Devel::CommonDB::TestRunner;
+
+run_test(
+    4,
+    sub {
+        $DB::single=1;
+        13;
+        for(my $i = 0; $i < 10; $i++) {
+            15;
+        }
+        17;
+    },
+    \&create_breakpoint,
+    'continue',
+    loc(line => 15),
+    \&delete_breakpoint,
+    'continue',
+    'at_end',
+    'done',
+);
 
 my $break;
-sub test_1 {
-    my($tester, $loc) = @_;
+sub create_breakpoint {
+    my($db, $loc) = @_;
     
     $break = Devel::CommonDB::Breakpoint->new(
                     file => $loc->filename,
-                    line => 7,
-                    code => 1 );
-    ok($break, 'Set unconditional breakpoint on line 7');
-    ok($tester->continue(), 'continue');
+                    line => 15,
+                );
+    Test::More::ok($break, 'Set unconditional breakpoint on line 15');
 }
 
-sub test_2 {
-    my($tester, $loc) = @_;
-    is($loc->line, 7, 'Stopped on line 7');
-    ok($break->delete, 'Delete breakpoint');
-    ok($tester->continue(), 'continue');
+sub delete_breakpoint {
+    my($db, $loc) = @_;
+    Test::More::ok($break->delete, 'Delete breakpoint');
 }
 
-sub test_3 {
-    my($tester, $loc) = @_;
-    is($loc->line, 10, 'Stopped on line 10');
-    $tester->__done__;
-}
-    
