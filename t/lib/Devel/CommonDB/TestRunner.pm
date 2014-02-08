@@ -33,6 +33,7 @@ sub run_test {
         local($at_end) = 0;
         $program->();
     }
+    $DB::single=1;
 
 }
 
