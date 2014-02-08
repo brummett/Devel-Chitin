@@ -147,6 +147,12 @@ package Devel::CommonDB::Breakpoint;
 
 use base 'Devel::CommonDB::Actionable';
 
+sub new {
+    my($class, %params) = @_;
+    $params{code} = 1 unless (exists $params{code});
+    $class->SUPER::new(%params);
+}
+
 sub type() { 'condition' };
 
 package Devel::CommonDB::Action;
