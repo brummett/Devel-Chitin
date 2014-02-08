@@ -2,36 +2,32 @@
 use strict;
 use warnings; no warnings 'void';
 
-for(my $i = 0; $i < 10; $i++) {
-    6;
-}
-$DB::single = 1;
-9;
-
-use Test::More tests => 5;
+use lib 'lib';
 use lib 't/lib';
-use TestDB;
+use Devel::CommonDB::TestRunner;
 
-sub test_1 {
+run_test(
+    3,
+    sub {
+        $DB::single=1; 12;
+        for(my $i = 0; $i < 10; $i++) {
+            14;
+        }
+    },
+    \&create_once_breakpoint,
+    'continue',
+    loc(line => 14),
+    'continue',
+    'at_end',
+    'done',
+);
+
+sub create_once_breakpoint {
     my($tester, $loc) = @_;
-    ok(Devel::CommonDB::Breakpoint->new(
+    Test::More::ok(Devel::CommonDB::Breakpoint->new(
             file => $loc->filename,
-            line => 6,
-            code => 1,
+            line => 14,
             once => 1,
-        ), 'Set one-time, unconditional breakpoint on line 6');
-    ok($tester->continue(), 'continue');
+        ), 'Set one-time, unconditional breakpoint on line 14');
 }
 
-sub test_2 {
-    my($tester, $loc) = @_;
-    is($loc->line, 6, 'Stopped on line 6');
-    ok($tester->continue(), 'continue');
-}
-
-sub test_3 {
-    my($tester, $loc) = @_;
-    is($loc->line, 9, 'Stopped on line 9');
-    $tester->__done__;
-}
-    
