@@ -380,8 +380,7 @@ BEGIN {
     };
 };
 
-# NOTE: Look into trapping $SIG{__DIE__} se we can report
-# untrapped exceptions back to the debugger.
+# Reporting uncaught exceptions back to the debugger clients
 # inside the handler, note the value for $^S:
 # undef - died while parsing something
 # 1 - died while executing an eval
