@@ -154,9 +154,7 @@ sub at_end {
 {
     my $should_poll = 0;
     sub poll {
-        my $rv;
-        ($rv, $should_poll) = ($should_poll, 0);
-        return $rv;
+        return $should_poll;
     }
 
     sub test_eval {
