@@ -1,34 +1,53 @@
-#!/usr/bin/env perl -d:CommonDB
+#!/usr/bin/env perl
 use strict;
 use warnings; no warnings 'void';
 
-5;
-$DB::single=1;
-7;
-9;
-10;
-
-use Test::More tests => 4;
+use lib 'lib';
 use lib 't/lib';
-use TestDB;
+use Devel::CommonDB::TestRunner;
+run_in_debugger();
 
-sub test_1 {
-    my($tester, $loc) = @_;
-    
-    { no warnings 'once';
-        *TestDB::notify_trace = sub {
-            ok(0, 'notify_trace was called');
-            die "notify_trace was called";
-        };
+Devel::CommonDB::TestDB->attach();
+
+$DB::single=1;
+13;
+14;
+15;
+
+BEGIN{ if (is_in_test_program) {
+    eval "use Test::More tests => 5";
+}}
+
+package Devel::CommonDB::TestDB;
+use base 'Devel::CommonDB';
+
+my $already_stopped = 0;
+sub notify_stopped {
+    my($db, $loc) = @_;
+    if ($already_stopped++) {
+        Test::More::ok(0, 'should not stop');
+        exit;
     }
-    ok($tester->trace(1), 'turn on trace');
-    ok($tester->disable_debugger, 'Disable debugger');
-    ok(Devel::CommonDB::Breakpoint->new(
+    Test::More::ok($db->trace(1), 'Turn on trace mode');
+    Test::More::ok($db->step(), 'Turn on step mode');
+    Test::More::ok(Devel::CommonDB::Breakpoint->new(
         file => __FILE__,
-        line => 7,
+        line => 14,
         code => 1),
-        'Set unconditional breakpoint on line 7');
+        'Set unconditional breakpoint on line 14');
 
-    ok($tester->continue(), 'continue');
+    Test::More::ok($db->disable_debugger, 'Disable debugger');
 }
 
+sub notify_trace {
+    Test::More::ok(0, 'should not trace');
+    exit;
+}
+
+sub notify_program_exit {
+    Test::More::ok(0,' should not notify exit');
+}
+
+END {
+    Test::More::ok(1,'Ran to the end') if (Devel::CommonDB::TestRunner::is_in_test_program);
+}
