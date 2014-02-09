@@ -354,8 +354,8 @@ sub is_breakpoint {
 
 
 sub _parent_stack_location {
-    my($package, $filename, undef, $subname) = caller(2);
-    my(undef, undef, $line, undef) = caller(1);
+    my($package, $filename, $line) = caller(1);
+    my(undef, undef, undef, $subname) = caller(2);
     $subname ||= 'MAIN';
     return ($package, $filename, $line, $subname);
 }
