@@ -7,7 +7,7 @@ use lib 't/lib';
 use Devel::CommonDB::TestRunner;
 
 run_test(
-    4,
+    5,
     sub { $DB::single=1;
         foo(); 12;
         sub foo {
@@ -33,6 +33,18 @@ run_test(
     loc(filename => __FILE__, package => 'main', subroutine => 'Bar::bar', line => 20),
     'continue',
     loc(filename => __FILE__, package => 'Bar', subroutine => 'Bar::baz', line => 26),
+    \&check_current_location,
     'done',
 );
+
+sub check_current_location {
+    my($db, $loc) = @_;
+
+    my $current_location = $db->current_location;
+    my $ok = 1;
+    foreach my $k ( qw( filename package subroutine line )) {
+        $ok = 0 if ($loc->$k ne $current_location->$k);
+    }
+    Test::More::ok($ok, 'current_location()');
+}
 
