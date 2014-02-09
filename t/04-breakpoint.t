@@ -7,14 +7,16 @@ use lib 't/lib';
 use Devel::CommonDB::TestRunner;
 
 run_test(
-    7,
+    10,
     sub {
         $DB::single=1; 12;
         13;
         14;
         15;
         16;
+        # 17
     },
+    \&check_is_breakable,
     \&set_breakpoints,
     'continue',
     loc(line => 13),
@@ -22,6 +24,14 @@ run_test(
     loc(line => 16),
     'done'
 );
+
+sub check_is_breakable {
+    my($db, $loc) = @_;
+
+    Test::More::ok(! $db->is_breakable(__FILE__, 11), 'Line 11 is not breakable');
+    Test::More::ok($db->is_breakable(__FILE__, 12), 'Line 12 is breakable');
+    Test::More::ok(! $db->is_breakable(__FILE__, 17), 'Line 17 is not breakable');
+}
 
 sub set_breakpoints {
     my($db, $loc) = @_;
