@@ -134,7 +134,6 @@ package Devel::CommonDB::StackFrame;
 
 sub _new {
     my($class, %params) = @_;
-    $params{subname} = 
     return bless \%params, $class;
 }
 
@@ -211,7 +210,7 @@ For example:
   }
 
   sub bar {
-      $answer = 1 + 2;  # <-- debugger is stopped here
+      $answer = 1 + 2;  # <-- debugger is stopped here, frame 0
   }
 
 If the debugger is stopped before executing the indicated line, the top of
