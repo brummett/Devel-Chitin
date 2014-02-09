@@ -14,7 +14,7 @@ sub new {
     my $class = shift;
 
     my @frames;
-    #my $skip = 1;    # Don't include calls within the debugger
+    my $should_remove_this_frame = 1;    # Don't include the frame for this function
     my $next_AUTOLOAD_idx = 0;
     my @prev_loc;
 
@@ -36,7 +36,7 @@ sub new {
         if ($caller{subroutine} eq 'DB::DB') {
             # entered the debugger here, start over recording frames
             @frames = ();
-            #$skip = 0;
+            $should_remove_this_frame = 0;
             next;
         }
 
@@ -83,6 +83,7 @@ sub new {
                     level       => $level,
                 );
 
+    shift @frames if $should_remove_this_frame;
     return bless \@frames, $class;
 }
 
