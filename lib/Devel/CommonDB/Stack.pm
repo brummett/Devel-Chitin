@@ -27,6 +27,10 @@ sub new {
         };
         last unless defined($caller{line});  # no more frames
 
+        # perl 5.10.* and earlier use 0 for scalar context.
+        # Normalize this value to the empty string for scalar context
+        $caller{wantarray} = '' if (defined($caller{wantarray}) and !$caller{wantarray});
+
         {
             my @this = @caller{'filename','line','package'};
             @caller{'filename','line','package'} = @prev_loc;
@@ -116,6 +120,15 @@ sub frames {
     return @$self;
 }
 
+sub as_string {
+    my $self = shift;
+    my $string = '';
+    for (my $iter = $self->iterator; my $frame = $iter->(); ) {
+        $string .= $frame->as_string . "\n";
+    }
+    return $string;
+}
+
 
 package Devel::CommonDB::StackFrame;
 
@@ -138,6 +151,11 @@ BEGIN {
 sub args {
     my $args = shift->{args};
     return @$args;
+}
+
+sub as_string {
+    my $self = shift;
+    return sprintf('%s at %s:%d', map { $self->$_ } qw(subroutine filename line));
 }
 
 1;
@@ -235,6 +253,10 @@ Returns a coderef to iterate through the call frames.  The top of the stack
 will be the first frame returned.  After the bottom frame is returned, the
 iterator will return undef.
 
+=item $stack->as_string()
+
+Returns a string representation of the call stack.  Useful for showing the user.
+
 =back
 
 =head1 StackFrame METHODS
@@ -271,7 +293,9 @@ for eval frames, and for subroutines called as C<&subname;>, and true otherwise.
 =item wantarray
 
 The C<wantarray> context for this frame.  True if in array context, defined
-but false for scalar context, and undef for void context.
+but false for scalar context, and undef for void context.  Even though perls
+before 5.12 returned numeric 0 for scalar context, it is normalized to an
+empty string.
 
 =item evaltext
 
