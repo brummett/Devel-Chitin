@@ -47,6 +47,7 @@ sub step {
 }
 
 sub stepover {
+    local $DB::in_debugger = 1;
     $DB::single=1;
     $DB::step_over_depth = $DB::stack_depth;
     return 1;
@@ -65,6 +66,7 @@ sub continue {
 }
 
 sub trace {
+    local $DB::in_debugger = 1;
     my $class = shift;
     my $rv;
     if (@_) {
@@ -424,7 +426,7 @@ sub _execute_actions {
 }
 
 sub DB {
-    return if (!$ready or $debugger_disabled);
+    return if (!$ready or $debugger_disabled or $in_debugger);
 
     local($in_debugger) = 1;
 

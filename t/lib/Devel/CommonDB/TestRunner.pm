@@ -6,9 +6,9 @@ use base 'Devel::CommonDB';
 use Carp;
 
 use Exporter qw(import);
-our @EXPORT = qw(run_test loc);
+our @EXPORT = qw(run_test loc run_in_debugger is_in_test_program);
 
-sub _is_in_test_program {
+sub is_in_test_program {
     no warnings 'uninitialized';
     return $ARGV[0] eq '--test';
 }
@@ -16,7 +16,7 @@ sub _is_in_test_program {
 my $PKG = __PACKAGE__;
 our $at_end = 1;
 sub run_test {
-    run_in_debugger() unless _is_in_test_program();
+    _start_test_in_debugger() unless is_in_test_program();
 
     my $plan = shift;
     my $program = shift;
@@ -154,6 +154,10 @@ sub at_end {
 
 
 sub run_in_debugger {
+    _start_test_in_debugger() unless is_in_test_program();
+}
+
+sub _start_test_in_debugger {
     my $pid = fork();
     if ($pid) {
         waitpid($pid, 0);

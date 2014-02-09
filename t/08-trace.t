@@ -1,41 +1,54 @@
-#!/usr/bin/env perl -d:CommonDB
+#!/usr/bin/env perl
 use strict;
 use warnings; no warnings 'void';
+use lib 'lib';
+use lib 't/lib';
+use Devel::CommonDB::TestRunner;
+run_in_debugger();
 
-5;
-6;
-for (my $i = 0; $i < 2; $i++) {
+Devel::CommonDB::TestDB->attach();
+Devel::CommonDB::TestDB->trace(1);
+
+12;
+my $i = 0;
+while ($i < 2) {
     foo();
+} continue {
+    $i++;
 }
-10;
+19;
 sub foo {
-    12;
+    21;
 }
 
-use Test::More tests => 9;
+BEGIN {
+    if (is_in_test_program) {
+        eval "use Test::More tests => 10;";
+    }
+}
 
-package TestDB;
+package Devel::CommonDB::TestDB;
 use base 'Devel::CommonDB';
 my @trace;
 BEGIN {
     @trace = (
-        { package => 'main', subroutine => 'MAIN', line => 5, filename => __FILE__ },
-        { package => 'main', subroutine => 'MAIN', line => 6, filename => __FILE__ },
-        # for loop initialization
-        { package => 'main', subroutine => 'MAIN', line => 9, filename => __FILE__ },
+        { package => 'main', subroutine => 'MAIN', line => 12, filename => __FILE__ },
+        { package => 'main', subroutine => 'MAIN', line => 13, filename => __FILE__ },
         # for loop condition
-        { package => 'main', subroutine => 'MAIN', line => 7, filename => __FILE__ },
+        { package => 'main', subroutine => 'MAIN', line => 14, filename => __FILE__ },
         # about to call foo()
-        { package => 'main', subroutine => 'MAIN', line => 8, filename => __FILE__ },
-        { package => 'main', subroutine => 'main::foo', line => 12, filename => __FILE__ },
+        { package => 'main', subroutine => 'MAIN', line => 15, filename => __FILE__ },
+        { package => 'main', subroutine => 'main::foo', line => 21, filename => __FILE__ },
+        # continue
+        { package => 'main', subroutine => 'MAIN', line => 17, filename => __FILE__ },
         # About to call foo() again
-        { package => 'main', subroutine => 'MAIN', line => 8, filename => __FILE__ },
-        { package => 'main', subroutine => 'main::foo', line => 12, filename => __FILE__ },
+        { package => 'main', subroutine => 'MAIN', line => 15, filename => __FILE__ },
+        { package => 'main', subroutine => 'main::foo', line => 21, filename => __FILE__ },
+        # continue
+        { package => 'main', subroutine => 'MAIN', line => 17, filename => __FILE__ },
         # done
-        { package => 'main', subroutine => 'MAIN', line => 10, filename => __FILE__ },
+        { package => 'main', subroutine => 'MAIN', line => 19, filename => __FILE__ },
     );
-    TestDB->attach();
-    TestDB->trace(1);
 }
 
 sub notify_trace {
