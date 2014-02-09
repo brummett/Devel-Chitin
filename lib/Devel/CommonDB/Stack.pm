@@ -70,7 +70,7 @@ sub new {
                     line        => $prev_loc[1],
                     subroutine  => 'main::MAIN',
                     subname     => 'MAIN',
-                    'wantarray' => 0,
+                    'wantarray' => undef,
                     evaltext    => undef,
                     evalfile    => undef,
                     evalline    => undef,
@@ -203,7 +203,7 @@ The call frame for the main program will look like this:
   subroutine    main::MAIN
   package       main
   args          @ARGV as it looks in a BEGIN block when the program starts
-  wantarray     0
+  wantarray     undef
 
 =head1 CONSTRUCTOR
 
