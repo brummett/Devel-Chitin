@@ -16,7 +16,7 @@ sub _eval_in_program_context {
 
     local($^W) = 0;  # no warnings
 
-    my @result;
+    my $eval_result;
     {
         # Try to keep the user code from messing  with us. Save these so that
         # even if the eval'ed code changes them, we can put them back again.
@@ -36,13 +36,11 @@ sub _eval_in_program_context {
 
         if ($wantarray) {
             my @eval_result = eval "$usercontext $eval_string;\n";
-            $result[0] = \@eval_result;
+            $eval_result = \@eval_result;
         } elsif (defined $wantarray) {
-            my $eval_result = eval "$usercontext $eval_string;\n";
-            $result[0] = $eval_result;
+            $eval_result = eval "$usercontext $eval_string;\n";
         } else {
             eval "$usercontext $eval_string;\n";
-            $result[0] = undef;
         }
 
         # restore old values
@@ -51,14 +49,14 @@ sub _eval_in_program_context {
         $^D     = $orig_cd;
     }
 
-    $result[1] = $@;  # exception from the eval
+    my $exception = $@;  # exception from the eval
     # Since we're only saving $@, we only have to localize the array element
     # that it will be stored in.
     local $saved[0];    # Preserve the old value of $@
     eval { &DB::save };
 
-    $cb->(@result) if $cb;
-    return @result;
+    $cb->($eval_result, $exception) if $cb;
+    return ($eval_result, $exception);
 }
 
 # Count how many stack frames we should discard when we're

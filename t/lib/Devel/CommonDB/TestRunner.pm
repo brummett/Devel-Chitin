@@ -150,6 +150,27 @@ sub at_end {
     my $db = shift;
     Test::More::ok($at_end, 'finished');
 }
+
+{
+    my $should_poll = 0;
+    sub poll {
+        my $rv;
+        ($rv, $should_poll) = ($should_poll, 0);
+        return $rv;
+    }
+
+    sub test_eval {
+        my($db, $code_string, $wantarray, $cb) = @_;
+
+        ++$should_poll;
+        my $wrapped = sub {
+            &$cb;
+            $should_poll--;
+        };
+
+        $db->eval($code_string, $wantarray, $wrapped);
+    }
+}
     
 
 

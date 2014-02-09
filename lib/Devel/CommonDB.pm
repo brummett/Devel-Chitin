@@ -723,7 +723,8 @@ debugged program is currently stopped at a breakpoint, then the eval will be
 done before resuming.
 
 The result is delivered by calling the given $coderef with two arguments:
-the $result and $exception.
+the $result and $exception.  If $wantarray was true, then the result will
+be an arrayref.
 
 =item CLIENT->eval_at($string [, $level]);
 
