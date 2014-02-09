@@ -7,7 +7,6 @@ use IO::Pipe;
 use Devel::CommonDB::TestRunner;
 run_in_debugger();
 
-print "running\n";
 Devel::CommonDB::TestDB->attach();
 
 if (is_in_test_program) {
@@ -15,7 +14,7 @@ if (is_in_test_program) {
 }
 
 my $pipe = IO::Pipe->new();
-my $pid = fork(); # 18
+my $pid = fork(); # 17
 if ($pid) {
     $pipe->reader();
     Test::More::ok(1, 'parent');
@@ -72,7 +71,7 @@ sub _fork_location_different {
 
     my %expected_fork_location = (
         package => 'main',
-        line    => 18,
+        line    => 17,
         filename => __FILE__,
         subroutine => 'MAIN'
     );
