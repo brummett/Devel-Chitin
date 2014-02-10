@@ -60,10 +60,9 @@ BEGIN {
                 exit;
             }
             my($got_class, $got_subname) = ($next_test =~ m/^(.*)::(\w+)/);
-            my $ok = $got_class eq $class
-                    and
-                    $got_subname eq $subname;
-            Test::More::ok($ok, "${got_class}::${got_subname} eq ${class}::${subname}");
+            Test::More::is( "${got_class}::${got_subname}",
+                            "${class}::${subname}",
+                            "called ${class}::${subname}");
             return 1;
         };
         no strict 'refs';

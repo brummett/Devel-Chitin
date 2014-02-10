@@ -15,6 +15,7 @@ use Devel::CommonDB::Exception;
 
 # lexicals shared between the interface package and the DB package
 my(%attached_clients,
+   @attached_clients,
    %trace_clients,
    $is_initialized,
    @pending_eval,
@@ -22,9 +23,14 @@ my(%attached_clients,
 );
 sub attach {
     my $self = shift;
-    $attached_clients{$self} = $self;
-    if ($is_initialized) {
-        $self->init();
+
+    unless ($attached_clients{$self}) {
+        $attached_clients{$self} = $self;
+        push @attached_clients, $self;
+
+        if ($is_initialized) {
+            $self->init();
+        }
     }
     return $self;
 }
@@ -34,11 +40,22 @@ sub detach {
     my $deleted = delete $attached_clients{$self};
     delete $trace_clients{$self};
     $DB::trace = %trace_clients ? 1 : 0;
+    if ($deleted) {
+        for (my $i = 0; $i < @attached_clients; $i++) {
+            my $same = ref($self)
+                    ? Scalar::Util::refaddr($self) == Scalar::Util::refaddr($attached_clients[$i])
+                    : $self eq $attached_clients[$i];
+            if ($same) {
+                splice(@attached_clients, $i, 1);
+            }
+        }
+    }
     return $deleted;
 }
 
+
 sub _clients {
-    return values %attached_clients;
+    return @attached_clients;
 }
 
 ## Methods callable from client code
@@ -262,7 +279,7 @@ sub notify_uncaught_exception {}
 sub _do_each_client {
     my($method, @args) = @_;
 
-    $_->$method(@args) foreach values %attached_clients;
+    $_->$method(@args) foreach @attached_clients;
 }
 
 package DB;
@@ -488,7 +505,7 @@ sub DB {
 
         my $should_continue = 0;
         until ($should_continue) {
-            my @ready_clients = grep { $_->poll($current_location) } values %attached_clients;
+            my @ready_clients = grep { $_->poll($current_location) } @attached_clients;
             last STOPPED_LOOP unless (@ready_clients);
             do { $should_continue |= $_->idle($current_location) } foreach @ready_clients;
         }
