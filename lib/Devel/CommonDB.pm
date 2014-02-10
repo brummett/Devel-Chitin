@@ -10,6 +10,7 @@ use Devel::CommonDB::Actionable;  # Breakpoints and Actions
 use Devel::CommonDB::Eval;
 use Devel::CommonDB::Stack;
 use Devel::CommonDB::Location;
+use Devel::CommonDB::SubroutineLocation;
 use Devel::CommonDB::Exception;
 
 # lexicals shared between the interface package and the DB package
@@ -203,8 +204,18 @@ sub subroutine_location {
     my $subname = shift;
 
     return () unless $DB::sub{$subname};
-    my($file, $start, $end) = $DB::sub{$subname} =~ m/(.*):(\d+)-(\d+)$/;
-    return ($file, $start, $end);
+    my($filename, $line, $end) = $DB::sub{$subname} =~ m/(.*):(\d+)-(\d+)$/;
+    my $glob = do {
+        no strict 'refs';
+        \*$subname;
+    };
+    return Devel::CommonDB::SubroutineLocation->new(
+            filename    => $filename,
+            line        => $line,
+            end         => $end,
+            subroutine  => *$glob{NAME},
+            package     => *$glob{PACKAGE},
+            code        => *$glob{CODE} );
 }
 
 # NOTE: This postpones until a named file is loaded.
@@ -757,11 +768,11 @@ whitespace or block delimiters are typically not breakable.
 
 =item CLIENT->subroutine_location($subroutine)
 
-Return a list containing ($filename, $start_line, $end_line) for where the
-named subroutine was defined.  Can be called either with a fullt qualified
-function name or with the package and name separate.
+Return a L<Devel::CommonDB::SubroutineLocation> instance for where the
+named subroutine was defined.  C<$subroutine> should be fully qualified
+including the package name.
 
-IF the named function does not exist, it returns an empty list.
+If the named function does not exist, it returns undef.
 
 =item CLIENT->stack()
 
