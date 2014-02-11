@@ -7,7 +7,7 @@ use lib 't/lib';
 use Devel::CommonDB::TestRunner;
 
 run_test(
-    4,
+    6,
     sub {
         one();
         sub one {
@@ -23,7 +23,17 @@ run_test(
             subtwo();
             24;
         }
-        26;
+        three();  # 26
+        sub three {
+            $DB::single=1;
+            29;
+            three_three();
+            31;
+        }
+        sub three_three {
+            34;
+        }
+        36;
     },
     loc(subroutine => 'main::one', line => 15),
     'stepout',
@@ -33,5 +43,9 @@ run_test(
     loc(subroutine => 'main::two', line => 24),
     'stepout',
     loc(line => 26),
+    'continue',
+    loc(subroutine => 'main::three', line => 29),
+    'stepout',
+    loc(line => 36),
     'done'
 );
