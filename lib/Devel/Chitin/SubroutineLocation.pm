@@ -1,4 +1,4 @@
-package Devel::CommonDB::SubroutineLocation;
+package Devel::Chitin::SubroutineLocation;
 
 use strict;
 use warnings;
@@ -30,7 +30,7 @@ __END__
 
 =head1 NAME
 
-Devel::CommonDB::SubroutineLocation - A class to represent the location of a subroutine
+Devel::Chitin::SubroutineLocation - A class to represent the location of a subroutine
 
 =head1 SYNOPSIS
 
@@ -50,7 +50,7 @@ program.
 
 =head1 METHODS
 
-  Devel::CommonDB::SubroutineLocation->new(%params)
+  Devel::Chitin::SubroutineLocation->new(%params)
 
 Construct a new instance.  The following parameters are accepted; all are
 required.
@@ -87,7 +87,7 @@ Each construction parameter also has a read-only method to retrieve the value.
 
 =head1 SEE ALSO
 
-L<Devel::CommonDB::Location>, L<Devel::CommonDB>
+L<Devel::Chitin::Location>, L<Devel::Chitin>
 
 =head1 AUTHOR
 

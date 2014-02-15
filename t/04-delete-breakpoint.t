@@ -4,7 +4,7 @@ use warnings; no warnings 'void';
 
 use lib 'lib';
 use lib 't/lib';
-use Devel::CommonDB::TestRunner;
+use Devel::Chitin::TestRunner;
 
 run_test(
     4,
@@ -29,7 +29,7 @@ my $break;
 sub create_breakpoint {
     my($db, $loc) = @_;
     
-    $break = Devel::CommonDB::Breakpoint->new(
+    $break = Devel::Chitin::Breakpoint->new(
                     file => $loc->filename,
                     line => 15,
                 );

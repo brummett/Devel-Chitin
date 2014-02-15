@@ -4,10 +4,10 @@ use warnings; no warnings 'void';
 use lib 'lib';
 use lib 't/lib';
 use IO::Pipe;
-use Devel::CommonDB::TestRunner;
+use Devel::Chitin::TestRunner;
 run_in_debugger();
 
-Devel::CommonDB::TestDB->attach();
+Devel::Chitin::TestDB->attach();
 
 if (is_in_test_program) {
     eval "use Test::More tests => 4;";
@@ -43,8 +43,8 @@ sub wait_for_child_ok {
     Test::More::ok($ok, $msg);
 }
 
-package Devel::CommonDB::TestDB;
-use base 'Devel::CommonDB';
+package Devel::Chitin::TestDB;
+use base 'Devel::Chitin';
 
 sub notify_fork_parent {
     my($db, $loc, $pid) = @_;

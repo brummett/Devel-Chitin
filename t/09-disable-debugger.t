@@ -4,10 +4,10 @@ use warnings; no warnings 'void';
 
 use lib 'lib';
 use lib 't/lib';
-use Devel::CommonDB::TestRunner;
+use Devel::Chitin::TestRunner;
 run_in_debugger();
 
-Devel::CommonDB::TestDB->attach();
+Devel::Chitin::TestDB->attach();
 
 $DB::single=1;
 13;
@@ -18,8 +18,8 @@ BEGIN{ if (is_in_test_program) {
     eval "use Test::More tests => 5";
 }}
 
-package Devel::CommonDB::TestDB;
-use base 'Devel::CommonDB';
+package Devel::Chitin::TestDB;
+use base 'Devel::Chitin';
 
 my $already_stopped = 0;
 sub notify_stopped {
@@ -30,7 +30,7 @@ sub notify_stopped {
     }
     Test::More::ok($db->trace(1), 'Turn on trace mode');
     Test::More::ok($db->step(), 'Turn on step mode');
-    Test::More::ok(Devel::CommonDB::Breakpoint->new(
+    Test::More::ok(Devel::Chitin::Breakpoint->new(
         file => __FILE__,
         line => 14,
         code => 1),
@@ -49,5 +49,5 @@ sub notify_program_exit {
 }
 
 END {
-    Test::More::ok(1,'Ran to the end') if (Devel::CommonDB::TestRunner::is_in_test_program);
+    Test::More::ok(1,'Ran to the end') if (Devel::Chitin::TestRunner::is_in_test_program);
 }

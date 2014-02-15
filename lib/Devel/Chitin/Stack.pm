@@ -1,4 +1,4 @@
-package Devel::CommonDB::Stack;
+package Devel::Chitin::Stack;
 
 use strict;
 use warnings;
@@ -64,11 +64,11 @@ sub new {
 
         $caller{level} = $level;
 
-        push @frames, Devel::CommonDB::StackFrame->_new(%caller);
+        push @frames, Devel::Chitin::StackFrame->_new(%caller);
     }
 
     # fab up a frame for the main program
-    push @frames, Devel::CommonDB::StackFrame->_new(
+    push @frames, Devel::Chitin::StackFrame->_new(
                     'package'   => 'main',
                     filename    => $prev_loc[0],
                     line        => $prev_loc[1],
@@ -130,7 +130,7 @@ sub as_string {
 }
 
 
-package Devel::CommonDB::StackFrame;
+package Devel::Chitin::StackFrame;
 
 sub _new {
     my($class, %params) = @_;
@@ -165,12 +165,12 @@ __END__
 
 =head1 NAME
 
-Devel::CommonDB::Stack - An object representing the current execution stack
+Devel::Chitin::Stack - An object representing the current execution stack
 
 =head1 SYNOPSIS
 
   # Get the stack
-  my $stack = Devel::CommonDB::Stack->new();
+  my $stack = Devel::Chitin::Stack->new();
   my $depth = $stack->depth();
 
   # Get one particular stack frame
@@ -192,7 +192,7 @@ but differs from the raw caller data in that the stack frame locations
 reflect the currently executing line in each frame.  The difference is
 subtle, but tailored for what a debugger is likely interested in.
 
-The Stack object is composed of several L<Devel::CommonDB::StackFrame>
+The Stack object is composed of several L<Devel::Chitin::StackFrame>
 objects, one for each call frame.
 
 =head1 "TOP" AND "BOTTOM" OF THE STACK
@@ -225,9 +225,9 @@ The call frame for the main program will look like this:
 
 =head1 CONSTRUCTOR
 
-  my $stack = Devel::CommonDB::Stack->new();
+  my $stack = Devel::Chitin::Stack->new();
 
-Returns an instance of Devel::CommonDB::stack.  The call frames it contains
+Returns an instance of Devel::Chitin::stack.  The call frames it contains
 does not include any stack frames within the debugger.
 
 =head1 METHODS
@@ -260,7 +260,7 @@ Returns a string representation of the call stack.  Useful for showing the user.
 
 =head1 StackFrame METHODS
 
-These methods may be called on Devel::CommonStackFrame instances:
+These methods may be called on Devel::Chitin::StackFrame instances:
 
 =over 4
 
@@ -345,7 +345,7 @@ frames within the debugger.
 
 =head1 SEE ALSO
 
-L<Devel::CommonDB>, L<Devel::StackTrace>
+L<Devel::Chitin>, L<Devel::StackTrace>
 
 =head1 AUTHOR
 

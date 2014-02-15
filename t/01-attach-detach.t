@@ -43,9 +43,9 @@ is(scalar($c->_clients), 0, 'client list is still empty');
 
 package TestDB;
 
-use Devel::CommonDB;
+use Devel::Chitin;
 BEGIN {
-    our @ISA = qw(Devel::CommonDB);
+    our @ISA = qw(Devel::Chitin);
 }
 
 sub new {

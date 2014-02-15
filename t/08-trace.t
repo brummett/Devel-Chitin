@@ -3,11 +3,11 @@ use strict;
 use warnings; no warnings 'void';
 use lib 'lib';
 use lib 't/lib';
-use Devel::CommonDB::TestRunner;
+use Devel::Chitin::TestRunner;
 run_in_debugger();
 
-Devel::CommonDB::TestDB->attach();
-Devel::CommonDB::TestDB->trace(1);
+Devel::Chitin::TestDB->attach();
+Devel::Chitin::TestDB->trace(1);
 
 12;
 my $i = 0;
@@ -27,8 +27,8 @@ BEGIN {
     }
 }
 
-package Devel::CommonDB::TestDB;
-use base 'Devel::CommonDB';
+package Devel::Chitin::TestDB;
+use base 'Devel::Chitin';
 my @trace;
 BEGIN {
     @trace = (

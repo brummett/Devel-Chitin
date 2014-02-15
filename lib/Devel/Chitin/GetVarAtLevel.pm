@@ -1,6 +1,6 @@
-package Devel::CommonDB::GetVarAtLevel;
+package Devel::Chitin::GetVarAtLevel;
 
-use Devel::CommonDB::Eval;
+use Devel::Chitin::Eval;
 
 sub evaluate_complex_var_at_level {
     my($expr, $level) = @_;

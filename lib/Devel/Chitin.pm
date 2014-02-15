@@ -1,17 +1,17 @@
 use warnings;
 use strict;
 
-package Devel::CommonDB;
+package Devel::Chitin;
 
 use Scalar::Util;
 use IO::File;
 
-use Devel::CommonDB::Actionable;  # Breakpoints and Actions
-use Devel::CommonDB::Eval;
-use Devel::CommonDB::Stack;
-use Devel::CommonDB::Location;
-use Devel::CommonDB::SubroutineLocation;
-use Devel::CommonDB::Exception;
+use Devel::Chitin::Actionable;  # Breakpoints and Actions
+use Devel::Chitin::Eval;
+use Devel::Chitin::Stack;
+use Devel::Chitin::Location;
+use Devel::Chitin::SubroutineLocation;
+use Devel::Chitin::Exception;
 
 # lexicals shared between the interface package and the DB package
 my(%attached_clients,
@@ -129,7 +129,7 @@ sub eval_at {
 }
 
 sub stack {
-    return Devel::CommonDB::Stack->new();
+    return Devel::Chitin::Stack->new();
 }
 
 sub current_location {
@@ -164,16 +164,16 @@ sub is_breakable {
 
 sub add_break {
     my $self = shift;
-    Devel::CommonDB::Breakpoint->new(@_);
+    Devel::Chitin::Breakpoint->new(@_);
 }
 
 sub get_breaks {
     my $self = shift;
     my %params = @_;
     if (defined $params{file}) {
-        return Devel::CommonDB::Breakpoint->get(@_);
+        return Devel::Chitin::Breakpoint->get(@_);
     } else {
-        return map { Devel::CommonDB::Breakpoint->get(@_, file => $_) }
+        return map { Devel::Chitin::Breakpoint->get(@_, file => $_) }
                 $self->loaded_files;
     }
 }
@@ -185,13 +185,13 @@ sub remove_break {
         shift->delete();
     } else {
         # given breakpoint params
-        Devel::CommonDB::Breakpoint->delete(@_);
+        Devel::Chitin::Breakpoint->delete(@_);
     }
 }
 
 sub add_action {
     my $self = shift;
-    Devel::CommonDB::Action->new(@_);
+    Devel::Chitin::Action->new(@_);
 }
 
 sub remove_action {
@@ -201,7 +201,7 @@ sub remove_action {
         shift->delete();
     } else {
         # given breakpoint params
-        Devel::CommonDB::Action->delete(@_);
+        Devel::Chitin::Action->delete(@_);
     }
 }
 
@@ -209,9 +209,9 @@ sub get_actions {
     my $self = shift;
     my %params = @_;
     if (defined $params{file}) {
-        Devel::CommonDB::Action->get(@_);
+        Devel::Chitin::Action->get(@_);
     } else {
-        return map { Devel::CommonDB::Action->get(@_, file => $_) }
+        return map { Devel::Chitin::Action->get(@_, file => $_) }
                 $self->loaded_files;
     }
 }
@@ -226,7 +226,7 @@ sub subroutine_location {
         no strict 'refs';
         \*$subname;
     };
-    return Devel::CommonDB::SubroutineLocation->new(
+    return Devel::Chitin::SubroutineLocation->new(
             filename    => $filename,
             line        => $line,
             end         => $end,
@@ -358,7 +358,7 @@ sub is_breakpoint {
     local(*dbline)= $main::{'_<' . $filename};
 
     my $should_break = 0;
-    my $breakpoint_key = Devel::CommonDB::Breakpoint->type;
+    my $breakpoint_key = Devel::Chitin::Breakpoint->type;
     if ($dbline{$line} && $dbline{$line}->{$breakpoint_key}) {
         my @delete;
         foreach my $condition ( @{ $dbline{$line}->{$breakpoint_key} }) {
@@ -395,7 +395,7 @@ BEGIN {
         return $pid unless $ready;
 
         my($package, $filename, $line, $subname) = _parent_stack_location();
-        my $location = Devel::CommonDB::Location->new(
+        my $location = Devel::Chitin::Location->new(
             'package'   => $package,
             line        => $line,
             filename    => $filename,
@@ -403,7 +403,7 @@ BEGIN {
         );
 
         my $notify = $pid ? 'notify_fork_parent' : 'notify_fork_child';
-        Devel::CommonDB::_do_each_client($notify, $location, $pid);
+        Devel::Chitin::_do_each_client($notify, $location, $pid);
         return $pid;
     };
 };
@@ -425,7 +425,7 @@ $SIG{__DIE__} = sub {
         # We'll work around it by calling it twice
         my($package, $filename, $line, $subname) = _parent_stack_location();
 
-        $uncaught_exception = Devel::CommonDB::Exception->new(
+        $uncaught_exception = Devel::Chitin::Exception->new(
             'package'   => $package,
             line        => $line,
             filename    => $filename,
@@ -466,7 +466,7 @@ sub DB {
 
     unless ($is_initialized) {
         $is_initialized = 1;
-        Devel::CommonDB::_do_each_client('init');
+        Devel::Chitin::_do_each_client('init');
     }
 
     # set up the context for DB::eval, so it can properly execute
@@ -476,7 +476,7 @@ sub DB {
     local $usercontext =
         'no strict; no warnings; ($@, $!, $^E, $,, $/, $\, $^W) = @DB::saved;' . "package $package;";
 
-    $current_location = Devel::CommonDB::Location->new(
+    $current_location = Devel::Chitin::Location->new(
         'package'   => $package,
         filename    => $filename,
         line        => $line,
@@ -494,7 +494,7 @@ sub DB {
     }
     $step_over_depth = undef;
 
-    Devel::CommonDB::_do_each_client('notify_stopped', $current_location);
+    Devel::Chitin::_do_each_client('notify_stopped', $current_location);
 
     STOPPED_LOOP:
     foreach (1) {
@@ -512,14 +512,14 @@ sub DB {
 
         redo if ($finished || @pending_eval);
     }
-    Devel::CommonDB::_do_each_client('notify_resumed', $current_location);
+    Devel::Chitin::_do_each_client('notify_resumed', $current_location);
     undef $current_location;
     restore();
 }
 
 sub sub {
     no strict 'refs';
-    goto &$sub if (! $ready or index($sub, 'Devel::CommonDB::StackTracker') == 0 or $debugger_disabled);
+    goto &$sub if (! $ready or index($sub, 'Devel::Chitin::StackTracker') == 0 or $debugger_disabled);
 
     local @AUTOLOAD_names = @AUTOLOAD_names;
     if (index($sub, '::AUTOLOAD', -10) >= 0) {
@@ -539,10 +539,10 @@ sub sub {
 
 sub _new_stack_tracker {
     my $token = shift;
-    my $self = bless \$token, 'Devel::CommonDB::StackTracker';
+    my $self = bless \$token, 'Devel::Chitin::StackTracker';
 }
 
-sub Devel::CommonDB::StackTracker::DESTROY {
+sub Devel::Chitin::StackTracker::DESTROY {
     $stack_depth--;
     $single = 1 if (defined($step_over_depth) and $step_over_depth >= $stack_depth);
 }
@@ -551,8 +551,8 @@ sub Devel::CommonDB::StackTracker::DESTROY {
 sub get_var_at_level {
     my($class, $varname, $level) = @_;
 
-    require Devel::CommonDB::GetVarAtLevel;
-    return Devel::CommonDB::GetVarAtLevel::get_var_at_level($varname, $level+1);
+    require Devel::Chitin::GetVarAtLevel;
+    return Devel::Chitin::GetVarAtLevel::get_var_at_level($varname, $level+1);
 }
 
 
@@ -579,21 +579,21 @@ END {
     $in_debugger = 1;
 
     eval {
-        Devel::CommonDB::_do_each_client('notify_uncaught_exception', $uncaught_exception) if $uncaught_exception;
+        Devel::Chitin::_do_each_client('notify_uncaught_exception', $uncaught_exception) if $uncaught_exception;
 
         if ($user_requested_exit) {
-            Devel::CommonDB::_do_each_client('notify_program_exit');
+            Devel::Chitin::_do_each_client('notify_program_exit');
         } else {
-            Devel::CommonDB::_do_each_client('notify_program_terminated', $?);
+            Devel::Chitin::_do_each_client('notify_program_terminated', $?);
             # These two will trigger DB::DB and the event loop
             $in_debugger = 0;
             $single=1;
-            Devel::CommonDB::exiting::at_exit();
+            Devel::Chitin::exiting::at_exit();
         }
     }
 }
 
-package Devel::CommonDB::exiting;
+package Devel::Chitin::exiting;
 sub at_exit {
     1;
 }
@@ -609,12 +609,12 @@ __END__
 
 =head1 NAME
 
-Devel::CommonDB - Programmatic interface to the Perl debugging API
+Devel::Chitin - Programmatic interface to the Perl debugging API
 
 =head1 SYNOPSIS
 
   package CLIENT;
-  use base 'Devel::CommonDB';
+  use base 'Devel::Chitin';
 
   # These inherited methods can be called by the client class
   CLIENT->attach();             # Register with the debugging system
@@ -629,7 +629,7 @@ Devel::CommonDB - Programmatic interface to the Perl debugging API
   CLIENT->loaded_files();       # Return a list of loaded file names
   CLIENT->postpone($file, $subref);     # Run $subref->() when $file is loaded
   CLIENT->is_breakable($file, $line);   # Return true if the line is executable
-  CLIENT->stack();              # Return Devel::CommonDB::Stack
+  CLIENT->stack();              # Return Devel::Chitin::Stack
   CLIENT->current_location();   # Where is the program stopped at?
 
   CLIENT->add_break(%params);   # Create a breakpoint
@@ -659,12 +659,12 @@ This class exposes the Perl debugging facilities as an API useful for
 implementing debuggers, tracers, profilers, etc so they can all benefit from
 common code.
 
-CommonDB is not a usable debugger per se.  It has no mechanism for interacting
+Devel::Chitin is not a usable debugger per se.  It has no mechanism for interacting
 with a user such as reading command input or printing retults.  Instead,
 clients of this API may call methods to inspect the debugged program state.
 The debugger core calls methods on clients when certain events occur, such
 as when the program is stopped by breakpoint or when the program exits.
-Multiple clients can attach themselves to CommonDB simultaneously within
+Multiple clients can attach themselves to Devel::Chitin simultaneously within
 the same debugged program.
 
 =head1 CONSTRUCTOR
@@ -785,7 +785,7 @@ whitespace or block delimiters are typically not breakable.
 
 =item CLIENT->subroutine_location($subroutine)
 
-Return a L<Devel::CommonDB::SubroutineLocation> instance for where the
+Return a L<Devel::Chitin::SubroutineLocation> instance for where the
 named subroutine was defined.  C<$subroutine> should be fully qualified
 including the package name.
 
@@ -793,12 +793,12 @@ If the named function does not exist, it returns undef.
 
 =item CLIENT->stack()
 
-Return an instance of L<Devel::CommonDB::Stack>.  This object represents the
+Return an instance of L<Devel::Chitin::Stack>.  This object represents the
 execution/call stack of the debugged program.
 
 =item CLIENT->current_location()
 
-Return an instance of L<Devel::CommonDB::Location> representing the currently
+Return an instance of L<Devel::Chitin::Location> representing the currently
 stopped location in the debugged program.  This method returns undef if
 called when the debugged program is actively running.
 
@@ -815,7 +815,7 @@ Return a list of strings containing the source code for a loaded file.
 =item CLIENT->add_break(%params)
 
 Create a breakpoint.  The %params are passed along to the
-L<Devel::CommonDB::Breakpoint> constructor.  Returns the Breakpoint instance.
+L<Devel::Chitin::Breakpoint> constructor.  Returns the Breakpoint instance.
 
 Lines may contain more than one breakpoint.  The debugger will stop before
 the next statement on a line if that line contains a breakpoint, and one of
@@ -824,18 +824,18 @@ generally have the condition "1" so they are always true.
 
 =item  CLIENT->get_breaks([%params]);
 
-Return a list of L<Devel::CommonDB::Breakpoint> instances.  This is a wrapper
-around the C<get> method of Devel::CommonDB::Breakpoint
+Return a list of L<Devel::Chitin::Breakpoint> instances.  This is a wrapper
+around the C<get> method of Devel::Chitin::Breakpoint
 
 =item CLIENT->remove_break(...)
 
 Remove a breakpoint.  This is a wrapper around the C<delete> method of
-L<Devel::CommonDB::Breakpoint>.
+L<Devel::Chitin::Breakpoint>.
 
 =item CLIENT->add_action(%params)
 
 Create a line-action.  The %params are passed along to the
-L<Devel::CommonDB::Action> constructor.  Returns the Action instance.
+L<Devel::Chitin::Action> constructor.  Returns the Action instance.
 
 Lines may contain more than one action.  Before the next statement on a line,
 all the actions are executed and the values are ignored, though they may have
@@ -843,13 +843,13 @@ other side-effects.
 
 =item CLIENT->get_actions([%params])
 
-Return a list of L<Devel::CommonDB::Action> instances.  This is a wrapper
-around the C<get> method of Devel::CommonDB::Action
+Return a list of L<Devel::Chitin::Action> instances.  This is a wrapper
+around the C<get> method of Devel::Chitin::Action
 
 =item CLIENT->remove_action(...)
 
 Remove an action.  This is a wrapper around the C<delete> method of
-L<Devel::CommonDB::Action>.
+L<Devel::Chitin::Action>.
 
 =back
 
@@ -886,7 +886,7 @@ true.
 
 If a client has turned on the trace flag, this method will be called before
 each executable statement.  The return value is ignored.  $location is an
-instance of L<Devel::CommonDB::Location> indicating the next statement to be
+instance of L<Devel::Chitin::Location> indicating the next statement to be
 executed in the debugged program.
 
 notify_trace() will be called only on clients that have requested tracing by
@@ -938,14 +938,14 @@ debugger's END block as the interpreter is cleaning up.
 The debugger system installs a __DIE__ handler to trap exceptions that are
 not otherwise handled by the debugged program.  When an uncaught exception
 occurs, this method is called.  $exception is an instance of
-L<Devel::CommonDB::Exception>.
+L<Devel::Chitin::Exception>.
 
 =back
 
 =head1 SEE ALSO
 
-L<Devel::CommonDB::Location>, L<Devel::CommonDB::Exception>,
-L<Devel::CommonDB::Stack>, L<Devel::CommonDB::Actionable>
+L<Devel::Chitin::Location>, L<Devel::Chitin::Exception>,
+L<Devel::Chitin::Stack>, L<Devel::Chitin::Actionable>
 
 =head1 AUTHOR
 

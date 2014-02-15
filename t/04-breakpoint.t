@@ -4,7 +4,7 @@ use warnings; no warnings 'void';
 
 use lib 'lib';
 use lib 't/lib';
-use Devel::CommonDB::TestRunner;
+use Devel::Chitin::TestRunner;
 
 run_test(
     10,
@@ -36,27 +36,27 @@ sub check_is_breakable {
 sub set_breakpoints {
     my($db, $loc) = @_;
 
-    Test::More::ok(Devel::CommonDB::Breakpoint->new(
+    Test::More::ok(Devel::Chitin::Breakpoint->new(
             file => $loc->filename,
             line => 13,
         ), 'Set unconditional breakpoint on line 13');
-    Test::More::ok(Devel::CommonDB::Breakpoint->new(
+    Test::More::ok(Devel::Chitin::Breakpoint->new(
             file => $loc->filename,
             line => 14,
             code => 0,
         ), 'Set breakpoint that will never fire on line 14');
-    Test::More::ok(Devel::CommonDB::Breakpoint->new(
+    Test::More::ok(Devel::Chitin::Breakpoint->new(
             file => $loc->filename,
             line => 15,
             code => 1,
             inactive => 1,
         ), 'Set unconditional, inactive breakpoint on line 15');
-    Test::More::ok(Devel::CommonDB::Breakpoint->new(
+    Test::More::ok(Devel::Chitin::Breakpoint->new(
             file => $loc->filename,
             line => 16,
             code => 0,
         ), 'Set breakpoint that will never fire on line 16');
-    Test::More::ok(Devel::CommonDB::Breakpoint->new(
+    Test::More::ok(Devel::Chitin::Breakpoint->new(
             file => $loc->filename,
             line => 16,
         ), 'Set second unconditional breakpoint line 16');

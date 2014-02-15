@@ -3,22 +3,22 @@ use strict;
 use warnings; no warnings 'void';
 use lib 'lib';
 use lib 't/lib';
-use Devel::CommonDB::TestRunner;
+use Devel::Chitin::TestRunner;
 run_in_debugger();
 
-Devel::CommonDB::TestDB->attach();
+Devel::Chitin::TestDB->attach();
 
 $DB::single=1;
 12;
 13;
 14;
 
-package Devel::CommonDB::TestDB;
-use base 'Devel::CommonDB';
+package Devel::Chitin::TestDB;
+use base 'Devel::Chitin';
 
 use Test::Builder;
 BEGIN {
-    if (Devel::CommonDB::TestRunner::is_in_test_program()) {
+    if (Devel::Chitin::TestRunner::is_in_test_program()) {
         our $tb = Test::Builder->new();
         $tb->plan(tests => 3);
         # We're testing that the Debugger's END block is run correctly

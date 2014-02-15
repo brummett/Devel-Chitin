@@ -5,7 +5,7 @@ use warnings; no warnings 'void';
 use lib 'lib';
 use lib 't/lib';
 use File::Basename;
-use Devel::CommonDB::TestRunner;
+use Devel::Chitin::TestRunner;
 
 run_test(
     11,

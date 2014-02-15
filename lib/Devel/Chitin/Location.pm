@@ -1,4 +1,4 @@
-package Devel::CommonDB::Location;
+package Devel::Chitin::Location;
 
 use strict;
 use warnings;
@@ -27,9 +27,9 @@ sub _required_properties {
 
 sub at_end {
     my $self = shift;
-    return (($self->package eq 'Devel::CommonDB::exiting')
+    return (($self->package eq 'Devel::Chitin::exiting')
             &&
-            ($self->subroutine eq 'Devel::CommonDB::exiting::at_exit'));
+            ($self->subroutine eq 'Devel::Chitin::exiting::at_exit'));
 }
 
 sub current {
@@ -79,11 +79,11 @@ __END__
 
 =head1 NAME
 
-Devel::CommonDB::Location - A class to represent an executable location
+Devel::Chitin::Location - A class to represent an executable location
 
 =head1 SYNOPSIS
 
-  my $loc = Devel::CommonDB::Location->new(
+  my $loc = Devel::Chitin::Location->new(
                 package     => 'main',
                 subroutine  => 'main::foo',
                 filename    => '/usr/local/bin/program.pl',
@@ -99,7 +99,7 @@ This class is used to represent a location in the debugged program.
 
 =head1 METHODS
 
-  Devel::CommonDB::Location->new(%params)
+  Devel::Chitin::Location->new(%params)
 
 Construct a new instnce.  The following parameters are accepted.  The values
 should be self-explanatory.  All parameters are required.
@@ -129,7 +129,7 @@ after the program has ended.
 
 =head1 SEE ALSO
 
-L<Devel::CommonDB::Exception>, L<Devel::CommonDB>
+L<Devel::Chitin::Exception>, L<Devel::Chitin>
 
 =head1 AUTHOR
 

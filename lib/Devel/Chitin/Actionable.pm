@@ -1,4 +1,4 @@
-package Devel::CommonDB::Actionable;
+package Devel::Chitin::Actionable;
 
 use strict;
 use warnings;
@@ -143,9 +143,9 @@ sub inactive {
     return $self->{inactive};
 }
 
-package Devel::CommonDB::Breakpoint;
+package Devel::Chitin::Breakpoint;
 
-use base 'Devel::CommonDB::Actionable';
+use base 'Devel::Chitin::Actionable';
 
 sub new {
     my($class, %params) = @_;
@@ -155,9 +155,9 @@ sub new {
 
 sub type() { 'condition' };
 
-package Devel::CommonDB::Action;
+package Devel::Chitin::Action;
 
-use base 'Devel::CommonDB::Actionable';
+use base 'Devel::Chitin::Actionable';
 
 sub type() { 'action' };
 

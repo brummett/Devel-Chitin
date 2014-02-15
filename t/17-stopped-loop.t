@@ -3,50 +3,50 @@ use strict;
 use warnings; no warnings 'void';
 use lib 'lib';
 use lib 't/lib';
-use Devel::CommonDB::TestRunner;
+use Devel::Chitin::TestRunner;
 run_in_debugger();
 
 setup_breakpoints_and_actions();
-Devel::CommonDB::TestDB1->attach();
-Devel::CommonDB::TestDB2->attach();
+Devel::Chitin::TestDB1->attach();
+Devel::Chitin::TestDB2->attach();
 
 13;
 
 BEGIN {
     @main::expected = qw(
-        Devel::CommonDB::TestDB1::init
-        Devel::CommonDB::TestDB2::init
+        Devel::Chitin::TestDB1::init
+        Devel::Chitin::TestDB2::init
         action
         breakpoint
-        Devel::CommonDB::TestDB1::notify_stopped
-        Devel::CommonDB::TestDB2::notify_stopped
-        Devel::CommonDB::TestDB1::poll
-        Devel::CommonDB::TestDB2::poll
-        Devel::CommonDB::TestDB1::idle
-        Devel::CommonDB::TestDB2::idle
-        Devel::CommonDB::TestDB1::notify_resumed
-        Devel::CommonDB::TestDB2::notify_resumed
+        Devel::Chitin::TestDB1::notify_stopped
+        Devel::Chitin::TestDB2::notify_stopped
+        Devel::Chitin::TestDB1::poll
+        Devel::Chitin::TestDB2::poll
+        Devel::Chitin::TestDB1::idle
+        Devel::Chitin::TestDB2::idle
+        Devel::Chitin::TestDB1::notify_resumed
+        Devel::Chitin::TestDB2::notify_resumed
     );
-    if (Devel::CommonDB::TestRunner::is_in_test_program) {
+    if (Devel::Chitin::TestRunner::is_in_test_program) {
         eval 'use Test::More tests => scalar(@main::expected)';
     }
 }
 
 sub setup_breakpoints_and_actions {
-    Devel::CommonDB::Action->new(
+    Devel::Chitin::Action->new(
         file => __FILE__,
         line => 13,
         code => q( Test::More::is(shift(@main::expected), 'action', 'action fired') ));
-    Devel::CommonDB::Breakpoint->new(
+    Devel::Chitin::Breakpoint->new(
         file => __FILE__,
         line => 13,
         code => q( Test::More::is(shift(@main::expected), 'breakpoint', 'Breakpoint fired'); 1) );
-    Devel::CommonDB->user_requested_exit();
+    Devel::Chitin->user_requested_exit();
 }
         
 
-package Devel::CommonDB::CommonParent;
-use base 'Devel::CommonDB';
+package Devel::Chitin::CommonParent;
+use base 'Devel::Chitin';
 
 BEGIN {
     foreach my $subname ( qw( init notify_stopped poll idle notify_resumed ) ) {
@@ -70,9 +70,9 @@ BEGIN {
     }
 }
                 
-package Devel::CommonDB::TestDB1;
-use base 'Devel::CommonDB::CommonParent';
+package Devel::Chitin::TestDB1;
+use base 'Devel::Chitin::CommonParent';
 
-package Devel::CommonDB::TestDB2;
-use base 'Devel::CommonDB::CommonParent';
+package Devel::Chitin::TestDB2;
+use base 'Devel::Chitin::CommonParent';
 

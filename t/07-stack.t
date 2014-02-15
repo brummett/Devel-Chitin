@@ -4,7 +4,7 @@ use warnings; no warnings 'void';
 
 use lib 'lib';
 use lib 't/lib';
-use Devel::CommonDB::TestRunner;
+use Devel::Chitin::TestRunner;
 
 run_test(
     57,
@@ -138,10 +138,10 @@ sub check_stack {
             subname     => '__ANON__',
             args        => [],
         },
-        {   package =>  'Devel::CommonDB::TestRunner',
-            filename    => qr(t/lib/Devel/CommonDB/TestRunner\.pm$),
+        {   package =>  'Devel::Chitin::TestRunner',
+            filename    => qr(t/lib/Devel/Chitin/TestRunner\.pm$),
             line        => '__DONT_CARE__',
-            subroutine  => 'Devel::CommonDB::TestRunner::run_test',
+            subroutine  => 'Devel::Chitin::TestRunner::run_test',
             hasargs     => 1,
             wantarray   => undef,
             evaltext    => undef,

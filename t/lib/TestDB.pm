@@ -3,7 +3,7 @@ use strict;
 use warnings;
 
 use Carp;
-use base 'Devel::CommonDB';
+use base 'Devel::Chitin';
 
 my $still_running_tests = 1;
 sub poll {

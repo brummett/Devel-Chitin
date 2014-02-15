@@ -1,8 +1,8 @@
-package Devel::CommonDB::TestRunner;
+package Devel::Chitin::TestRunner;
 
-use Devel::CommonDB;
-use Devel::CommonDB::Location;
-use base 'Devel::CommonDB';
+use Devel::Chitin;
+use Devel::Chitin::Location;
+use base 'Devel::Chitin';
 use Carp;
 
 use Exporter qw(import);
@@ -43,7 +43,7 @@ sub loc {
     defined($params{subroutine}) || do { $params{subroutine} = 'ANON' };
     defined($params{filename}) || do { $params{filename} = (caller)[1] };
     defined($params{package}) || do { $params{package} = 'main' };
-    return Devel::CommonDB::Location->new(%params);
+    return Devel::Chitin::Location->new(%params);
 }
 
 sub notify_stopped {
@@ -56,7 +56,7 @@ sub notify_stopped {
         if (ref($next_test) eq 'CODE') {
             $next_test->($db, $loc);
 
-        } elsif ($next_test->isa('Devel::CommonDB::Location')) {
+        } elsif ($next_test->isa('Devel::Chitin::Location')) {
             _compare_locations($db, $loc, $next_test);
 
         } elsif (! ref($next_test)) {
@@ -184,7 +184,7 @@ sub _start_test_in_debugger {
         exit;
 
     } elsif (defined $pid) {
-        exec($^X, '-Ilib', '-It/lib', '-d:CommonDB::TestRunner', $0, '--test');
+        exec($^X, '-Ilib', '-It/lib', '-d:Chitin::TestRunner', $0, '--test');
         Carp::croak("Exec test program failed: $!");
 
     } else {

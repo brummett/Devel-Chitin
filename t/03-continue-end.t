@@ -15,7 +15,7 @@ sub run_in_debugger {
     if ($ARGV[0] and $ARGV[0] eq '--test') {
         attach_debugger_and_run();
     } else {
-        my $rv = system($^X, '-Ilib', '-It/lib', '-d:CommonDB::NullDB', __FILE__, '--test');
+        my $rv = system($^X, '-Ilib', '-It/lib', '-d:Chitin::NullDB', __FILE__, '--test');
         if ($? == -1) {
             die "Couldn't start test in debugger mode: $!";
         }
@@ -25,7 +25,7 @@ sub run_in_debugger {
 
 my $tb;
 sub attach_debugger_and_run {
-    Devel::CommonDB::TestDB->attach();
+    Devel::Chitin::TestDB->attach();
     require Test::Builder;
     $tb = Test::Builder->new();
     $tb->plan(tests => 6);
@@ -37,8 +37,8 @@ sub attach_debugger_and_run {
 }
 
 
-package Devel::CommonDB::TestDB;
-BEGIN { our @ISA = qw( Devel::CommonDB ) }
+package Devel::Chitin::TestDB;
+BEGIN { our @ISA = qw( Devel::Chitin ) }
 
 my @tests; BEGIN { @tests = (
     \&test_1,
@@ -79,7 +79,7 @@ sub test_2 {
 sub test_3 {
     my($self, $loc) = @_;
 
-    $tb->ok(($loc->subroutine eq 'Devel::CommonDB::exiting::at_exit'),
+    $tb->ok(($loc->subroutine eq 'Devel::Chitin::exiting::at_exit'),
             'in the "at_exit" subroutine');
     $tb->ok($loc->at_end, 'At the end of the program');
 

@@ -4,7 +4,7 @@ use warnings; no warnings 'void';
 
 use lib 'lib';
 use lib 't/lib';
-use Devel::CommonDB::TestRunner;
+use Devel::Chitin::TestRunner;
 
 run_test(
     4,
@@ -22,12 +22,12 @@ run_test(
     
 sub create_action {
     my($db, $loc) = @_;
-    Test::More::ok(Devel::CommonDB::Action->new(
+    Test::More::ok(Devel::Chitin::Action->new(
             file => $loc->filename,
             line => 13,
             code => 'Test::More::ok(1, "action fired"); $a++',
         ), 'Set action on line 13');
-    Test::More::ok(Devel::CommonDB::Breakpoint->new(
+    Test::More::ok(Devel::Chitin::Breakpoint->new(
             file => $loc->filename,
             line => 13,
             code => 'Test::More::ok(1, "Inactive action not fired"); $a++',

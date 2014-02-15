@@ -1,4 +1,4 @@
-package Devel::CommonDB::Eval;
+package Devel::Chitin::Eval;
 
 use strict;
 use warnings;

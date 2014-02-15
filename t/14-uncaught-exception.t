@@ -4,10 +4,10 @@ use warnings; no warnings 'void';
 use lib 'lib';
 use lib 't/lib';
 use IO::Pipe;
-use Devel::CommonDB::TestRunner;
+use Devel::Chitin::TestRunner;
 run_in_debugger();
 
-Devel::CommonDB::TestDB->attach();
+Devel::Chitin::TestDB->attach();
 
 eval { die "trapped" };
 do_die();
@@ -16,8 +16,8 @@ sub do_die {
 }
 exit;
 
-package Devel::CommonDB::TestDB;
-use base 'Devel::CommonDB';
+package Devel::Chitin::TestDB;
+use base 'Devel::Chitin';
 
 sub notify_uncaught_exception {
     my($db, $exception) = @_;
@@ -33,7 +33,7 @@ sub notify_uncaught_exception {
         subroutine => 'main::do_die'
     );
 
-    $tb->is_eq(ref($exception), 'Devel::CommonDB::Exception', 'exception is-a Devel::CommonDB::Exception');
+    $tb->is_eq(ref($exception), 'Devel::Chitin::Exception', 'exception is-a Devel::Chitin::Exception');
     foreach my $k ( keys %expected_location ) {
         $tb->is_eq($exception->$k, $expected_location{$k}, "exception location $k");
     }
