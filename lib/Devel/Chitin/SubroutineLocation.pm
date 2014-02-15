@@ -22,6 +22,24 @@ sub new {
     return bless \%props, $class;
 }
 
+sub new_from_db_sub {
+    my($class, $subname) = @_;
+
+    return () unless $DB::sub{$subname};
+    my($filename, $line, $end) = $DB::sub{$subname} =~ m/(.*):(\d+)-(\d+)$/;
+    my $glob = do {
+        no strict 'refs';
+        \*$subname;
+    };
+    return Devel::Chitin::SubroutineLocation->new(
+            filename    => $filename,
+            line        => $line,
+            end         => $end,
+            subroutine  => *$glob{NAME},
+            package     => *$glob{PACKAGE},
+            code        => *$glob{CODE} );
+}
+
 1;
 
 __END__

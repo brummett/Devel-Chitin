@@ -219,20 +219,7 @@ sub get_actions {
 sub subroutine_location {
     my $class = shift;
     my $subname = shift;
-
-    return () unless $DB::sub{$subname};
-    my($filename, $line, $end) = $DB::sub{$subname} =~ m/(.*):(\d+)-(\d+)$/;
-    my $glob = do {
-        no strict 'refs';
-        \*$subname;
-    };
-    return Devel::Chitin::SubroutineLocation->new(
-            filename    => $filename,
-            line        => $line,
-            end         => $end,
-            subroutine  => *$glob{NAME},
-            package     => *$glob{PACKAGE},
-            code        => *$glob{CODE} );
+    return Devel::Chitin::SubroutineLocation->new_from_db_sub($subname);
 }
 
 # NOTE: This postpones until a named file is loaded.
