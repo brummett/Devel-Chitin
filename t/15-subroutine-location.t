@@ -7,7 +7,7 @@ use lib 't/lib';
 use Devel::Chitin::TestRunner;
 
 run_test(
-    19,
+    25,
     sub {
         sub foo {
             13;
@@ -19,6 +19,11 @@ run_test(
         sub baz {
             20;
         }
+        eval qq(
+            sub sub_in_eval {
+                24;
+            }
+        );
         $DB::single=1;
     },
     \&check_subroutine_location,
@@ -32,7 +37,11 @@ sub check_subroutine_location {
         my($got, $expected, $msg) = @_;
         my $ok = 1;
         foreach my $k ( qw( package filename subroutine line end code ) ) {
-            Test::More::is($got->$k, $expected->{$k}, "$msg $k");
+            if (ref($expected->{$k}) and ref($expected->{$k}) eq 'Regexp') {
+                Test::More::like($got->$k, $expected->{$k}, "$msg $k");
+            } else {
+                Test::More::is($got->$k, $expected->{$k}, "$msg $k");
+            }
         }
     };
 
@@ -45,7 +54,9 @@ sub check_subroutine_location {
             package => 'main',
             subroutine => 'foo',
             filename => __FILE__,
+            source => __FILE__,
             line => 12,
+            source_line => 12,
             end => 14,
             code => \&main::foo,
         },
@@ -57,7 +68,9 @@ sub check_subroutine_location {
             package => 'Bar',
             subroutine => 'bar',
             filename => __FILE__,
+            source => __FILE__,
             line => 15,
+            source_line => 15,
             end => 17,
             code => \&Bar::bar,
         },
@@ -69,13 +82,27 @@ sub check_subroutine_location {
             package => 'Bar',
             subroutine => 'baz',
             filename => __FILE__,
+            source => __FILE__,
             line => 19,
+            source_line => 19,
             end => 21,
             code => \&Bar::baz,
         },
         'Bar::baz location');
 
-
-            
+    my $this_file = __FILE__;
+    $check_expected->(
+        $db->subroutine_location('Bar::sub_in_eval'),
+        {
+            package => 'Bar',
+            subroutine => 'sub_in_eval',
+            filename => qr{^\(eval \d+\)\[$this_file:22\]$},
+            source => __FILE__,
+            line => 2,
+            source_line => 22,
+            end => 4,
+            code => \&Bar::sub_in_eval,
+        },
+        'Bar::sub_in_eval location');
 }
 

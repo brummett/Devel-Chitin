@@ -5,7 +5,7 @@ use warnings;
 
 use Carp;
 
-my @properties = qw(package subroutine line filename end code);
+my @properties = qw(package subroutine line filename end code source source_line);
 foreach my $prop ( @properties ) {
     my $sub = sub { shift->{$prop} };
     no strict 'refs';
@@ -16,7 +16,7 @@ sub new {
     my($class, %props) = @_;
 
     foreach my $prop ( @properties ) {
-        Carp::croak("$prop is a required property") unless (defined $props{$prop});
+        Carp::croak("$prop is a required property") unless (exists $props{$prop});
     }
 
     return bless \%props, $class;
@@ -27,6 +27,7 @@ sub new_from_db_sub {
 
     return () unless $DB::sub{$subname};
     my($filename, $line, $end) = $DB::sub{$subname} =~ m/(.*):(\d+)-(\d+)$/;
+    my($source, $source_line) = $filename =~ m/\[(.*):(\d+)\]$/;
     my $glob = do {
         no strict 'refs';
         \*$subname;
@@ -35,6 +36,8 @@ sub new_from_db_sub {
             filename    => $filename,
             line        => $line,
             end         => $end,
+            source      => $source || $filename,
+            source_line => $source_line || $line,
             subroutine  => *$glob{NAME},
             package     => *$glob{PACKAGE},
             code        => *$glob{CODE} );
