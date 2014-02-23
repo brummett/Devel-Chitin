@@ -751,6 +751,14 @@ treated as 0.  eval_at returns a list of two items, the result and exception.
 
 This method requires the PadWalker module.
 
+=item CLIENT->get_var_at_level($string, $level);
+
+Return the value of the given variable expression.  $level is the stack level
+in the context of the debugged program; 0 is the most recent level.  $string
+is the name of the variable to inspect, including the sigil.  This method
+handles some more complicated expressions such array and hash elements and
+slices.
+
 =back
 
 =head2 Informational methods
