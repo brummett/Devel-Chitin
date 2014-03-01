@@ -30,10 +30,11 @@ run_test(
         };
         $test_vars->('arg1','arg2');
     },
-    \&do_test_vars,
+    \&Devel::Chitin::GetVarAtLevelTest::do_test_vars,
     'done',
 );
 
+package Devel::Chitin::GetVarAtLevelTest;
 sub do_test_vars {
     my $db = shift;
 

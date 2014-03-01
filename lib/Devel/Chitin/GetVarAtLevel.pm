@@ -1,7 +1,5 @@
 package Devel::Chitin::GetVarAtLevel;
 
-use Devel::Chitin::Eval;
-
 sub evaluate_complex_var_at_level {
     my($expr, $level) = @_;
 
@@ -80,7 +78,7 @@ sub get_var_at_level {
 
     require PadWalker;
 
-    my $first_program_frame = Devel::Chitin::Eval::_first_program_frame();
+    my($first_program_frame_pw, $first_program_frame) = _first_program_frame();
 
     if ($varname !~ m/^[\$\@\%\*]/) {
         # not a variable at all, just return it
@@ -94,9 +92,9 @@ sub get_var_at_level {
 
         # Count how many eval frames are between here and there.
         # caller() counts them, but PadWalker does not
-        for (my $i = 0; $i <= ($level + $first_program_frame); $i++) {
+        {
             package DB;
-            (caller($i))[3] eq '(eval)' and $level++;
+            (caller($level + $first_program_frame))[3];
         }
         my @args = @DB::args;
         return \@args;
@@ -107,11 +105,11 @@ sub get_var_at_level {
         return evaluate_complex_var_at_level($varname, $level);
     }
 
-    my $h = PadWalker::peek_my( ($level + $first_program_frame) || 1);
+    my $h = eval { PadWalker::peek_my( ($level + $first_program_frame_pw) || 1); };
 
     unless (exists $h->{$varname}) {
         # not a lexical, try our()
-        $h = PadWalker::peek_our( ($level + $first_program_frame) || 1);
+        $h = PadWalker::peek_our( ($level + $first_program_frame_pw) || 1);
     }
 
     if (exists $h->{$varname}) {
@@ -128,7 +126,7 @@ sub get_var_at_level {
         if (my($sigil, $bare_varname) = ($varname =~ m/^([\$\@\%\*])(\w+)$/)) {
             # a varname without a pacakge, try in the package at
             # that caller level
-            my($package) = caller($level+1);
+            my($package) = caller($level + $first_program_frame);
             $package ||= 'main';
 
             my $expanded_varname = $sigil . $package . '::' . $bare_varname;
@@ -141,6 +139,23 @@ sub get_var_at_level {
         }
     }
 
+}
+
+# How many frames between here and the program, both for PadWalker (which
+# doesn't count eval frames) and caller (which does)
+sub _first_program_frame {
+    my $evals = 0;
+    for(my $level = 1;
+        my ($package, $filename, $line, $subroutine) = caller($level);
+        $level++
+    ) {
+        if ($subroutine eq 'DB::DB') {
+            return ($level - $evals, $level - 1);  # -1 to skip this frame
+        } elsif ($subroutine eq '(eval)') {
+            $evals++;
+        }
+    }
+    return;
 }
 
 1;
