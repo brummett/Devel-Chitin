@@ -159,3 +159,64 @@ sub _first_program_frame {
 }
 
 1;
+
+__END__
+
+=pod
+
+=head1 NAME
+
+Devel::Chitin::GetVarAtLevel - Evaluate an expression in the debugged program's context
+
+=head1
+
+This module is the implementation behind the method Devel::Chitin::get_var_at_level().
+It attempts to return the value of the given variable expression in the context
+of the debugged program, at some arbirtary stack frame.
+
+It handles simple expressions like variables (which must include the sigil)
+
+=over 2
+
+=item * $my_variable
+
+=item * @our_variable
+
+=item * %bare_variable
+
+=item * $Some::Package::Variable
+
+=back
+
+It also attempts to handle more complicated expressions such as elements and
+slices of arrays and hashes.
+
+=over 2
+
+=item * $hash{'key'}
+
+=item * @hash{'key1','key2', $var_with_key}
+
+=item * @array[ $first .. $second ]
+
+=back
+
+Parsing of these more complicated expressions is handled by regexes instead of
+a proper grammar, and will probably blow up if you try anything really fancy.
+
+When evaluating a variable, it first tries finding it as a C<my> variable,
+then as an C<our> variable, and finally as a variable in the package the
+requested call frame is in.
+
+=head1 SEE ALSO
+
+L<Devel::Chitin>
+
+=head1 AUTHOR
+
+Anthony Brummett <brummett@cpan.org>
+
+=head1 COPYRIGHT
+
+Copyright 2014, Anthony Brummett.  This module is free software. It may
+be used, redistributed and/or modified under the same terms as Perl itself.

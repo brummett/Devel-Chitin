@@ -620,13 +620,6 @@ Devel::Chitin - Programmatic interface to the Perl debugging API
   CLIENT->stack();              # Return Devel::Chitin::Stack
   CLIENT->current_location();   # Where is the program stopped at?
 
-  CLIENT->add_break(%params);   # Create a breakpoint
-  CLIENT->get_breaks([%params]);# Get breakpoint info
-  CLIENT->remove_break(...);    # Remove a breakpoint
-  CLIENT->add_action(%params);  # Create a line-action
-  CLIENT->get_actions([%params]);  # Get line-action info
-  CLIENT->remove_action(...);   # Remove a line-action
-
   # These methods are called by the debugging system at the appropriate time.
   # Base-class methods do nothing.  These methods must not block.
   CLIENT->init();                       # Called when the debugging system is ready
@@ -751,6 +744,8 @@ treated as 0.  eval_at returns a list of two items, the result and exception.
 
 This method requires the PadWalker module.
 
+This method is not yet implemented.
+
 =item CLIENT->get_var_at_level($string, $level);
 
 Return the value of the given variable expression.  $level is the stack level
@@ -758,6 +753,8 @@ in the context of the debugged program; 0 is the most recent level.  $string
 is the name of the variable to inspect, including the sigil.  This method
 handles some more complicated expressions such array and hash elements and
 slices.
+
+This method is temporary, until eval_at() is implemented.
 
 =back
 
@@ -806,48 +803,8 @@ Return a list of strings containing the source code for a loaded file.
 
 =head2 Breakpoints and Actions
 
-=over 4
-
-=item CLIENT->add_break(%params)
-
-Create a breakpoint.  The %params are passed along to the
-L<Devel::Chitin::Breakpoint> constructor.  Returns the Breakpoint instance.
-
-Lines may contain more than one breakpoint.  The debugger will stop before
-the next statement on a line if that line contains a breakpoint, and one of
-the breakpoint conditions evaluates to true.  Unconditional breakpoints
-generally have the condition "1" so they are always true.
-
-=item  CLIENT->get_breaks([%params]);
-
-Return a list of L<Devel::Chitin::Breakpoint> instances.  This is a wrapper
-around the C<get> method of Devel::Chitin::Breakpoint
-
-=item CLIENT->remove_break(...)
-
-Remove a breakpoint.  This is a wrapper around the C<delete> method of
-L<Devel::Chitin::Breakpoint>.
-
-=item CLIENT->add_action(%params)
-
-Create a line-action.  The %params are passed along to the
-L<Devel::Chitin::Action> constructor.  Returns the Action instance.
-
-Lines may contain more than one action.  Before the next statement on a line,
-all the actions are executed and the values are ignored, though they may have
-other side-effects.
-
-=item CLIENT->get_actions([%params])
-
-Return a list of L<Devel::Chitin::Action> instances.  This is a wrapper
-around the C<get> method of Devel::Chitin::Action
-
-=item CLIENT->remove_action(...)
-
-Remove an action.  This is a wrapper around the C<delete> method of
-L<Devel::Chitin::Action>.
-
-=back
+See L<Devel::Chitin::Actionable> for documentation on setting breakpoints
+and actions.
 
 =head2 CLIENT METHODS
 
@@ -941,7 +898,8 @@ L<Devel::Chitin::Exception>.
 =head1 SEE ALSO
 
 L<Devel::Chitin::Location>, L<Devel::Chitin::Exception>,
-L<Devel::Chitin::Stack>, L<Devel::Chitin::Actionable>
+L<Devel::Chitin::Stack>, L<Devel::Chitin::Actionable>,
+L<Devel::Chitin::GetVarAtLevel>
 
 =head1 AUTHOR
 

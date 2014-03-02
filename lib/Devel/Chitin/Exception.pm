@@ -43,11 +43,11 @@ Devel::Chitin::Exception - A class to represent an exception
 =head1 DESCRIPTION
 
 This class is used to represent a exception with location in the debugged
-program.
+program.  It is a subclass of Devel::Chitin::Location.
 
 =head1 METHODS
 
-  Devel::Chitin::Location->new(%params)
+  Devel::Chitin::Exception->new(%params)
 
 Construct a new instnce.  The following parameters are accepted.  The values
 should be self-explanatory.  All parameters are required.

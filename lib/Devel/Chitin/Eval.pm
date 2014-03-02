@@ -79,3 +79,38 @@ sub _eval_in_program_context {
 }
 
 1;
+
+__END__
+
+=pod
+
+=head1 NAME
+
+Devel::Chitin::Eval - Implementation for Devel::Chitin::eval()
+
+=head1 DESCRIPTION
+
+This module is responsible for evaluating a string in the context of the
+debugged program.  One idiosyncracy in the process is that this eval is
+done in the context of the closest stack frame not in package DB.  That's
+why Devel::Chitin::eval() works as it does, requiring a debugger subclass
+to cede control back and delivering the result via a callback.
+
+If you can arrange for your debugger code to be in package DB, and for all
+the stack frames up to the debugged program to be in package DB, then you
+can call DB::_eval_in_program_context directly without the callback, and
+get the result back directly.
+
+=head1 SEE ALSO
+
+L<Devel::Chitin>
+
+=head1 AUTHOR
+
+Anthony Brummett <brummett@cpan.org>
+
+=head1 COPYRIGHT
+
+Copyright 2014, Anthony Brummett.  This module is free software. It may
+be used, redistributed and/or modified under the same terms as Perl itself.
+
