@@ -3,6 +3,8 @@ use strict;
 
 package Devel::Chitin;
 
+our $VERSION = '0.01';
+
 use Scalar::Util;
 use IO::File;
 
@@ -916,6 +918,6 @@ Anthony Brummett <brummett@cpan.org>
 
 =head1 COPYRIGHT
 
-Copyright 2013, Anthony Brummett.  This module is free software. It may
+Copyright 2014, Anthony Brummett.  This module is free software. It may
 be used, redistributed and/or modified under the same terms as Perl itself.
 
