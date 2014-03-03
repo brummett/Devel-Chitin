@@ -56,6 +56,11 @@ sub get {
                         @candidates;
     }
 
+    if ($params{inactive}) {
+        @candidates = grep { $_->{inactive} eq $params{inactive} }
+                        @candidates;
+    }
+
     return @candidates;
 }
 
