@@ -1,3 +1,6 @@
+use strict;
+use warnings;
+
 package Devel::Chitin::TestRunner;
 
 use Devel::Chitin;
@@ -117,24 +120,28 @@ sub _compare_locations {
 sub step {
     my $db = shift;
     $db->SUPER::step();
+    no warnings 'exiting';
     last COMMAND_LOOP;
 }
 
 sub continue {
      my $db = shift;
     $db->SUPER::continue();
+    no warnings 'exiting';
     last COMMAND_LOOP;
 }
 
 sub stepout {
     my $db = shift;
     $db->SUPER::stepout();
+    no warnings 'exiting';
     last COMMAND_LOOP;
 }
 
 sub stepover {
     my $db = shift;
     $db->SUPER::stepover();
+    no warnings 'exiting';
     last COMMAND_LOOP;
 }
 
@@ -143,6 +150,7 @@ sub done {
     $at_end = 1;
     $db->user_requested_exit();
     $db->continue;
+    no warnings 'exiting';
     last COMMAND_LOOP;
 }
 
@@ -184,8 +192,8 @@ sub _start_test_in_debugger {
         exit;
 
     } elsif (defined $pid) {
-        exec($^X, '-Ilib', '-It/lib', '-d:Chitin::TestRunner', $0, '--test');
-        Carp::croak("Exec test program failed: $!");
+        exec($^X, '-Ilib', '-It/lib', '-d:Chitin::TestRunner', $0, '--test')
+            or Carp::croak("Exec test program failed: $!");
 
     } else {
         Carp::croak("Fork test program failed: $!");
