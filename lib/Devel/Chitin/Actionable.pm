@@ -4,7 +4,6 @@ use strict;
 use warnings;
 
 use Digest::MD5 qw(md5);
-use List::Util;
 use Carp;
 
 sub new {
