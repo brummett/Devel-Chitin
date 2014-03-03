@@ -1,3 +1,6 @@
+use strict;
+use warnings;
+
 package Devel::Chitin::GetVarAtLevel;
 
 sub evaluate_complex_var_at_level {
@@ -94,6 +97,7 @@ sub get_var_at_level {
         # caller() counts them, but PadWalker does not
         {
             package DB;
+            no warnings 'void';
             (caller($level + $first_program_frame))[3];
         }
         my @args = @DB::args;
