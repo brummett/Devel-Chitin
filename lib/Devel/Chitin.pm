@@ -895,11 +895,20 @@ L<Devel::Chitin::Exception>.
 
 =back
 
+=head1 BUGS
+
+As this is an extremely early release, this API should be considered
+experimental.  It was developed to extract the debugger-specific code
+from Devel::hdb.  I encourage others to make suggestions and submit bug
+reportss so we can converge on a usable API quickly.
+
 =head1 SEE ALSO
 
 L<Devel::Chitin::Location>, L<Devel::Chitin::Exception>,
 L<Devel::Chitin::Stack>, L<Devel::Chitin::Actionable>,
 L<Devel::Chitin::GetVarAtLevel>
+
+The API for this module was inspired by L<DB>
 
 =head1 AUTHOR
 
