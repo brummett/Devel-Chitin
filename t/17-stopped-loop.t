@@ -71,8 +71,8 @@ BEGIN {
 }
                 
 package Devel::Chitin::TestDB1;
-use base 'Devel::Chitin::CommonParent';
+BEGIN { our @ISA = qw( Devel::Chitin::CommonParent ); }
 
 package Devel::Chitin::TestDB2;
-use base 'Devel::Chitin::CommonParent';
+BEGIN { our @ISA = qw( Devel::Chitin::CommonParent ); }
 
