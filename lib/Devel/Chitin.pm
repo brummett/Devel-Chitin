@@ -3,7 +3,7 @@ use strict;
 
 package Devel::Chitin;
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 use Scalar::Util;
 use IO::File;
@@ -14,6 +14,9 @@ use Devel::Chitin::Stack;
 use Devel::Chitin::Location;
 use Devel::Chitin::SubroutineLocation;
 use Devel::Chitin::Exception;
+
+use base 'Exporter';
+our @EXPORT_OK = qw( $VERSION );
 
 # lexicals shared between the interface package and the DB package
 my(%attached_clients,

@@ -1,4 +1,11 @@
+libdevel-chitin-perl (0.01-2) unstable; urgency=low
+
+  * Fixed a packaging error.  Functionally the same as v0.01
+
+ -- Anthony Brummett <brummett@cpan.org>  Sat, 8 Mar 2014 14:23:00 -0500
+
 libdevel-chitin-perl (0.01-1) unstable; urgency=low
+
   * First release
 
  -- Anthony Brummett <brummett@cpan.org>  Mon, 3 Mar 2014 14:41:00 -0500

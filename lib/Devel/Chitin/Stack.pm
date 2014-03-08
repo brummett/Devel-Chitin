@@ -3,6 +3,8 @@ package Devel::Chitin::Stack;
 use strict;
 use warnings;
 
+use Devel::Chitin qw( $VERSION );
+
 our @saved_ARGV;
 BEGIN {
     @saved_ARGV = @ARGV;

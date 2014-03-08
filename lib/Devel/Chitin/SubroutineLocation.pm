@@ -3,6 +3,8 @@ package Devel::Chitin::SubroutineLocation;
 use strict;
 use warnings;
 
+use Devel::Chitin qw( $VERSION );
+
 use Carp;
 
 my @properties = qw(package subroutine line filename end code source source_line);

@@ -3,6 +3,8 @@ package Devel::Chitin::Actionable;
 use strict;
 use warnings;
 
+use Devel::Chitin qw( $VERSION );
+
 use Digest::MD5 qw(md5);
 use Carp;
 

@@ -3,6 +3,8 @@ package Devel::Chitin::Eval;
 use strict;
 use warnings;
 
+use Devel::Chitin qw( $VERSION );
+
 # Count how many stack frames we should discard when we're
 # interested in the debugged program's stack frames
 sub _first_program_frame {
