@@ -50,7 +50,7 @@ program.  It is a subclass of Devel::Chitin::Location.
 
   Devel::Chitin::Exception->new(%params)
 
-Construct a new instnce.  The following parameters are accepted.  The values
+Construct a new instance.  The following parameters are accepted.  The values
 should be self-explanatory.  All parameters are required.
 
 =over 4
