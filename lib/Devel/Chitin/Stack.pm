@@ -281,7 +281,7 @@ The line within the file for this frame.
 
 =item subroutine
 
-The full name of the subroutine for this frame.  It will include the pacakge.
+The full name of the subroutine for this frame.  It will include the package.
 For the main program's stack frame, subroutine will be "main::MAIN".
 
 For an eval frame, subroutine will be "(eval)"
