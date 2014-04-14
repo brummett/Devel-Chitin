@@ -103,7 +103,7 @@ This class is used to represent a location in the debugged program.
 
   Devel::Chitin::Location->new(%params)
 
-Construct a new instnce.  The following parameters are accepted.  The values
+Construct a new instance.  The following parameters are accepted.  The values
 should be self-explanatory.  All parameters are required.
 
 =over 4

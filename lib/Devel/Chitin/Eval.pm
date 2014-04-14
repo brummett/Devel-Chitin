@@ -93,7 +93,7 @@ Devel::Chitin::Eval - Implementation for Devel::Chitin::eval()
 =head1 DESCRIPTION
 
 This module is responsible for evaluating a string in the context of the
-debugged program.  One idiosyncracy in the process is that this eval is
+debugged program.  One idiosyncrasy in the process is that this eval is
 done in the context of the closest stack frame not in package DB.  That's
 why Devel::Chitin::eval() works as it does, requiring a debugger subclass
 to cede control back and delivering the result via a callback.

@@ -260,7 +260,7 @@ Remove a breakpoint.  Deleted breakpoints will never trigger again.
 =head1 Actions
 
 Actions are a lot like breakpoints; they are associated with a file and line
-nummber, and they have code that runs before that line in the program is
+number, and they have code that runs before that line in the program is
 executed.  The difference is that the return value from the code is ignored.
 
 The code is evaluated in the context of the running program, so it can, for

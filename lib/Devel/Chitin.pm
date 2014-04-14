@@ -419,7 +419,7 @@ $SIG{__DIE__} = sub {
         my $exception = $_[0];
         # It's interesting to note that if we pass an arg to caller() to
         # find out the offending subroutine name, then the line reported
-        # changes.  Instead of reporting the line the exception occured
+        # changes.  Instead of reporting the line the exception occurred
         # (which it correctly does with no args), it returns the line which
         # called the function which threw the exception.
         # We'll work around it by calling it twice
@@ -646,7 +646,7 @@ implementing debuggers, tracers, profilers, etc so they can all benefit from
 common code.
 
 Devel::Chitin is not a usable debugger per se.  It has no mechanism for interacting
-with a user such as reading command input or printing retults.  Instead,
+with a user such as reading command input or printing results.  Instead,
 clients of this API may call methods to inspect the debugged program state.
 The debugger core calls methods on clients when certain events occur, such
 as when the program is stopped by breakpoint or when the program exits.
@@ -777,7 +777,7 @@ Return a list of loaded file names
 
 =item CLIENT->is_breakable($file, $line)
 
-Return true if the line has an executable stament.  Only lines with executable
+Return true if the line has an executable statement.  Only lines with executable
 statements may have breakpoints.  In particular, line containing only comments,
 whitespace or block delimiters are typically not breakable.
 
@@ -852,7 +852,7 @@ calling CLIENT->trace(1).
 
 =item CLIENT->notify_stopped($location)
 
-This method is called when a breakpoint has occured.  Its return value is
+This method is called when a breakpoint has occurred.  Its return value is
 ignored.
 
 =item CLIENT->notify_resumed($location)
@@ -905,7 +905,7 @@ L<Devel::Chitin::Exception>.
 As this is an extremely early release, this API should be considered
 experimental.  It was developed to extract the debugger-specific code
 from Devel::hdb.  I encourage others to make suggestions and submit bug
-reportss so we can converge on a usable API quickly.
+reports so we can converge on a usable API quickly.
 
 =head1 SEE ALSO
 
