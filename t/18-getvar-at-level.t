@@ -7,7 +7,7 @@ use Devel::Chitin::TestRunner;
 use Devel::Chitin::GetVarAtLevel;
 
 run_test(
-    24,
+    25,
     sub {
         our $our_var = 'ourvar';
         no strict 'vars';
@@ -25,6 +25,7 @@ run_test(
             my $two = 2;
             my @my_list = (0,1,2);
             my %my_hash = (1 => 'one', 2 => 'two', 3 => 'three');
+            my $version = v1.2.3;
             $DB::single=1;
             28;
         };
@@ -38,6 +39,7 @@ package Devel::Chitin::GetVarAtLevelTest;
 sub do_test_vars {
     my $db = shift;
 
+    is_var($db, 0, '$version', v1.2.3, 'Get value of version variable');
     is_var($db, 0, '$x', 'hello', 'Get value of $x inside test_vars');
     is_var($db, 1, '$x', 1, 'Get value of $x one level up');
     is_var($db, 0, '$y', 2, 'Get value of $y inside test_vars');

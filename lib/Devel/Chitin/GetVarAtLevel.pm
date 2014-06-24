@@ -120,7 +120,7 @@ sub get_var_at_level {
 
     if (exists $h->{$varname}) {
         # it's a simple varname, padwalker found it
-        if (ref($h->{$varname}) eq 'SCALAR' or ref($h->{$varname}) eq 'REF') {
+        if (ref($h->{$varname}) eq 'SCALAR' or ref($h->{$varname}) eq 'REF' or ref($h->{$varname}) eq 'VSTRING') {
             return ${ $h->{$varname} };
         } else {
             return $h->{$varname};
