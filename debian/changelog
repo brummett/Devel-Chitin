@@ -1,3 +1,10 @@
+libdevel-chitin-perl (0.03-1) unstable; urgency=low
+
+  * get_var_at_level() works properly with vstrings
+  * Typo fixes from David Steinbrunner <dsteinbrunner@pobox.com>
+
+ -- Anthony Brummett <brummett@cpan.org>  Tue, 24 Jun 2014 17:34:00 -0500
+
 libdevel-chitin-perl (0.01-2) unstable; urgency=low
 
   * Fixed a packaging error.  Functionally the same as v0.01
