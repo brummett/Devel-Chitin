@@ -107,12 +107,14 @@ sub _uuid_iterator {
     return sub {
         my $subname = shift;
 
+        return $Devel::Chitin::stack_uuids[$next_idx]->[-1] if ($subname eq '(eval)');
+
         for (my $i = $next_idx; $i >= 0; $i--) {
             if ($subname eq $Devel::Chitin::stack_uuids[$i]->[0]
                 or
                 (index($subname, '__ANON__[') >= 0 and ref($Devel::Chitin::stack_uuids[$i]->[0]) eq 'CODE')
             ) {
-                $next_idx = $i;
+                $next_idx = $i - 1;
                 return $Devel::Chitin::stack_uuids[$i]->[-1];
             }
         }
@@ -374,7 +376,8 @@ frames within the debugger.
 =item uuid
 
 Each instance of a subroutine call gets a unique identifier as a UUID string.
-The initial MAIN frame, and eval frames have undef as their uuid.
+The initial MAIN frame has uundef for its UUID.  eval frames have the same
+UUID as the function call they live in.
 
 =back
 
