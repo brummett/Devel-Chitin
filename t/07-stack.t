@@ -6,25 +6,31 @@ use lib 'lib';
 use lib 't/lib';
 use Devel::Chitin::TestRunner;
 
+
 run_test(
     57,
     sub {
-        foo(1,2,3);                 # line 12: void
+
+        foo(1,2,3);                 # line 14: void
         sub foo {
-            my @a = Bar::bar();     # line 14: list
+
+            my @a = Bar::bar();     # line 17: list
         }
         sub Bar::bar {
-            &Bar::baz;              # line 17: list
+
+            &Bar::baz;              # line 21: list
         } 
         package Bar;
         sub baz {
-            my $a = eval {          # line 21: scalar
-                eval "quux()";      # line 22: scalar
+
+            my $a = eval {          # line 26: scalar
+                eval "quux()";      # line 27: scalar
             }
         }
         sub AUTOLOAD {
+
             $DB::single=1;
-            27;                     # scalar
+            33;                     # scalar
         }
     },
     \&check_stack,
@@ -41,7 +47,7 @@ sub check_stack {
     my @expected = (
         {   package     => 'Bar',
             filename    => $filename,
-            line        => 27,
+            line        => 33,
             subroutine  => 'Bar::AUTOLOAD',
             hasargs     => 1,
             wantarray   => '',
@@ -54,14 +60,14 @@ sub check_stack {
             args        => [],
         },
         {   package     => 'Bar',
-            filename    => qr/\(eval \d+\)\[$filename:22\]/,
+            filename    => qr/\(eval \d+\)\[$filename:27\]/,
             line        => 1,   # line 1 if the eval text
             subroutine  => '(eval)',
             hasargs     => 0,
             wantarray   => '',
             evaltext    => $^V lt v5.18 ? "quux()\n;" : 'quux()',
             evalfile    => $filename,
-            evalline    => 22,
+            evalline    => 27,
             is_require  => '',  # false but not undef because it is a string eval
             autoload    => undef,
             subname     => '(eval)',
@@ -69,7 +75,7 @@ sub check_stack {
         },
         {   package     => 'Bar',
             filename    => $filename,
-            line        => 22,
+            line        => 27,
             subroutine  => '(eval)',
             hasargs     => 0,
             wantarray   => '',
@@ -83,7 +89,7 @@ sub check_stack {
         },
         {   package     => 'Bar',
             filename    => $filename,
-            line        => 21,   
+            line        => 26,
             subroutine  => 'Bar::baz',
             hasargs     => '', # because it's called as &Bar::baz;
             wantarray   => 1,
@@ -97,7 +103,7 @@ sub check_stack {
         },
         {   package     => 'main',
             filename    => $filename,
-            line        => 17,
+            line        => 21,
             subroutine  => 'Bar::bar',
             hasargs     => 1,
             wantarray   => 1,
@@ -111,7 +117,7 @@ sub check_stack {
         },
         {   package     => 'main',
             filename    => $filename,
-            line        => 14,
+            line        => 17,
             subroutine  => 'main::foo',
             hasargs     => 1,
             wantarray   => undef,
@@ -126,8 +132,8 @@ sub check_stack {
         # two frames inside run_test
         {   package     => 'main',
             filename    => $filename,
-            line        => 12,
-            subroutine  => "main::__ANON__[$filename:29]",
+            line        => 14,
+            subroutine  => "main::__ANON__[$filename:35]",
             hasargs     => 1,
             wantarray   => undef,
             evaltext    => undef,
@@ -155,7 +161,7 @@ sub check_stack {
  
         {   package     => 'main',
             filename    => $filename,
-            line        => 30,
+            line        => 36,
             subroutine  => 'main::MAIN',
             hasargs     => 1,
             wantarray   => undef,
