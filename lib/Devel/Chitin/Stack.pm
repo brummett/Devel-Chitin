@@ -64,6 +64,10 @@ sub new {
         # came from
         @caller{'evalfile','evalline'} = ($caller{filename} || '')  =~ m/\(eval \d+\)\[(.*?):(\d+)\]/;
 
+        # Normalize hasargs.  eval-frames will always have 0.  Subroutines called with the
+        # &subname; syntax will have '' returned from caller() starting with perl 5.12.
+        $caller{hasargs} = '' if (! $caller{hasargs} and $caller{subroutine} ne '(eval)');
+
         $caller{level} = $level;
 
         push @frames, Devel::Chitin::StackFrame->_new(%caller);
@@ -288,8 +292,9 @@ For an eval frame, subroutine will be "(eval)"
 
 =item hasargs
 
-True if this frame has its own instance of @_.  In practice, this will be false
-for eval frames, and for subroutines called as C<&subname;>, and true otherwise.
+True if this frame has its own instance of @_.  In practice, this will be 0
+for eval frames, empty string for subroutines called as C<&subname;>, and true
+otherwise.
 
 =item wantarray
 

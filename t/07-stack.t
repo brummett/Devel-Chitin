@@ -85,7 +85,7 @@ sub check_stack {
             filename    => $filename,
             line        => 21,   
             subroutine  => 'Bar::baz',
-            hasargs     => $^V lt v5.12 ? 0 : '', # because it's called as &Bar::baz;
+            hasargs     => '', # because it's called as &Bar::baz;
             wantarray   => 1,
             evaltext    => undef,
             evalfile    => undef,
