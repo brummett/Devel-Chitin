@@ -6,29 +6,29 @@ use lib 'lib';
 use lib 't/lib';
 use Devel::Chitin::TestRunner;
 
-
+our($uuid_1, $uuid_2, $uuid_3, $uuid_4, $uuid_5);
 run_test(
     57,
     sub {
-
+        $uuid_1 = $Devel::Chitin::stack_uuids[-1]->[-1];
         foo(1,2,3);                 # line 14: void
         sub foo {
-
+            $uuid_2 = $Devel::Chitin::stack_uuids[-1]->[-1];
             my @a = Bar::bar();     # line 17: list
         }
         sub Bar::bar {
-
+            $uuid_3 = $Devel::Chitin::stack_uuids[-1]->[-1];
             &Bar::baz;              # line 21: list
         } 
         package Bar;
         sub baz {
-
+            $uuid_4 = $Devel::Chitin::stack_uuids[-1]->[-1];
             my $a = eval {          # line 26: scalar
                 eval "quux()";      # line 27: scalar
             }
         }
         sub AUTOLOAD {
-
+            $uuid_5 = $Devel::Chitin::stack_uuids[-1]->[-1];
             $DB::single=1;
             33;                     # scalar
         }
@@ -58,6 +58,7 @@ sub check_stack {
             autoload    => 'quux',
             subname     => 'AUTOLOAD',
             args        => [],
+            uuid        => $uuid_5,
         },
         {   package     => 'Bar',
             filename    => qr/\(eval \d+\)\[$filename:27\]/,
@@ -72,6 +73,7 @@ sub check_stack {
             autoload    => undef,
             subname     => '(eval)',
             args        => [],
+            uuid        => undef,
         },
         {   package     => 'Bar',
             filename    => $filename,
@@ -86,6 +88,7 @@ sub check_stack {
             autoload    => undef,
             subname     => '(eval)',
             args        => [],
+            uuid        => undef,
         },
         {   package     => 'Bar',
             filename    => $filename,
@@ -100,6 +103,7 @@ sub check_stack {
             autoload    => undef,
             subname     => 'baz',
             args        => [],
+            uuid        => $uuid_4,
         },
         {   package     => 'main',
             filename    => $filename,
@@ -114,6 +118,7 @@ sub check_stack {
             autoload    => undef,
             subname     => 'bar',
             args        => [],
+            uuid        => $uuid_3,
         },
         {   package     => 'main',
             filename    => $filename,
@@ -128,6 +133,7 @@ sub check_stack {
             autoload    => undef,
             subname     => 'foo',
             args        => [1,2,3],
+            uuid        => $uuid_2,
         },
         # two frames inside run_test
         {   package     => 'main',
@@ -143,6 +149,7 @@ sub check_stack {
             autoload    => undef,
             subname     => '__ANON__',
             args        => [],
+            uuid        => $uuid_1,
         },
         {   package =>  'Devel::Chitin::TestRunner',
             filename    => qr(t/lib/Devel/Chitin/TestRunner\.pm$),
@@ -157,6 +164,7 @@ sub check_stack {
             autoload    => undef,
             subname     => 'run_test',
             args        => '__DONT_CARE__',
+            uuid        => '__DONT_CARE__',
         },
  
         {   package     => 'main',
@@ -172,6 +180,7 @@ sub check_stack {
             autoload    => undef,
             subname     => 'MAIN',
             args        => ['--test'],
+            uuid        => undef,
         },
     );
 

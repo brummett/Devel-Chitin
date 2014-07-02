@@ -7,6 +7,7 @@ our $VERSION = '0.03';
 
 use Scalar::Util;
 use IO::File;
+use Data::UUID;
 
 use Devel::Chitin::Actionable;  # Breakpoints and Actions
 use Devel::Chitin::Eval;
@@ -517,6 +518,8 @@ sub DB {
     restore();
 }
 
+my $uuidgen = Data::UUID->new();
+
 sub sub {
     no strict 'refs';
     goto &$sub if (! $ready or index($sub, 'Devel::Chitin::StackTracker') == 0 or $debugger_disabled);
@@ -528,10 +531,12 @@ sub sub {
         unshift @AUTOLOAD_names, $caller_AUTOLOAD;
     }
     my $stack_tracker;
+    local @Devel::Chitin::stack_uuids = @Devel::Chitin::stack_uuids;
     unless ($in_debugger) {
         my $tmp = $sub;
         $stack_depth++;
         $stack_tracker = _new_stack_tracker($tmp);
+        push(@Devel::Chitin::stack_uuids, [ $sub, $uuidgen->create_str() ]) if $uuidgen;
     }
 
     return &$sub;

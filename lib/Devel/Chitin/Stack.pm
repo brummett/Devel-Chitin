@@ -18,6 +18,7 @@ sub new {
     my @frames;
     my $should_remove_this_frame = 1;    # Don't include the frame for this function
     my $next_AUTOLOAD_idx = 0;
+    my $uuid_iter = _uuid_iterator();
     my @prev_loc;
 
     my $level;
@@ -68,6 +69,8 @@ sub new {
         # &subname; syntax will have '' returned from caller() starting with perl 5.12.
         $caller{hasargs} = '' if (! $caller{hasargs} and $caller{subroutine} ne '(eval)');
 
+        $caller{uuid} = $uuid_iter->($caller{subroutine});
+
         $caller{level} = $level;
 
         push @frames, Devel::Chitin::StackFrame->_new(%caller);
@@ -91,10 +94,30 @@ sub new {
                     hasargs     => 1,
                     args        => \@saved_ARGV,
                     level       => $level,
+                    uuid        => undef,
                 );
 
     shift @frames if $should_remove_this_frame;
     return bless \@frames, $class;
+}
+
+sub _uuid_iterator {
+    my $next_idx = $#Devel::Chitin::stack_uuids;
+
+    return sub {
+        my $subname = shift;
+
+        for (my $i = $next_idx; $i >= 0; $i--) {
+            if ($subname eq $Devel::Chitin::stack_uuids[$i]->[0]
+                or
+                (index($subname, '__ANON__[') >= 0 and ref($Devel::Chitin::stack_uuids[$i]->[0]) eq 'CODE')
+            ) {
+                $next_idx = $i;
+                return $Devel::Chitin::stack_uuids[$i]->[-1];
+            }
+        }
+        return undef;
+    };
 }
 
 sub depth {
@@ -148,7 +171,7 @@ BEGIN {
     no strict 'refs';
     foreach my $acc ( qw(package filename line subroutine hasargs wantarray
                          evaltext is_require hints bitmask
-                         subname autoload level evalfile evalline ) ) {
+                         subname autoload level evalfile evalline uuid ) ) {
         *{$acc} = sub { return shift->{$acc} };
     }
 }
@@ -347,6 +370,11 @@ The number indicating how deep this call frame actually is.  This number is
 not relative to the program being debugged, and so reflects the real number
 of frames between the caller and the bottom of the stack, including any
 frames within the debugger.
+
+=item uuid
+
+Each instance of a subroutine call gets a unique identifier as a UUID string.
+The initial MAIN frame, and eval frames have undef as their uuid.
 
 =back
 
