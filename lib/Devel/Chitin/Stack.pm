@@ -107,6 +107,8 @@ sub _uuid_iterator {
     return sub {
         my $subname = shift;
 
+        return unless @Devel::Chitin::stack_uuids;
+
         return $Devel::Chitin::stack_uuids[$next_idx]->[-1] if ($subname eq '(eval)');
 
         for (my $i = $next_idx; $i >= 0; $i--) {
