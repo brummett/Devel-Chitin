@@ -376,7 +376,7 @@ frames within the debugger.
 =item uuid
 
 Each instance of a subroutine call gets a unique identifier as a UUID string.
-The initial MAIN frame has uundef for its UUID.  eval frames have the same
+The initial MAIN frame has undef for its UUID.  eval frames have the same
 UUID as the function call they live in.
 
 =back
