@@ -518,7 +518,11 @@ sub DB {
     restore();
 }
 
-my $uuidgen = Data::UUID->new();
+my $uuidgen;
+BEGIN {
+    $uuidgen = Data::UUID->new();
+    @Devel::Chitin::stack_uuids = ( [ 'main::MAIN', $uuidgen->create_str ] );
+}
 
 sub sub {
     no strict 'refs';

@@ -4,12 +4,10 @@ use strict;
 use warnings;
 
 use Devel::Chitin qw( $VERSION );
-use Data::UUID;
 
-our(@saved_ARGV, $MAIN_uuid);
+our @saved_ARGV;
 BEGIN {
     @saved_ARGV = @ARGV;
-    $MAIN_uuid = Data::UUID->new->create_str();
 }
 
 my @caller_values = qw(package filename line subroutine hasargs wantarray
@@ -96,7 +94,7 @@ sub new {
                     hasargs     => 1,
                     args        => \@saved_ARGV,
                     level       => $level,
-                    uuid        => $MAIN_uuid,
+                    uuid        => $Devel::Chitin::stack_uuids[0]->[-1],
                 );
 
     shift @frames if $should_remove_this_frame;

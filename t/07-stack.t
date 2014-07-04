@@ -6,7 +6,7 @@ use lib 'lib';
 use lib 't/lib';
 use Devel::Chitin::TestRunner;
 
-our($uuid_1, $uuid_2, $uuid_3, $uuid_4, $uuid_5);
+our($uuid_1, $uuid_2, $uuid_3, $uuid_4, $uuid_5); my $main_uuid = $Devel::Chitin::stack_uuids[0]->[-1];
 run_test(
     57,
     sub {
@@ -180,7 +180,7 @@ sub check_stack {
             autoload    => undef,
             subname     => 'MAIN',
             args        => ['--test'],
-            uuid        => $Devel::Chitin::Stack::MAIN_uuid,
+            uuid        => $main_uuid,
         },
     );
 
