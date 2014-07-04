@@ -180,7 +180,7 @@ sub check_stack {
             autoload    => undef,
             subname     => 'MAIN',
             args        => ['--test'],
-            uuid        => undef,
+            uuid        => $Devel::Chitin::Stack::MAIN_uuid,
         },
     );
 

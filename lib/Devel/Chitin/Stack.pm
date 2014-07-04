@@ -4,10 +4,12 @@ use strict;
 use warnings;
 
 use Devel::Chitin qw( $VERSION );
+use Data::UUID;
 
-our @saved_ARGV;
+our(@saved_ARGV, $MAIN_uuid);
 BEGIN {
     @saved_ARGV = @ARGV;
+    $MAIN_uuid = Data::UUID->new->create_str();
 }
 
 my @caller_values = qw(package filename line subroutine hasargs wantarray
@@ -94,7 +96,7 @@ sub new {
                     hasargs     => 1,
                     args        => \@saved_ARGV,
                     level       => $level,
-                    uuid        => undef,
+                    uuid        => $MAIN_uuid,
                 );
 
     shift @frames if $should_remove_this_frame;
@@ -377,9 +379,9 @@ frames within the debugger.
 
 =item uuid
 
-Each instance of a subroutine call gets a unique identifier as a UUID string.
-The initial MAIN frame has uundef for its UUID.  eval frames have the same
-UUID as the function call they live in.
+Each instance of a subroutine call gets a unique identifier as a UUID string,
+including the initial frame for MAIN.  eval frames have the same UUID as
+the function call they live in.
 
 =back
 
