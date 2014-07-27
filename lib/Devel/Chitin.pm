@@ -417,6 +417,7 @@ BEGIN {
 # We could re-throw the die if $^S is 1
 $SIG{__DIE__} = sub {
     if (defined($^S) && $^S == 0) {
+        $in_debugger = 1;
         my $exception = $_[0];
         # It's interesting to note that if we pass an arg to caller() to
         # find out the offending subroutine name, then the line reported
