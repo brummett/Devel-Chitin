@@ -519,11 +519,18 @@ sub DB {
     restore();
 }
 
-my $uuidgen;
 BEGIN {
-    $uuidgen = Data::UUID->new();
+    my $uuidgen = Data::UUID->new();
     @Devel::Chitin::stack_uuids = ( [ 'main::MAIN', $uuidgen->create_str ] );
+    %Devel::Chitin::eval_uuids = ();
+
+    sub _allocate_uuid {
+        return $uuidgen
+                ? $uuidgen->create_str()
+                : 'CLEANUP' . rand();
+    }
 }
+
 
 sub sub {
     no strict 'refs';
@@ -537,11 +544,12 @@ sub sub {
     }
     my $stack_tracker;
     local @Devel::Chitin::stack_uuids = @Devel::Chitin::stack_uuids;
+    local %Devel::Chitin::eval_uuids;
     unless ($in_debugger) {
         my $tmp = $sub;
         $stack_depth++;
         $stack_tracker = _new_stack_tracker($tmp);
-        push(@Devel::Chitin::stack_uuids, [ $sub, $uuidgen->create_str() ]) if $uuidgen;
+        push(@Devel::Chitin::stack_uuids, [ $sub, _allocate_uuid()]);
     }
 
     return &$sub;

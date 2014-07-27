@@ -8,7 +8,7 @@ use Devel::Chitin::TestRunner;
 
 our($uuid_1, $uuid_2, $uuid_3, $uuid_4, $uuid_5); my $main_uuid = $Devel::Chitin::stack_uuids[0]->[-1];
 run_test(
-    57,
+    93,
     sub {
         $uuid_1 = $Devel::Chitin::stack_uuids[-1]->[-1];
         foo(1,2,3);                 # line 14: void
@@ -25,7 +25,7 @@ run_test(
             $uuid_4 = $Devel::Chitin::stack_uuids[-1]->[-1];
             my $a = eval {          # line 26: scalar
                 eval "quux()";      # line 27: scalar
-            }
+            };
         }
         sub AUTOLOAD {
             $uuid_5 = $Devel::Chitin::stack_uuids[-1]->[-1];
@@ -73,7 +73,7 @@ sub check_stack {
             autoload    => undef,
             subname     => '(eval)',
             args        => [],
-            uuid        => $uuid_4,
+            uuid        => '__DONT_CARE__',  # we'll check eval frame UUIDs in uuids_are_distinct()
         },
         {   package     => 'Bar',
             filename    => $filename,
@@ -88,7 +88,7 @@ sub check_stack {
             autoload    => undef,
             subname     => '(eval)',
             args        => [],
-            uuid        => $uuid_4,
+            uuid        => '__DONT_CARE__', # we'll check eval frame UUIDs in uuids_are_distinct()
         },
         {   package     => 'Bar',
             filename    => $filename,
@@ -189,12 +189,16 @@ sub check_stack {
     for(my $framenum = 0; my $frame = $stack->frame($framenum); $framenum++) {
         check_frame($frame, $expected[$framenum]);
     }
+    uuids_are_distinct($stack);
 
     my $iter = $stack->iterator();
     Test::More::ok($iter, 'Stack iterator');
+    my @iter_frames;
     for(my $framenum = 0; my $frame = $iter->(); $framenum++) {
         check_frame($frame, $expected[$framenum], 'iterator');
+        push @iter_frames, $frame;
     }
+    uuids_are_distinct(\@iter_frames);
 }
 
 sub check_frame {
@@ -229,8 +233,19 @@ sub check_frame {
                         "Execution stack frame filename matches: $msg");
     }
 
-        
     Test::More::is_deeply(\%got_copy, \%expected_copy, "Execution stack frame matches for $msg");
+}
+
+sub uuids_are_distinct {
+    my $frames = shift;
+
+    my %uuids;
+    for (my $i = 0; $i < @$frames; $i++) {
+        my $uuid = $frames->[$i]->{uuid};
+        my $filename = $frames->[$i]->{filename};
+        Test::More::ok($uuid, "Frame $filename has uuid");
+        Test::More::ok(! $uuids{$uuid}++, "Frame $filename has distinct uuid");
+    }
 }
 
 sub remove_dont_care {

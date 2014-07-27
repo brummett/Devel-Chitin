@@ -69,7 +69,7 @@ sub new {
         # &subname; syntax will have '' returned from caller() starting with perl 5.12.
         $caller{hasargs} = '' if (! $caller{hasargs} and $caller{subroutine} ne '(eval)');
 
-        $caller{uuid} = $uuid_iter->($caller{subroutine});
+        $caller{uuid} = $uuid_iter->(@caller{'subroutine','filename','line'});
 
         $caller{level} = $level;
 
@@ -105,11 +105,13 @@ sub _uuid_iterator {
     my $next_idx = $#Devel::Chitin::stack_uuids;
 
     return sub {
-        my $subname = shift;
+        my($subname, $filename, $line) = @_;
 
         return unless @Devel::Chitin::stack_uuids;
 
-        return $Devel::Chitin::stack_uuids[$next_idx]->[-1] if ($subname eq '(eval)');
+        if (index($subname, '(eval') >= 0) {
+            return $Devel::Chitin::eval_uuids{join('/', $filename,$line)} ||= DB::_allocate_uuid();
+        }
 
         for (my $i = $next_idx; $i >= 0; $i--) {
             if ($subname eq $Devel::Chitin::stack_uuids[$i]->[0]
@@ -378,8 +380,11 @@ frames within the debugger.
 =item uuid
 
 Each instance of a subroutine call gets a unique identifier as a UUID string,
-including the initial frame for MAIN.  eval frames have the same UUID as
-the function call they live in.
+including the initial frame for MAIN.
+
+eval frames also get UUIDs that are distinct between different function call
+frames.  eval frames within the same function call frame on the same line
+(such as inside a loop) will, unfortunately, have the same uuid.
 
 =back
 
