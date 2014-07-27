@@ -3,7 +3,6 @@ use strict;
 use warnings; no warnings 'void';
 use lib 'lib';
 use lib 't/lib';
-use IO::Pipe;
 use Devel::Chitin::TestRunner;
 run_in_debugger();
 
@@ -28,7 +27,7 @@ sub notify_uncaught_exception {
 
     my %expected_location = (
         package => 'main',
-        line    => 15,
+        line    => 14,
         filename => __FILE__,
         subroutine => 'main::do_die'
     );
