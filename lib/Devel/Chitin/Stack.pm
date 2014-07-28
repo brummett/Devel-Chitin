@@ -122,7 +122,7 @@ sub _uuid_iterator {
                 return $Devel::Chitin::stack_uuids[$i]->[-1];
             }
         }
-        return undef;
+        return DB::_allocate_uuid();  # Punt by making a new one up
     };
 }
 
