@@ -586,7 +586,6 @@ END {
     return if $debugger_disabled;
 
     $single=0;
-    $finished = 1;
     $in_debugger = 1;
 
     eval {
@@ -596,6 +595,7 @@ END {
             Devel::Chitin::_do_each_client('notify_program_exit');
         } else {
             Devel::Chitin::_do_each_client('notify_program_terminated', $?);
+            $finished = 1;
             # These two will trigger DB::DB and the event loop
             $in_debugger = 0;
             $single=1;
