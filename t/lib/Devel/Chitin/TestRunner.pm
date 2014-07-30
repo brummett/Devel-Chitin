@@ -57,7 +57,12 @@ sub notify_stopped {
     while( my $next_test = shift @$db ) {
 
         if (ref($next_test) eq 'CODE') {
-            $next_test->($db, $loc);
+            local $@;
+            eval { $next_test->($db, $loc) };
+            if ($@) {
+                print STDERR $@;
+                die $@;
+            }
 
         } elsif ($next_test->isa('Devel::Chitin::Location')) {
             _compare_locations($db, $loc, $next_test);
