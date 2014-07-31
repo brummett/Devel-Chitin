@@ -110,7 +110,8 @@ sub _uuid_iterator {
         return unless @Devel::Chitin::stack_uuids;
 
         if (index($subname, '(eval') >= 0) {
-            return $Devel::Chitin::eval_uuids{join('/', $filename,$line)} ||= DB::_allocate_uuid();
+            my $this_sub_uuid = $Devel::Chitin::stack_uuids[$next_idx]->[1];
+            return $Devel::Chitin::eval_uuids{$this_sub_uuid}{$line} ||= DB::_allocate_uuid();
         }
 
         for (my $i = $next_idx; $i >= 0; $i--) {

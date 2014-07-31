@@ -544,15 +544,25 @@ sub sub {
     }
     my $stack_tracker;
     local @Devel::Chitin::stack_uuids = @Devel::Chitin::stack_uuids;
-    local %Devel::Chitin::eval_uuids;
     unless ($in_debugger) {
-        my $tmp = $sub;
         $stack_depth++;
-        $stack_tracker = _new_stack_tracker($tmp);
-        push(@Devel::Chitin::stack_uuids, [ $sub, _allocate_uuid()]);
+        $stack_tracker = _new_stack_tracker(_allocate_uuid());
+
+        push(@Devel::Chitin::stack_uuids, [ $sub, $$stack_tracker]);
     }
 
-    return &$sub;
+    my @rv;
+    if (wantarray) {
+        @rv = &$sub;
+    } elsif (defined wantarray) {
+        $rv[0] = &$sub;
+    } else {
+        &$sub;
+    }
+
+    delete $Devel::Chitin::eval_uuids{$$stack_tracker} if $stack_tracker;
+
+    return wantarray ? @rv : $rv[0];
 }
 
 sub _new_stack_tracker {

@@ -8,7 +8,7 @@ use Devel::Chitin::TestRunner;
 
 our($uuid_1, $uuid_2, $uuid_3, $uuid_4, $uuid_5); my $main_uuid = $Devel::Chitin::stack_uuids[0]->[-1];
 run_test(
-    93,
+    60,
     sub {
         $uuid_1 = $Devel::Chitin::stack_uuids[-1]->[-1];
         foo(1,2,3);                 # line 14: void
@@ -186,19 +186,30 @@ sub check_stack {
 
     Test::More::is($stack->depth, scalar(@expected), 'Expected number of stack frames');
 
+    my @uuids;
     for(my $framenum = 0; my $frame = $stack->frame($framenum); $framenum++) {
         check_frame($frame, $expected[$framenum]);
+        push @uuids, [$framenum, $frame->uuid];
     }
-    uuids_are_distinct($stack);
+    uuids_are_distinct(\@uuids);
 
     my $iter = $stack->iterator();
     Test::More::ok($iter, 'Stack iterator');
-    my @iter_frames;
+    my @iter_uuids;
     for(my $framenum = 0; my $frame = $iter->(); $framenum++) {
         check_frame($frame, $expected[$framenum], 'iterator');
-        push @iter_frames, $frame;
+        push @iter_uuids, [$framenum, $frame->uuid];
+
     }
-    uuids_are_distinct(\@iter_frames);
+    Test::More::is_deeply(\@iter_uuids, \@uuids, 'Got the same uuids');
+
+    # Get the stack again, uuids should be the same
+    my $stack2 = $db->stack();
+    my @uuids2;
+    for (my $framenum = 0; my $frame = $stack2->frame($framenum); $framenum++) {
+        push @uuids2, [ $framenum, $frame->uuid];
+    }
+    Test::More::is_deeply(\@uuids2, \@uuids, 'uuids are the same getting another stack object');
 }
 
 sub check_frame {
@@ -237,15 +248,21 @@ sub check_frame {
 }
 
 sub uuids_are_distinct {
-    my $frames = shift;
+    my $uuid_records = shift;
 
-    my %uuids;
-    for (my $i = 0; $i < @$frames; $i++) {
-        my $uuid = $frames->[$i]->{uuid};
-        my $filename = $frames->[$i]->{filename};
-        Test::More::ok($uuid, "Frame $filename has uuid");
-        Test::More::ok(! $uuids{$uuid}++, "Frame $filename has distinct uuid");
+    my %uuid_counts;
+    my %uuid_to_frame;
+    foreach my $record ( @$uuid_records ) {
+        my($frameno, $uuid) = @$record;
+        $uuid_counts{ $uuid }++;
+
+        $uuid_to_frame{$uuid} ||= [];
+        push @{$uuid_to_frame{ $uuid } }, $frameno
     }
+
+    my @duplicate_uuids = grep { $uuid_counts{$_} > 1 } keys %uuid_counts;
+    Test::More::ok(! @duplicate_uuids, 'UUIDs are distinct')
+        or Test::More::diag('Frames with duplicates: ', join(' and ', map { join(',', @{$uuid_to_frame{$_}}) } @duplicate_uuids));
 }
 
 sub remove_dont_care {
