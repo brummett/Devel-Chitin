@@ -83,11 +83,6 @@ sub _insert {
     push @{$bp_info->{$type}}, $self;
 }
 
-sub _id {
-    my $self = shift;
-    md5(join('', @$self{'file', 'line', 'code'}, $self->type));
-}
-
 sub delete {
     my $self = shift;
 
@@ -137,9 +132,16 @@ sub delete {
  
 sub file    { return shift->{file} }
 sub line    { return shift->{line} }
-sub code    { return shift->{code} }
 sub once    { return shift->{once} }
 sub type    { my $class = shift;  $class = ref($class) || $class; die "$class didn't implement method type" }
+
+sub code    {
+    my $self = shift;
+    if (@_) {
+        $self->{code} = shift;
+    }
+    return $self->{code};
+}
 
 sub inactive {
     my $self = shift;
