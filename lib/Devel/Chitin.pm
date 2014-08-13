@@ -7,7 +7,6 @@ our $VERSION = '0.04';
 
 use Scalar::Util;
 use IO::File;
-use Data::UUID;
 
 use Devel::Chitin::Actionable;  # Breakpoints and Actions
 use Devel::Chitin::Eval;
@@ -520,12 +519,12 @@ sub DB {
 }
 
 BEGIN {
-    my $sub_counter = 1;
-    @Devel::Chitin::stack_uuids = ( [ 'main::MAIN', $sub_counter++ ] );
-    %Devel::Chitin::eval_uuids = ();
+    my $sub_serial = 1;
+    @Devel::Chitin::stack_serial = ( [ 'main::MAIN', $sub_serial++ ] );
+    %Devel::Chitin::eval_serial = ();
 
-    sub _allocate_sub_id {
-        $sub_counter++;
+    sub _allocate_sub_serial {
+        $sub_serial++;
     }
 }
 
@@ -541,12 +540,12 @@ sub sub {
         unshift @AUTOLOAD_names, $caller_AUTOLOAD;
     }
     my $stack_tracker;
-    local @Devel::Chitin::stack_uuids = @Devel::Chitin::stack_uuids;
+    local @Devel::Chitin::stack_serial = @Devel::Chitin::stack_serial;
     unless ($in_debugger) {
         $stack_depth++;
-        $stack_tracker = _new_stack_tracker(_allocate_sub_id());
+        $stack_tracker = _new_stack_tracker(_allocate_sub_serial());
 
-        push(@Devel::Chitin::stack_uuids, [ $sub, $$stack_tracker]);
+        push(@Devel::Chitin::stack_serial, [ $sub, $$stack_tracker]);
     }
 
     my @rv;
@@ -558,7 +557,7 @@ sub sub {
         &$sub;
     }
 
-    delete $Devel::Chitin::eval_uuids{$$stack_tracker} if $stack_tracker;
+    delete $Devel::Chitin::eval_serial{$$stack_tracker} if $stack_tracker;
 
     return wantarray ? @rv : $rv[0];
 }

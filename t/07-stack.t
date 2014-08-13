@@ -6,29 +6,29 @@ use lib 'lib';
 use lib 't/lib';
 use Devel::Chitin::TestRunner;
 
-our($id_1, $id_2, $id_3, $id_4, $id_5); my $main_id = $Devel::Chitin::stack_uuids[0]->[-1];
+our($serial_1, $serial_2, $serial_3, $serial_4, $serial_5); my $main_serial = $Devel::Chitin::stack_serial[0]->[-1];
 run_test(
     60,
     sub {
-        $id_1 = $Devel::Chitin::stack_uuids[-1]->[-1];
+        $serial_1 = $Devel::Chitin::stack_serial[-1]->[-1];
         foo(1,2,3);                 # line 14: void
         sub foo {
-            $id_2 = $Devel::Chitin::stack_uuids[-1]->[-1];
+            $serial_2 = $Devel::Chitin::stack_serial[-1]->[-1];
             my @a = Bar::bar();     # line 17: list
         }
         sub Bar::bar {
-            $id_3 = $Devel::Chitin::stack_uuids[-1]->[-1];
+            $serial_3 = $Devel::Chitin::stack_serial[-1]->[-1];
             &Bar::baz;              # line 21: list
         } 
         package Bar;
         sub baz {
-            $id_4 = $Devel::Chitin::stack_uuids[-1]->[-1];
+            $serial_4 = $Devel::Chitin::stack_serial[-1]->[-1];
             my $a = eval {          # line 26: scalar
                 eval "quux()";      # line 27: scalar
             };
         }
         sub AUTOLOAD {
-            $id_5 = $Devel::Chitin::stack_uuids[-1]->[-1];
+            $serial_5 = $Devel::Chitin::stack_serial[-1]->[-1];
             $DB::single=1;
             33;                     # scalar
         }
@@ -58,7 +58,7 @@ sub check_stack {
             autoload    => 'quux',
             subname     => 'AUTOLOAD',
             args        => [],
-            id          => $id_5,
+            serial      => $serial_5,
         },
         {   package     => 'Bar',
             filename    => qr/\(eval \d+\)\[$filename:27\]/,
@@ -73,7 +73,7 @@ sub check_stack {
             autoload    => undef,
             subname     => '(eval)',
             args        => [],
-            id          => '__DONT_CARE__',  # we'll check eval frame IDs in uuids_are_distinct()
+            serial      => '__DONT_CARE__',  # we'll check eval frame IDs in serials_are_distinct()
         },
         {   package     => 'Bar',
             filename    => $filename,
@@ -88,7 +88,7 @@ sub check_stack {
             autoload    => undef,
             subname     => '(eval)',
             args        => [],
-            id          => '__DONT_CARE__', # we'll check eval frame IDs in ids_are_distinct()
+            serial      => '__DONT_CARE__', # we'll check eval frame IDs in serials_are_distinct()
         },
         {   package     => 'Bar',
             filename    => $filename,
@@ -103,7 +103,7 @@ sub check_stack {
             autoload    => undef,
             subname     => 'baz',
             args        => [],
-            id          => $id_4,
+            serial      => $serial_4,
         },
         {   package     => 'main',
             filename    => $filename,
@@ -118,7 +118,7 @@ sub check_stack {
             autoload    => undef,
             subname     => 'bar',
             args        => [],
-            id          => $id_3,
+            serial      => $serial_3,
         },
         {   package     => 'main',
             filename    => $filename,
@@ -133,7 +133,7 @@ sub check_stack {
             autoload    => undef,
             subname     => 'foo',
             args        => [1,2,3],
-            id          => $id_2,
+            serial      => $serial_2,
         },
         # two frames inside run_test
         {   package     => 'main',
@@ -149,7 +149,7 @@ sub check_stack {
             autoload    => undef,
             subname     => '__ANON__',
             args        => [],
-            id          => $id_1,
+            serial      => $serial_1,
         },
         {   package =>  'Devel::Chitin::TestRunner',
             filename    => qr(t/lib/Devel/Chitin/TestRunner\.pm$),
@@ -164,7 +164,7 @@ sub check_stack {
             autoload    => undef,
             subname     => 'run_test',
             args        => '__DONT_CARE__',
-            id          => '__DONT_CARE__',
+            serial      => '__DONT_CARE__',
         },
  
         {   package     => 'main',
@@ -180,36 +180,36 @@ sub check_stack {
             autoload    => undef,
             subname     => 'MAIN',
             args        => ['--test'],
-            id          => $main_id,
+            serial      => $main_serial,
         },
     );
 
     Test::More::is($stack->depth, scalar(@expected), 'Expected number of stack frames');
 
-    my @ids;
+    my @serial;
     for(my $framenum = 0; my $frame = $stack->frame($framenum); $framenum++) {
         check_frame($frame, $expected[$framenum]);
-        push @ids, [$framenum, $frame->id];
+        push @serial, [$framenum, $frame->serial];
     }
-    ids_are_distinct(\@ids);
+    serials_are_distinct(\@serial);
 
     my $iter = $stack->iterator();
     Test::More::ok($iter, 'Stack iterator');
-    my @iter_ids;
+    my @iter_serial;
     for(my $framenum = 0; my $frame = $iter->(); $framenum++) {
         check_frame($frame, $expected[$framenum], 'iterator');
-        push @iter_ids, [$framenum, $frame->id];
+        push @iter_serial, [$framenum, $frame->serial];
 
     }
-    Test::More::is_deeply(\@iter_ids, \@ids, 'Got the same ids');
+    Test::More::is_deeply(\@iter_serial, \@serial, 'Got the same serial numbers');
 
-    # Get the stack again, ids should be the same
+    # Get the stack again, serials should be the same
     my $stack2 = $db->stack();
-    my @ids2;
+    my @serial2;
     for (my $framenum = 0; my $frame = $stack2->frame($framenum); $framenum++) {
-        push @ids2, [ $framenum, $frame->id];
+        push @serial2, [ $framenum, $frame->serial];
     }
-    Test::More::is_deeply(\@ids2, \@ids, 'ids are the same getting another stack object');
+    Test::More::is_deeply(\@serial2, \@serial, 'serial numbers are the same getting another stack object');
 }
 
 sub check_frame {
@@ -247,22 +247,22 @@ sub check_frame {
     Test::More::is_deeply(\%got_copy, \%expected_copy, "Execution stack frame matches for $msg");
 }
 
-sub ids_are_distinct {
-    my $id_records = shift;
+sub serials_are_distinct {
+    my $serial_records = shift;
 
-    my %id_counts;
-    my %id_to_frame;
-    foreach my $record ( @$id_records ) {
-        my($frameno, $id) = @$record;
-        $id_counts{ $id }++;
+    my %serial_counts;
+    my %serial_to_frame;
+    foreach my $record ( @$serial_records ) {
+        my($frameno, $serial) = @$record;
+        $serial_counts{ $serial }++;
 
-        $id_to_frame{$id} ||= [];
-        push @{$id_to_frame{ $id } }, $frameno
+        $serial_to_frame{$serial} ||= [];
+        push @{$serial_to_frame{ $serial } }, $frameno
     }
 
-    my @duplicate_ids = grep { $id_counts{$_} > 1 } keys %id_counts;
-    Test::More::ok(! @duplicate_ids, 'IDs are distinct')
-        or Test::More::diag('Frames with duplicates: ', join(' and ', map { join(',', @{$id_to_frame{$_}}) } @duplicate_ids));
+    my @duplicate_serials = grep { $serial_counts{$_} > 1 } keys %serial_counts;
+    Test::More::ok(! @duplicate_serials, 'serials are distinct')
+        or Test::More::diag('Frames with duplicates: ', join(' and ', map { join(',', @{$serial_to_frame{$_}}) } @duplicate_serials));
 }
 
 sub remove_dont_care {

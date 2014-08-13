@@ -1,6 +1,6 @@
 16 Aug 2014 - v0.04
     * Normalize stack frame 'hasargs' between different Perl versions
-    * Stack frame instances get unique UUIDs
+    * Stack frame instances get unique serial numbers
     * Breakpoint/Action 'code' is now mutable
 
 24 Jun 2014 - v0.03

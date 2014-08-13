@@ -18,7 +18,7 @@ sub new {
     my @frames;
     my $should_remove_this_frame = 1;    # Don't include the frame for this function
     my $next_AUTOLOAD_idx = 0;
-    my $id_iter = _id_iterator();
+    my $serial_iter = _serial_iterator();
     my @prev_loc;
 
     my $level;
@@ -69,7 +69,7 @@ sub new {
         # &subname; syntax will have '' returned from caller() starting with perl 5.12.
         $caller{hasargs} = '' if (! $caller{hasargs} and $caller{subroutine} ne '(eval)');
 
-        $caller{id} = $id_iter->(@caller{'subroutine','filename','line'});
+        $caller{serial} = $serial_iter->(@caller{'subroutine','filename','line'});
 
         $caller{level} = $level;
 
@@ -94,36 +94,36 @@ sub new {
                     hasargs     => 1,
                     args        => \@saved_ARGV,
                     level       => $level,
-                    id        => $Devel::Chitin::stack_uuids[0]->[-1],
+                    serial      => $Devel::Chitin::stack_serial[0]->[-1],
                 );
 
     shift @frames if $should_remove_this_frame;
     return bless \@frames, $class;
 }
 
-sub _id_iterator {
-    my $next_idx = $#Devel::Chitin::stack_uuids;
+sub _serial_iterator {
+    my $next_idx = $#Devel::Chitin::stack_serial;
 
     return sub {
         my($subname, $filename, $line) = @_;
 
-        return unless @Devel::Chitin::stack_uuids;
+        return unless @Devel::Chitin::stack_serial;
 
         if (index($subname, '(eval') >= 0) {
-            my $this_sub_uuid = $Devel::Chitin::stack_uuids[$next_idx]->[1];
-            return $Devel::Chitin::eval_uuids{$this_sub_uuid}{$line} ||= DB::_allocate_sub_id();
+            my $this_sub_serial = $Devel::Chitin::stack_serial[$next_idx]->[1];
+            return $Devel::Chitin::eval_serial{$this_sub_serial}{$line} ||= DB::_allocate_sub_serial();
         }
 
         for (my $i = $next_idx; $i >= 0; $i--) {
-            if ($subname eq $Devel::Chitin::stack_uuids[$i]->[0]
+            if ($subname eq $Devel::Chitin::stack_serial[$i]->[0]
                 or
-                (index($subname, '__ANON__[') >= 0 and ref($Devel::Chitin::stack_uuids[$i]->[0]) eq 'CODE')
+                (index($subname, '__ANON__[') >= 0 and ref($Devel::Chitin::stack_serial[$i]->[0]) eq 'CODE')
             ) {
                 $next_idx = $i - 1;
-                return $Devel::Chitin::stack_uuids[$i]->[-1];
+                return $Devel::Chitin::stack_serial[$i]->[-1];
             }
         }
-        return DB::_allocate_sub_id();  # Punt by making a new one up
+        return DB::_allocate_sub_serial();  # Punt by making a new one up
     };
 }
 
@@ -178,7 +178,7 @@ BEGIN {
     no strict 'refs';
     foreach my $acc ( qw(package filename line subroutine hasargs wantarray
                          evaltext is_require hints bitmask
-                         subname autoload level evalfile evalline id ) ) {
+                         subname autoload level evalfile evalline serial ) ) {
         *{$acc} = sub { return shift->{$acc} };
     }
 }
@@ -378,15 +378,15 @@ not relative to the program being debugged, and so reflects the real number
 of frames between the caller and the bottom of the stack, including any
 frames within the debugger.
 
-=item id
+=item serial
 
 Each instance of a subroutine call gets a unique identifier as an integer,
 including the initial frame for MAIN.
 
-eval frames also get ids that are distinct between different function call
-frames.  eval frames within the same function call frame on the same line
-(such as inside a loop) will, unfortunately, have the same id.  This bug will
-hopefully be fixed in the future.
+eval frames also get serial numbers that are distinct between different
+function call frames.  eval frames within the same function call frame on the
+same line (such as inside a loop) will, unfortunately, have the same serial
+number.  This bug will hopefully be fixed in the future.
 
 =back
 
