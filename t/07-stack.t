@@ -204,6 +204,7 @@ sub check_stack {
     Test::More::is_deeply(\@iter_serial, \@serial, 'Got the same serial numbers');
 
     # Get the stack again, serials should be the same
+    Devel::Chitin::Stack::invalidate();  # force it to re-create it
     my $stack2 = $db->stack();
     my @serial2;
     for (my $framenum = 0; my $frame = $stack2->frame($framenum); $framenum++) {
