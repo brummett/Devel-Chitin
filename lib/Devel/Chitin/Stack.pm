@@ -23,7 +23,7 @@ sub new {
     return $stack_object if $stack_object;
 
     my @frames;
-    my $should_remove_this_frame = 1;    # Don't include the frame for this function
+    my $in_debugger_frames = 1;
     my $next_AUTOLOAD_idx = 0;
     my $serial_iter = _serial_iterator();
     my @prev_loc;
@@ -49,10 +49,10 @@ sub new {
 
         if ($caller{subroutine} eq 'DB::DB') {
             # entered the debugger here, start over recording frames
-            @frames = ();
-            $should_remove_this_frame = 0;
+            $in_debugger_frames = 0;
             next;
         }
+        next if $in_debugger_frames;
 
         #next if $skip;
 
@@ -104,7 +104,6 @@ sub new {
                     serial      => $Devel::Chitin::stack_serial[0]->[-1],
                 );
 
-    shift @frames if $should_remove_this_frame;
     return $stack_object = bless \@frames, $class;
 }
 
