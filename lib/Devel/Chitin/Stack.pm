@@ -18,7 +18,7 @@ sub new {
     my @frames;
     my $should_remove_this_frame = 1;    # Don't include the frame for this function
     my $next_AUTOLOAD_idx = 0;
-    my $uuid_iter = _uuid_iterator();
+    my $id_iter = _id_iterator();
     my @prev_loc;
 
     my $level;
@@ -69,7 +69,7 @@ sub new {
         # &subname; syntax will have '' returned from caller() starting with perl 5.12.
         $caller{hasargs} = '' if (! $caller{hasargs} and $caller{subroutine} ne '(eval)');
 
-        $caller{uuid} = $uuid_iter->(@caller{'subroutine','filename','line'});
+        $caller{id} = $id_iter->(@caller{'subroutine','filename','line'});
 
         $caller{level} = $level;
 
@@ -94,14 +94,14 @@ sub new {
                     hasargs     => 1,
                     args        => \@saved_ARGV,
                     level       => $level,
-                    uuid        => $Devel::Chitin::stack_uuids[0]->[-1],
+                    id        => $Devel::Chitin::stack_uuids[0]->[-1],
                 );
 
     shift @frames if $should_remove_this_frame;
     return bless \@frames, $class;
 }
 
-sub _uuid_iterator {
+sub _id_iterator {
     my $next_idx = $#Devel::Chitin::stack_uuids;
 
     return sub {
@@ -111,7 +111,7 @@ sub _uuid_iterator {
 
         if (index($subname, '(eval') >= 0) {
             my $this_sub_uuid = $Devel::Chitin::stack_uuids[$next_idx]->[1];
-            return $Devel::Chitin::eval_uuids{$this_sub_uuid}{$line} ||= DB::_allocate_uuid();
+            return $Devel::Chitin::eval_uuids{$this_sub_uuid}{$line} ||= DB::_allocate_sub_id();
         }
 
         for (my $i = $next_idx; $i >= 0; $i--) {
@@ -123,7 +123,7 @@ sub _uuid_iterator {
                 return $Devel::Chitin::stack_uuids[$i]->[-1];
             }
         }
-        return DB::_allocate_uuid();  # Punt by making a new one up
+        return DB::_allocate_sub_id();  # Punt by making a new one up
     };
 }
 
@@ -178,7 +178,7 @@ BEGIN {
     no strict 'refs';
     foreach my $acc ( qw(package filename line subroutine hasargs wantarray
                          evaltext is_require hints bitmask
-                         subname autoload level evalfile evalline uuid ) ) {
+                         subname autoload level evalfile evalline id ) ) {
         *{$acc} = sub { return shift->{$acc} };
     }
 }
@@ -378,14 +378,15 @@ not relative to the program being debugged, and so reflects the real number
 of frames between the caller and the bottom of the stack, including any
 frames within the debugger.
 
-=item uuid
+=item id
 
-Each instance of a subroutine call gets a unique identifier as a UUID string,
+Each instance of a subroutine call gets a unique identifier as an integer,
 including the initial frame for MAIN.
 
-eval frames also get UUIDs that are distinct between different function call
+eval frames also get ids that are distinct between different function call
 frames.  eval frames within the same function call frame on the same line
-(such as inside a loop) will, unfortunately, have the same uuid.
+(such as inside a loop) will, unfortunately, have the same id.  This bug will
+hopefully be fixed in the future.
 
 =back
 

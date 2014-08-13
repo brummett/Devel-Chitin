@@ -520,14 +520,12 @@ sub DB {
 }
 
 BEGIN {
-    my $uuidgen = Data::UUID->new();
-    @Devel::Chitin::stack_uuids = ( [ 'main::MAIN', $uuidgen->create_str ] );
+    my $sub_counter = 1;
+    @Devel::Chitin::stack_uuids = ( [ 'main::MAIN', $sub_counter++ ] );
     %Devel::Chitin::eval_uuids = ();
 
-    sub _allocate_uuid {
-        return $uuidgen
-                ? $uuidgen->create_str()
-                : 'CLEANUP' . rand();
+    sub _allocate_sub_id {
+        $sub_counter++;
     }
 }
 
@@ -546,7 +544,7 @@ sub sub {
     local @Devel::Chitin::stack_uuids = @Devel::Chitin::stack_uuids;
     unless ($in_debugger) {
         $stack_depth++;
-        $stack_tracker = _new_stack_tracker(_allocate_uuid());
+        $stack_tracker = _new_stack_tracker(_allocate_sub_id());
 
         push(@Devel::Chitin::stack_uuids, [ $sub, $$stack_tracker]);
     }
