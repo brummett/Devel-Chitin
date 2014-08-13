@@ -27,7 +27,7 @@ sub new {
 sub new_from_db_sub {
     my($class, $subname) = @_;
 
-    return () unless $DB::sub{$subname};
+    return () unless (defined($subname) and $DB::sub{$subname});
     my($filename, $line, $end) = $DB::sub{$subname} =~ m/(.*):(\d+)-(\d+)$/;
     my($source, $source_line) = $filename =~ m/\[(.*):(\d+)\]$/;
     my $glob = do {
