@@ -12,8 +12,15 @@ BEGIN {
 
 my @caller_values = qw(package filename line subroutine hasargs wantarray
                        evaltext is_require hints bitmask);
+
+# DB::DB will wipe this out between stoppages.
+our $stack_object;
+
+sub invalidate { undef($stack_object) }
+
 sub new {
     my $class = shift;
+    return $stack_object if $stack_object;
 
     my @frames;
     my $should_remove_this_frame = 1;    # Don't include the frame for this function
@@ -98,7 +105,7 @@ sub new {
                 );
 
     shift @frames if $should_remove_this_frame;
-    return bless \@frames, $class;
+    return $stack_object = bless \@frames, $class;
 }
 
 sub _serial_iterator {

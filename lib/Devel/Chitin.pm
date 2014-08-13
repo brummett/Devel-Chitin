@@ -515,6 +515,7 @@ sub DB {
     }
     Devel::Chitin::_do_each_client('notify_resumed', $current_location);
     undef $current_location;
+    Devel::Chitin::Stack::invalidate();
     restore();
 }
 
