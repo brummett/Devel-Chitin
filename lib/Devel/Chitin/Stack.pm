@@ -37,10 +37,6 @@ sub new {
         };
         last unless defined($caller{line});  # no more frames
 
-        # perl 5.10.* and earlier use 0 for scalar context.
-        # Normalize this value to the empty string for scalar context
-        $caller{wantarray} = '' if (defined($caller{wantarray}) and !$caller{wantarray});
-
         {
             my @this = @caller{'filename','line','package'};
             @caller{'filename','line','package'} = @prev_loc;
@@ -71,6 +67,10 @@ sub new {
         # if it's a string eval, add info about what file and line the source string
         # came from
         @caller{'evalfile','evalline'} = ($caller{filename} || '')  =~ m/\(eval \d+\)\[(.*?):(\d+)\]/;
+
+        # perl 5.10.* and earlier use 0 for scalar context.
+        # Normalize this value to the empty string for scalar context
+        $caller{wantarray} = '' if (defined($caller{wantarray}) and !$caller{wantarray});
 
         # Normalize hasargs.  eval-frames will always have 0.  Subroutines called with the
         # &subname; syntax will have '' returned from caller() starting with perl 5.12.
