@@ -240,12 +240,16 @@ breakpoints for that file.  You may also filter by line, code and inactive.
 
 =item $bp->line
 
-=item $bp->code
-
 =item $bp->once
 
 Read-only accessors that return whatever values were used to create the
 breakpoint.
+
+=item $bp->code
+
+=item $bp->code($string)
+
+Mutator that retrieves the breakpoint's code condition, or sets it.
 
 =item $bp->inactive();
 
@@ -293,12 +297,16 @@ that file.  You may also filter by line, code and inactive.
 
 =item $act->line
 
-=item $act->code
-
 =item $act->once
 
 Read-only accessors that return whatever values were used to create the
 action.
+
+=item $act->code
+
+=item $act->code($string);
+
+Mutator that retrieves the action's code, or set it.
 
 =item $act->inactive();
 
