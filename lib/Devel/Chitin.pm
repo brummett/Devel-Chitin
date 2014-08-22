@@ -40,11 +40,15 @@ sub attach {
     return $self;
 }
 
+sub _turn_off_trace_if_not_needed {
+    $DB::trace = %trace_clients || @watch_exprs;
+}
+
 sub detach {
     my $self = shift;
     my $deleted = delete $attached_clients{$self};
     delete $trace_clients{$self};
-    $DB::trace = %trace_clients ? 1 : 0;
+    _turn_off_trace_if_not_needed();
     if ($deleted) {
         for (my $i = 0; $i < @attached_clients; $i++) {
             my $same = ref($self)
@@ -102,10 +106,7 @@ sub trace {
         } else {
             # turning it off
             delete $trace_clients{$class};
-            if (%trace_clients) {
-                # No more clients requesting trace
-                $DB::trace = 0;
-            }
+            _turn_off_trace_if_not_needed();
             $rv = 0;
         }
 
