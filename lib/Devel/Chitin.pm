@@ -25,6 +25,7 @@ my(%attached_clients,
    $is_initialized,
    @pending_eval,
    $current_location,
+   $previous_location,
 );
 sub attach {
     my $self = shift;
@@ -489,10 +490,10 @@ sub DB {
 
     _execute_actions($filename, $line);
 
-    return if $no_stopping;
+    goto RETURN_TO_DEBUGGED_PROGRAM if $no_stopping;
 
     if (! is_breakpoint($package, $filename, $line)) {
-        return;
+        goto RETURN_TO_DEBUGGED_PROGRAM;
     }
     $step_over_depth = undef;
 
@@ -515,6 +516,10 @@ sub DB {
         redo if ($finished || @pending_eval);
     }
     Devel::Chitin::_do_each_client('notify_resumed', $current_location);
+
+    RETURN_TO_DEBUGGED_PROGRAM:
+
+    $previous_location = $current_location;
     undef $current_location;
     Devel::Chitin::Stack::invalidate();
     restore();
