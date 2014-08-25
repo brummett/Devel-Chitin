@@ -1,3 +1,7 @@
+XX XXX XXXX - v0.05
+    * New feature: watch expressions - send notification when an expression
+        changes
+
 16 Aug 2014 - v0.04
     * Normalize stack frame 'hasargs' between different Perl versions
     * Stack frame instances get unique serial numbers
