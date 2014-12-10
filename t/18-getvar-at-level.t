@@ -7,12 +7,13 @@ use Devel::Chitin::TestRunner;
 use Devel::Chitin::GetVarAtLevel;
 
 run_test(
-    25,
+    28,
     sub {
         our $our_var = 'ourvar';
         no strict 'vars';
         no warnings 'once';
         @bare_array = ('barevar', 'barevar');
+        %bare_hash = ( key1 => 1, key2 => 2 );
         use strict 'vars';
         $Other::Package::variable = 'pkgvar';
         my $x = 1;
@@ -57,6 +58,16 @@ sub do_test_vars {
     is_var($db, 1,'@bare_array',
             ['barevar','barevar'],
             'Get value of bare pkg var @bare_array one level up');
+    is_var($db, 0, '$bare_array[1]',
+            'barevar',
+            'Get value of bare package var element $bare_array[1]');
+
+    is_var($db, 0, '%bare_hash',
+            { key1 => 1, key2 => 2 },
+            'Get value of bare package var %bare_hash inside test_vars');
+    is_var($db, 1, '$bare_hash{key1}',
+            1,
+            'Get value of bare package var element $bare_hash{key1}');
 
     is_var($db, 0, '$Other::Package::variable', 'pkgvar',
         'Get value of pkg global $Other::Package::variable inside test_vars');

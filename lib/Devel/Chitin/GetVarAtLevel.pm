@@ -137,14 +137,26 @@ sub get_var_at_level {
 
             my $expanded_varname = $sigil . $package . '::' . $bare_varname;
             my @value = eval( $expanded_varname );
-            return @value < 2 ? $value[0] : \@value;
+            return _context_return($sigil, \@value);
 
-        } elsif ($varname =~ m/^[\$\@\%\*]\w+(::\w+)*(::)?$/) {
+        } elsif ($varname =~ m/^([\$\@\%\*])\w+(::\w+)*(::)?$/) {
             my @value = eval($varname);
-            return @value < 2 ? $value[0] : \@value;
+            return _context_return($1, \@value);
         }
     }
 
+}
+
+sub _context_return {
+    my($sigil, $list) = @_;
+    if (@$list < 2) {
+        return $list->[0];
+    } elsif ($sigil eq '%') {
+        my %hash = @$list;
+        return \%hash;
+    } else {
+        return $list;
+    }
 }
 
 # How many frames between here and the program, both for PadWalker (which
