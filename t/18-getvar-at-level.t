@@ -12,7 +12,7 @@ run_test(
         our $our_var = 'ourvar';
         no strict 'vars';
         no warnings 'once';
-        @bare_var = ('barevar', 'barevar');
+        @bare_array = ('barevar', 'barevar');
         use strict 'vars';
         $Other::Package::variable = 'pkgvar';
         my $x = 1;
@@ -51,12 +51,12 @@ sub do_test_vars {
 
     is_var($db, 0, '$our_var', 'ourvar', 'Get value of $our_var inside test_vars');
     is_var($db, 1, '$our_var', 'ourvar', 'Get value of $our_var one level up');
-    is_var($db, 0, '@bare_var',
+    is_var($db, 0, '@bare_array',
             ['barevar','barevar'],
-            'Get value of bare pkg var @bare_var inside test_vars');
-    is_var($db, 1,'@bare_var',
+            'Get value of bare pkg var @bare_array inside test_vars');
+    is_var($db, 1,'@bare_array',
             ['barevar','barevar'],
-            'Get value of bare pkg var @bare_var one level up');
+            'Get value of bare pkg var @bare_array one level up');
 
     is_var($db, 0, '$Other::Package::variable', 'pkgvar',
         'Get value of pkg global $Other::Package::variable inside test_vars');
