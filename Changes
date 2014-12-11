@@ -1,6 +1,7 @@
-XX XXX XXXX - v0.05
+11 Dec 2014 - v0.05
     * New feature: watch expressions - send notification when an expression
         changes
+    * Fix a bug when get_var_at_level() is called with a package-global hash
 
 16 Aug 2014 - v0.04
     * Normalize stack frame 'hasargs' between different Perl versions
