@@ -23,8 +23,11 @@ sub new {
 }
 
 sub _required_properties {
-    #qw( package filename line subroutine opaddr );
     qw( package filename line subroutine );
+}
+
+sub _optional_properties {
+    qw( callsite );
 }
 
 sub at_end {
@@ -53,10 +56,10 @@ sub current {
 sub _make_accessors {
     my $package = shift;
     my @accessor_names;
-    @accessor_names = $package->_required_properties;
+    @accessor_names = ( $package->_required_properties, $package->_optional_properties );
     if ($package ne __PACKAGE__) {
         # called as a class method by a subclass
-        my %base_class_accessors = map { $_ => 1 } _required_properties();
+        my %base_class_accessors = map { $_ => 1 } (_required_properties(), _optional_properties());
         @accessor_names = grep { ! $base_class_accessors{$_} } @accessor_names;
     }
  
