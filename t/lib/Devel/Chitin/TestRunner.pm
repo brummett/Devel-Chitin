@@ -25,10 +25,16 @@ sub run_test {
     my $program = shift;
     my @tests = @_;
 
-    eval "use Test::More";
-    Carp::croak("Can't use Test::More: $@") if $@;
-    plan(tests => $plan);
-
+    unless (exists $INC{'Test/More.pm'}) {
+        local $@;
+        eval "use Test::More";
+        Carp::croak("Can't use Test::More: $@") if $@;
+    }
+    if (defined $plan) {
+        Test::More::plan(tests => $plan);
+    } else {
+        Test::More::plan(skip_all => '');
+    }
 
     my $db = bless \@tests, $PKG;
     $db->attach();
@@ -46,6 +52,7 @@ sub loc {
     defined($params{subroutine}) || do { $params{subroutine} = 'ANON' };
     defined($params{filename}) || do { $params{filename} = (caller)[1] };
     defined($params{package}) || do { $params{package} = 'main' };
+    defined($params{callsite}) || do { $params{callsite} = Devel::Callsite::callsite(0) };
     return Devel::Chitin::Location->new(%params);
 }
 

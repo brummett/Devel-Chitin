@@ -443,8 +443,9 @@ sub is_breakpoint {
 sub _parent_stack_location {
     my($package, $filename, $line) = caller(1);
     my(undef, undef, undef, $subname) = caller(2);
+    my $callsite = Devel::Chitin::Location::get_callsite(1);
     $subname ||= 'MAIN';
-    return ($package, $filename, $line, $subname);
+    return ($package, $filename, $line, $subname, $callsite);
 }
 
 BEGIN {
@@ -453,12 +454,13 @@ BEGIN {
         my $pid = CORE::fork();
         return $pid unless $ready;
 
-        my($package, $filename, $line, $subname) = _parent_stack_location();
+        my($package, $filename, $line, $subname, $callsite) = _parent_stack_location();
         my $location = Devel::Chitin::Location->new(
             'package'   => $package,
             line        => $line,
             filename    => $filename,
             subroutine  => $subname,
+            callsite    => $callsite,
         );
 
         my $notify = $pid ? 'notify_fork_parent' : 'notify_fork_child';
@@ -483,7 +485,7 @@ $SIG{__DIE__} = sub {
         # (which it correctly does with no args), it returns the line which
         # called the function which threw the exception.
         # We'll work around it by calling it twice
-        my($package, $filename, $line, $subname) = _parent_stack_location();
+        my($package, $filename, $line, $subname, $callsite) = _parent_stack_location();
 
         $uncaught_exception = Devel::Chitin::Exception->new(
             'package'   => $package,
@@ -491,6 +493,7 @@ $SIG{__DIE__} = sub {
             filename    => $filename,
             exception   => $exception,
             subroutine  => $subname,
+            callsite    => $callsite,
         );
         # After we fall off the end, the interpreter will try and exit,
         # triggering the END block that calls DB::fake::at_exit()
@@ -550,6 +553,7 @@ sub DB {
         filename    => $filename,
         line        => $line,
         subroutine  => $subroutine,
+        callsite    => scalar Devel::Chitin::Location::get_callsite(),
     );
 
     $_->notify_trace($current_location) foreach values(%trace_clients);

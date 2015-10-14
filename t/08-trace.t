@@ -51,12 +51,17 @@ BEGIN {
     );
 }
 
+my $has_callsite = Devel::Chitin::Location::get_callsite();
 sub notify_trace {
     my($class, $loc) = @_;
 
     my $next_test = shift @trace;
     exit unless $next_test;
 
+    if ($has_callsite and ! $loc->callsite) {
+        ok(0, 'Callsite missing for line '.$next_test->{line});
+    }
+    delete $loc->{callsite}; # Can't test for any particular value
     Test::More::is_deeply($loc, $next_test, 'Trace for line '.$next_test->{line});
 }
 

@@ -47,6 +47,7 @@ sub current {
         if ($caller[3] eq 'DB::DB') {
             @props{'package','filename','line'} = @caller[0,1,2];
             $props{subroutine} = (caller($i+1))[3];
+            $props{callsite} = get_callsite($i);
             last;
         }
     }
@@ -71,9 +72,19 @@ sub _make_accessors {
     }
 }
 
+sub get_callsite { undef }
 
 BEGIN {
     __PACKAGE__->_make_accessors();
+
+    local $@;
+    my $site = eval { require Devel::Callsite && Devel::Callsite::callsite() };
+    if ($site) {
+        my $get_callsite_name = join('::', __PACKAGE__, 'get_callsite');
+        no strict 'refs';
+        no warnings 'redefine';
+        *$get_callsite_name = \&Devel::Callsite::callsite;
+    }
 }
 
 1;
