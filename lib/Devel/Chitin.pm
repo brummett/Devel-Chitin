@@ -443,7 +443,7 @@ sub is_breakpoint {
 sub _parent_stack_location {
     my($package, $filename, $line) = caller(1);
     my(undef, undef, undef, $subname) = caller(2);
-    my $callsite = Devel::Chitin::Location::get_callsite(1);
+    my $callsite = Devel::Chitin::Location::get_callsite(2);
     $subname ||= 'MAIN';
     return ($package, $filename, $line, $subname, $callsite);
 }
