@@ -8,7 +8,7 @@ use Devel::Chitin::TestRunner;
 
 our($serial_1, $serial_2, $serial_3, $serial_4, $serial_5); my $main_serial = $Devel::Chitin::stack_serial[0]->[-1];
 run_test(
-    60,
+    79,
     sub {
         $serial_1 = $Devel::Chitin::stack_serial[-1]->[-1];
         foo(1,2,3);                 # line 14: void
@@ -181,17 +181,20 @@ sub check_stack {
             subname     => 'MAIN',
             args        => ['--test'],
             serial      => $main_serial,
+            callsite    => undef,
         },
     );
 
     Test::More::is($stack->depth, scalar(@expected), 'Expected number of stack frames');
 
-    my @serial;
+    my(@serial, @callsite);
     for(my $framenum = 0; my $frame = $stack->frame($framenum); $framenum++) {
         check_frame($frame, $expected[$framenum]);
         push @serial, [$framenum, $frame->serial];
+        push @callsite, [$framenum, $frame->callsite];
     }
     values_are_distinct(\@serial, 'serials are distinct');
+    values_are_distinct(\@serial, 'callsites are distinct');
 
     my $iter = $stack->iterator();
     Test::More::ok($iter, 'Stack iterator');
@@ -213,6 +216,7 @@ sub check_stack {
     Test::More::is_deeply(\@serial2, \@serial, 'serial numbers are the same getting another stack object');
 }
 
+my $has_callsite;
 sub check_frame {
     my($got_orig, $expected_orig, $msg) = @_;
     my %got_copy = %$got_orig;
@@ -228,9 +232,28 @@ sub check_frame {
 
     Test::More::ok(exists($got_copy{hints})
             && exists($got_copy{bitmask})
-            && exists($got_copy{level}),
-            "Frame has hints, bitmask and level: $msg");
+            && exists($got_copy{level})
+            && exists($got_copy{callsite}),
+            "Frame has hints, bitmask, callsite and level: $msg");
     my($level) = delete @got_copy{'level','hints','bitmask'};
+
+    unless (defined $has_callsite) {
+        my $test_callsite = ( sub { Devel::Chitin::Location::get_callsite(0) })->();
+        $has_callsite = ! ! $test_callsite;
+    }
+
+    my $callsite = delete $got_copy{callsite};
+    my $callsite_test;
+    if ($has_callsite) {
+        if (exists $expected_copy{callsite}) {
+            Test::More::is($callsite, $expected_copy{callsite}, 'callsite value');
+            delete $expected_copy{callsite};
+        } else {
+            Test::More::ok($callsite, 'callsite has a value');
+        }
+    } else {
+        Test::More::ok(!defined($callsite), 'unsupported callsite is undef');
+    }
 
     my $got_filename = delete $got_copy{filename};
     my $expected_filename = delete $expected_copy{filename};

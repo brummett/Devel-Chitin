@@ -53,6 +53,7 @@ sub new {
         #next if $skip;
 
         $caller{args} = [ @DB::args ];
+        $caller{callsite} = Devel::Chitin::Location::get_callsite($level);
 
         # subname is the subroutine without the package part
         $caller{subname} = $caller{subroutine} =~ m/\b(\w+$|__ANON__)/ ? $1 : $caller{subroutine};
@@ -102,6 +103,7 @@ sub new {
                     args        => \@saved_ARGV,
                     level       => $level,
                     serial      => $Devel::Chitin::stack_serial[0]->[-1],
+                    callsite    => undef,
                 );
 
     return $stack_object = bless \@frames, $class;
@@ -184,7 +186,7 @@ BEGIN {
     no strict 'refs';
     foreach my $acc ( qw(package filename line subroutine hasargs wantarray
                          evaltext is_require hints bitmask
-                         subname autoload level evalfile evalline serial ) ) {
+                         subname autoload level evalfile evalline serial callsite ) ) {
         *{$acc} = sub { return shift->{$acc} };
     }
 }
