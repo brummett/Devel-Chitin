@@ -191,7 +191,7 @@ sub check_stack {
         check_frame($frame, $expected[$framenum]);
         push @serial, [$framenum, $frame->serial];
     }
-    serials_are_distinct(\@serial);
+    values_are_distinct(\@serial, 'serials are distinct');
 
     my $iter = $stack->iterator();
     Test::More::ok($iter, 'Stack iterator');
@@ -248,22 +248,22 @@ sub check_frame {
     Test::More::is_deeply(\%got_copy, \%expected_copy, "Execution stack frame matches for $msg");
 }
 
-sub serials_are_distinct {
-    my $serial_records = shift;
+sub values_are_distinct {
+    my($record_list, $ok_msg) = @_;
 
-    my %serial_counts;
-    my %serial_to_frame;
-    foreach my $record ( @$serial_records ) {
-        my($frameno, $serial) = @$record;
-        $serial_counts{ $serial }++;
+    my %value_counts;
+    my %value_to_frame;
+    foreach my $record ( @$record_list ) {
+        my($frameno, $value) = @$record;
+        $value_counts{ $value }++;
 
-        $serial_to_frame{$serial} ||= [];
-        push @{$serial_to_frame{ $serial } }, $frameno
+        $value_to_frame{$value} ||= [];
+        push @{$value_to_frame{ $value } }, $frameno;
     }
 
-    my @duplicate_serials = grep { $serial_counts{$_} > 1 } keys %serial_counts;
-    Test::More::ok(! @duplicate_serials, 'serials are distinct')
-        or Test::More::diag('Frames with duplicates: ', join(' and ', map { join(',', @{$serial_to_frame{$_}}) } @duplicate_serials));
+    my @duplicate_values = grep { $value_counts{$_} > 1 } keys %value_counts;
+    Test::More::ok(! @duplicate_values, $ok_msg)
+        or Test::More::diag('Frames with duplicates: ', join(' and ', map { join(',', @{$value_to_frame{$_}}) } @duplicate_values));
 }
 
 sub remove_dont_care {
