@@ -118,7 +118,7 @@ This class is used to represent a location in the debugged program.
   Devel::Chitin::Location->new(%params)
 
 Construct a new instance.  The following parameters are accepted.  The values
-should be self-explanatory.  All parameters are required.
+should be self-explanatory.  All parameters except callsite are required.
 
 =over 4
 
@@ -129,6 +129,11 @@ should be self-explanatory.  All parameters are required.
 =item line
 
 =item subroutine
+
+=item callsite
+
+Represents the opcode address of the location as reported by Devel::Callsite::callsite().
+This value will only be valid if the optional module L<Devel::Callsite> is installed.
 
 =back
 
@@ -145,7 +150,7 @@ after the program has ended.
 
 =head1 SEE ALSO
 
-L<Devel::Chitin::Exception>, L<Devel::Chitin>
+L<Devel::Chitin::Exception>, L<Devel::Chitin>, L<Devel::Callsite>
 
 =head1 AUTHOR
 

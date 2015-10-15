@@ -328,6 +328,11 @@ For the main program's stack frame, subroutine will be "main::MAIN".
 
 For an eval frame, subroutine will be "(eval)"
 
+=item callsite
+
+If the optional module L<Devel::Callsite> is installed, this will be the opcode
+address.  callsite for the bottom-level stack frame will always be C<undef>.
+
 =item hasargs
 
 True if this frame has its own instance of @_.  In practice, this will be 0
