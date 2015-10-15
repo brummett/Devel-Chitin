@@ -237,7 +237,6 @@ sub check_frame {
     my($level) = delete @got_copy{'level','hints','bitmask'};
 
     my $callsite = delete $got_copy{callsite};
-    my $callsite_test;
     if (has_callsite) {
         if (exists $expected_copy{callsite}) {
             Test::More::is($callsite, $expected_copy{callsite}, 'callsite value');
@@ -246,6 +245,7 @@ sub check_frame {
             Test::More::ok($callsite, 'callsite has a value');
         }
     } else {
+        delete $expected_copy{callsite};
         Test::More::ok(!defined($callsite), 'unsupported callsite is undef');
     }
 
