@@ -9,7 +9,7 @@ use base 'Devel::Chitin';
 use Carp;
 
 use Exporter qw(import);
-our @EXPORT = qw(run_test loc run_in_debugger is_in_test_program);
+our @EXPORT = qw(run_test loc run_in_debugger is_in_test_program has_callsite);
 
 sub is_in_test_program {
     no warnings 'uninitialized';
@@ -46,13 +46,22 @@ sub run_test {
 
 }
 
+my $has_callsite;
+sub has_callsite {
+    unless (defined $has_callsite) {
+        my $test_callsite = ( sub { Devel::Chitin::Location::get_callsite(0) })->();
+        $has_callsite = ! ! $test_callsite;
+    }
+    return $has_callsite;
+}
+
 sub loc {
     my %params = @_;
 
     defined($params{subroutine}) || do { $params{subroutine} = 'ANON' };
     defined($params{filename}) || do { $params{filename} = (caller)[1] };
     defined($params{package}) || do { $params{package} = 'main' };
-    defined($params{callsite}) || do { $params{callsite} = Devel::Callsite::callsite(0) };
+    defined($params{callsite}) || do { $params{callsite} = has_callsite() ? Devel::Callsite::callsite(0) : undef };
     return Devel::Chitin::Location->new(%params);
 }
 

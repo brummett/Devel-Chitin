@@ -216,7 +216,6 @@ sub check_stack {
     Test::More::is_deeply(\@serial2, \@serial, 'serial numbers are the same getting another stack object');
 }
 
-my $has_callsite;
 sub check_frame {
     my($got_orig, $expected_orig, $msg) = @_;
     my %got_copy = %$got_orig;
@@ -237,14 +236,9 @@ sub check_frame {
             "Frame has hints, bitmask, callsite and level: $msg");
     my($level) = delete @got_copy{'level','hints','bitmask'};
 
-    unless (defined $has_callsite) {
-        my $test_callsite = ( sub { Devel::Chitin::Location::get_callsite(0) })->();
-        $has_callsite = ! ! $test_callsite;
-    }
-
     my $callsite = delete $got_copy{callsite};
     my $callsite_test;
-    if ($has_callsite) {
+    if (has_callsite) {
         if (exists $expected_copy{callsite}) {
             Test::More::is($callsite, $expected_copy{callsite}, 'callsite value');
             delete $expected_copy{callsite};
