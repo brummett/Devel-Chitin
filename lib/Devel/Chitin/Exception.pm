@@ -51,7 +51,7 @@ program.  It is a subclass of Devel::Chitin::Location.
   Devel::Chitin::Exception->new(%params)
 
 Construct a new instance.  The following parameters are accepted.  The values
-should be self-explanatory.  All parameters are required.
+should be self-explanatory.  All parameters except callsite are required.
 
 =over 4
 
@@ -62,6 +62,8 @@ should be self-explanatory.  All parameters are required.
 =item line
 
 =item subroutine
+
+=item callsite
 
 =item exception
 

@@ -23,8 +23,11 @@ sub new {
 }
 
 sub _required_properties {
-    #qw( package filename line subroutine opaddr );
     qw( package filename line subroutine );
+}
+
+sub _optional_properties {
+    qw( callsite );
 }
 
 sub at_end {
@@ -44,6 +47,7 @@ sub current {
         if ($caller[3] eq 'DB::DB') {
             @props{'package','filename','line'} = @caller[0,1,2];
             $props{subroutine} = (caller($i+1))[3];
+            $props{callsite} = get_callsite($i);
             last;
         }
     }
@@ -53,10 +57,10 @@ sub current {
 sub _make_accessors {
     my $package = shift;
     my @accessor_names;
-    @accessor_names = $package->_required_properties;
+    @accessor_names = ( $package->_required_properties, $package->_optional_properties );
     if ($package ne __PACKAGE__) {
         # called as a class method by a subclass
-        my %base_class_accessors = map { $_ => 1 } _required_properties();
+        my %base_class_accessors = map { $_ => 1 } (_required_properties(), _optional_properties());
         @accessor_names = grep { ! $base_class_accessors{$_} } @accessor_names;
     }
  
@@ -68,9 +72,19 @@ sub _make_accessors {
     }
 }
 
+sub get_callsite { undef }
 
 BEGIN {
     __PACKAGE__->_make_accessors();
+
+    local $@;
+    my $site = eval { require Devel::Callsite && Devel::Callsite::callsite() };
+    if ($site) {
+        my $get_callsite_name = join('::', __PACKAGE__, 'get_callsite');
+        no strict 'refs';
+        no warnings 'redefine';
+        *$get_callsite_name = \&Devel::Callsite::callsite;
+    }
 }
 
 1;
@@ -104,7 +118,7 @@ This class is used to represent a location in the debugged program.
   Devel::Chitin::Location->new(%params)
 
 Construct a new instance.  The following parameters are accepted.  The values
-should be self-explanatory.  All parameters are required.
+should be self-explanatory.  All parameters except callsite are required.
 
 =over 4
 
@@ -115,6 +129,11 @@ should be self-explanatory.  All parameters are required.
 =item line
 
 =item subroutine
+
+=item callsite
+
+Represents the opcode address of the location as reported by Devel::Callsite::callsite().
+This value will only be valid if the optional module L<Devel::Callsite> is installed.
 
 =back
 
@@ -131,7 +150,7 @@ after the program has ended.
 
 =head1 SEE ALSO
 
-L<Devel::Chitin::Exception>, L<Devel::Chitin>
+L<Devel::Chitin::Exception>, L<Devel::Chitin>, L<Devel::Callsite>
 
 =head1 AUTHOR
 

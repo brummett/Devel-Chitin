@@ -23,7 +23,7 @@ sub notify_uncaught_exception {
 
     require Test::Builder;
     my $tb = Test::Builder->new();
-    $tb->plan( tests => 6 );
+    $tb->plan( tests => 7 );
 
     my %expected_location = (
         package => 'main',
@@ -37,6 +37,11 @@ sub notify_uncaught_exception {
         $tb->is_eq($exception->$k, $expected_location{$k}, "exception location $k");
     }
     $tb->like($exception->exception, qr(untrapped), 'exception property');
+    if (Devel::Chitin::TestRunner::has_callsite) {
+        $tb->ok($exception->callsite, 'callsite has a value');
+    } else {
+       eval { $tb->ok(!defined($exception->callsite), 'unsupported callsite is undef'); };
+    }
 
     $? = 0;
 }
