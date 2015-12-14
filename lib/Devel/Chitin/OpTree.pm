@@ -32,9 +32,12 @@ sub build_from_location {
     my $build_walker;
     $build_walker = sub {
         my $op = shift;
+
+        my $self = $class->new(op => $op);
+
         my @children;
         if ($$op && ($op->flags & B::OPf_KIDS)) {
-            unshift(@parents, $op);
+            unshift(@parents, $self);
             for (my $kid_op = $op->first; $$kid_op; $kid_op = $kid_op->sibling) {
                 push @children, $build_walker->($kid_op);
             }
@@ -46,16 +49,13 @@ sub build_from_location {
             and ${$op->pmreplroot}
             and $op->plreplroot->isa('B::OP')
         ) {
-            unshift @parents, $op;
+            unshift @parents, $self;
             push @children, $build_walker->($op->plreplroot);
             shift @parents;
         }
 
-        return $class->new(
-                    op => $op,
-                    parent => $parents[0],
-                    children => \@children,
-                );
+        @$self{'parent','children'} = ($parents[0], \@children);
+        $self;
     };
 
     $build_walker->($start_op);
@@ -84,11 +84,8 @@ sub _get_starting_op_of {
 
 sub new {
     my($class, %params) = @_;
-    unless (exists $params{op}
-            and exists $params{parent}
-            and exists $params{children}
-    ) {
-        Carp::croak(q{'op', 'parent' and 'children' are all required parameters of new()});
+    unless (exists $params{op}) {
+        Carp::croak(q{'op' is a required parameter of new()});
     }
 
     my $final_class = _class_for_op($params{op});
