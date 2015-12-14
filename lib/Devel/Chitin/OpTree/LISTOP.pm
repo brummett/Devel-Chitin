@@ -8,7 +8,17 @@ use warnings;
 
 sub d_lineseq {
     my $self = shift;
-    return join(' ', $self->_deparsed_children);
+    my($deparsed, $seen_cop);
+    foreach my $child ( @{ $self->children } ) {
+        if ($child->isa('Devel::Chitin::OpTree::COP')) {
+            if ($seen_cop++) {
+                $deparsed .= ";\n";
+            }
+            next;
+        }
+        $deparsed .= $child->deparse;
+    }
+    $deparsed;
 }
 
 1;
