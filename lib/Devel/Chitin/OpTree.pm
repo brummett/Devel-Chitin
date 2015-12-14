@@ -25,7 +25,7 @@ use Devel::Chitin::OpTree::PMOP;
 sub build_from_location {
     my($class, $start) = @_;
 
-    my $start_op = _get_starting_op_of($start);
+    my($start_op, $cv) = _determine_start_of($start);
 
     # adapted from B::walkoptree_slow
     my @parents;
@@ -33,7 +33,7 @@ sub build_from_location {
     $build_walker = sub {
         my $op = shift;
 
-        my $self = $class->new(op => $op);
+        my $self = $class->new(op => $op, cv => $cv);
 
         my @children;
         if ($$op && ($op->flags & B::OPf_KIDS)) {
@@ -61,7 +61,7 @@ sub build_from_location {
     $build_walker->($start_op);
 }
 
-sub _get_starting_op_of {
+sub _determine_start_of {
     my $start = shift;
 
     unless (blessed($start) and $start->isa('Devel::Chitin::Location')) {
@@ -69,7 +69,7 @@ sub _get_starting_op_of {
     }
 
     if ($start->package eq 'main' and $start->subroutine eq 'MAIN') {
-        return B::main_root();
+        return (B::main_root(), B::main_cv);
 
     } elsif ($start->subroutine =~ m/::__ANON__\[\S+:\d+\]/) {
         Carp::croak(q(Don't know how to handle anonymous subs yet));
@@ -78,7 +78,7 @@ sub _get_starting_op_of {
         my $subname = join('::', $start->package, $start->subroutine);
         my $subref = do { no strict 'refs'; \&$subname };
         my $cv = B::svref_2object($subref);
-        return $cv->ROOT;
+        return ($cv->ROOT, $cv);
     }
 }
 
@@ -110,6 +110,7 @@ sub _build { }
 sub op { shift->{op} }
 sub parent { shift->{parent} }
 sub children { shift->{children} }
+sub cv { shift->{cv} }
 
 sub walk_preorder {
     my($self, $cb) = @_;
