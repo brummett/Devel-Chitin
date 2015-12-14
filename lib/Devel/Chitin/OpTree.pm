@@ -124,4 +124,32 @@ sub walk_inorder {
     $_->walk_inorder($cb) foreach (@{ $self->children } );
 }
 
+sub deparse {
+    my $self = shift;
+    my $bounce = 'd_' . $self->op->name;
+    $self->$bounce();
+}
+
+sub _deparsed_children {
+    my $self = shift;
+    return grep { $_ }
+           map { $_->deparse }
+           @{ $self->children };
+}
+
+sub d_padsv {
+    my $self = shift;
+#    print "targ: ",$self->op->targ,"\n";
+#    print "padname_sv: ",$self->_padname_sv,"\n";
+#    print $self->_padname_sv->PV,"\n";
+    'my ' . $self->_padname_sv->PV;
+}
+
+sub _padname_sv {
+    my $self = shift;
+#    print "in padname_sv\n";
+#    print "PADLIST: ",$self->cv->PADLIST,"\n";
+#    print "ARRAYelt(0): ",$self->cv->PADLIST->ARRAYelt(0),"\n";
+    return $self->cv->PADLIST->ARRAYelt(0)->ARRAYelt( $self->op->targ );
+}
 1;

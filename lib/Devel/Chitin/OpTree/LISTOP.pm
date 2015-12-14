@@ -6,4 +6,9 @@ use Devel::Chitin::Version;
 use strict;
 use warnings;
 
+sub d_lineseq {
+    my $self = shift;
+    return join(' ', $self->_deparsed_children);
+}
+
 1;
