@@ -152,4 +152,15 @@ sub _padname_sv {
 #    print "ARRAYelt(0): ",$self->cv->PADLIST->ARRAYelt(0),"\n";
     return $self->cv->PADLIST->ARRAYelt(0)->ARRAYelt( $self->op->targ );
 }
+
+sub print_as_tree {
+    my $self = shift;
+    $self->walk_inorder(sub {
+        my $op = shift;
+        my($level, $parent) = (0, $op);
+        $level++ while($parent = $parent->parent);
+        printf("%s%s %s\n", '  'x$level, B::class($op->op), $op->op->name);
+    });
+}
+
 1;
