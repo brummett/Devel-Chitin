@@ -6,9 +6,13 @@ use Devel::Chitin::Version;
 use strict;
 use warnings;
 
+sub first {
+    shift->{children}->[0];
+}
+
 sub d_leavesub {
     my $self = shift;
-    return join('', $self->_deparsed_children);
+    $self->first->deparse;
 }
 
 1;

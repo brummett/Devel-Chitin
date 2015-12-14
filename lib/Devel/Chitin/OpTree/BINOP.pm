@@ -6,10 +6,13 @@ use Devel::Chitin::Version;
 use strict;
 use warnings;
 
+sub last {
+    shift->{children}->[1];
+}
+
 sub d_sassign {
     my $self = shift;
-    my($first, $last) = @{$self->children};
-    return join(' = ', $last->deparse, $first->deparse);
+    return join(' = ', $self->last->deparse, $self->first->deparse);
 }
 
 1;
