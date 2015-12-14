@@ -2,7 +2,7 @@ use strict;
 use warnings;
 
 use Devel::Chitin::OpTree;
-use Devel::Chitin;#::Location;
+use Devel::Chitin::Location;
 use Test::More tests => 1;
 
 subtest basic => sub {

@@ -3,6 +3,8 @@ package Devel::Chitin::OpTree;
 use strict;
 use warnings;
 
+use Devel::Chitin::Version;
+
 use Carp;
 use Scalar::Util qw(blessed);
 use B;
