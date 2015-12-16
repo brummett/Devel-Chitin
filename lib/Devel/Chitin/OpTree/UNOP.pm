@@ -15,4 +15,20 @@ sub d_leavesub {
     $self->first->deparse;
 }
 
+sub d_null {
+    my $self = shift;
+    #print "found a null: ",$self->op->name,"\n";
+    $self->first->deparse;
+}
+
+sub d_srefgen {
+    my $self = shift;
+    '\\' . $self->first->deparse;
+}
+
+sub d_rv2sv {
+    my $self = shift;
+    '$' . $self->first->deparse;
+}
+
 1;
