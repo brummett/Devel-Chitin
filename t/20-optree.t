@@ -18,14 +18,14 @@ subtest construction => sub {
     $ops->walk_inorder(sub { $count++ });
     ok($count > 1, 'More than one op is part of scalar_assignment');
 
-    is($ops->deparse, 'my $a = 1', 'scalar_assignment');
+    is($ops->deparse, '$a = 1', 'scalar_assignment');
 
     sub multi_statement_scalar_assignment {
         my $a = 1;
         my $b = 2;
     }
     is(_get_optree_for_sub_named('multi_statement_scalar_assignment')->deparse,
-        join("\n", q(my $a = 1;), q(my $b = 2)),
+        join("\n", q($a = 1;), q($b = 2)),
         'multi_statement_scalar_assignment');
 };
 

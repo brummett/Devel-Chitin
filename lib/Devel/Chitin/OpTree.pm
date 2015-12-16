@@ -139,10 +139,9 @@ sub _deparsed_children {
 
 sub d_padsv {
     my $self = shift;
-#    print "targ: ",$self->op->targ,"\n";
-#    print "padname_sv: ",$self->_padname_sv,"\n";
-#    print $self->_padname_sv->PV,"\n";
-    'my ' . $self->_padname_sv->PV;
+    # These are 'my' variables.  We're omitting the 'my' because
+    # that happens at compile time
+    $self->_padname_sv->PV;
 }
 
 sub _padname_sv {
