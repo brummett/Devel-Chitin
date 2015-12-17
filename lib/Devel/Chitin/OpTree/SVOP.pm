@@ -12,7 +12,7 @@ sub pp_const {
     if ($sv->isa('B::IV')) {
         return $sv->int_value;
     } elsif ($sv->isa('B::PV')) {
-        return $sv->PV;
+        return q(') . $sv->PV . q(');
     } else {
         die "Don't know how to get the value of a const from $sv";
     }

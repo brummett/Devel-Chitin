@@ -36,6 +36,12 @@ subtest 'assignment' => sub {
                                       q(@a = @b;),
                                       q(@a = ( @b, @a )),
             ),
+        # These hash assigments are done with aassign, so there's no way to
+        # tell that the lists would look better as ( one => 1, two => 2 )
+        hash_assignment => join("\n",   q(my %a = ( 'one', 1, 'two', 2 );),
+                                        q(my %b = ( 'three', 3, 'four', 4 );),
+                                        q(%a = %b;),
+                                        q(%a = ( %b, %a ))),
         scalar_ref_assignment => join("\n", q(my $a = 1;),
                                             q(my $b = \$a;),
                                             q($$b = 2)),

@@ -160,6 +160,7 @@ sub pp_padsv {
     $self->_padname_sv->PV;
 }
 *pp_padav = \&pp_padsv;
+*pp_padhv = \&pp_padsv;
 
 sub pp_padrange {
     my $self = shift;
