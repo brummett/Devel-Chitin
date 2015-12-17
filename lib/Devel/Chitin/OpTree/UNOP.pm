@@ -18,7 +18,6 @@ sub pp_leavesub {
 
 sub pp_null {
     my $self = shift;
-    #print "found a null: ",$self->op->name,"\n";
     my $bounce = $self->_ex_name();
     $self->$bounce();
 }
@@ -50,6 +49,11 @@ sub pp_rv2sv {
 sub pp_rv2av {
     my $self = shift;
     '@' . $self->first->deparse;
+}
+
+sub pp_rv2hv {
+    my $self = shift;
+    '%' . $self->first->deparse;
 }
 
 1;

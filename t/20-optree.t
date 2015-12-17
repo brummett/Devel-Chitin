@@ -48,10 +48,12 @@ subtest 'assignment' => sub {
 
         array_ref_assignment => join("\n",  q(my $a = [ 1, 2 ];),
                                             q(@$a = ( 1, 2 ))),
+
+        hash_ref_assignment => join("\n",   q(my $a = { 1 => 1, two => 2 };),
+                                            q(%$a = ( 'one', 1, 'two', 2 ))),
     );
     plan tests => scalar keys %tests;
 
-$DB::single=1;
     foreach my $test_name ( keys %tests ) {
         my $code = $tests{$test_name};
         eval "sub $test_name { $code }";

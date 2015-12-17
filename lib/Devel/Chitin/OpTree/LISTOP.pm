@@ -21,6 +21,22 @@ sub pp_lineseq {
     $deparsed;
 }
 
+sub pp_anonhash {
+    my $self = shift;
+    my @children = @{$self->children};
+    shift @children; # skip pushmark
+
+    my $deparsed = '{ ';
+    for (my $i = 0; $i < @children; $i+=2) {
+        (my $key = $children[$i]->deparse) =~ s/^'|'$//g; # remove quotes around the key
+        $deparsed .= $key
+                     . ' => '
+                     . $children[$i+1]->deparse;
+        $deparsed .= ', ' unless ($i+2) >= @children;
+    }
+    $deparsed . ' }';
+}
+
 sub pp_anonlist {
     my $self = shift;
     my @children = @{$self->children};
