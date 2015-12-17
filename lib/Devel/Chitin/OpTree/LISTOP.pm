@@ -21,4 +21,19 @@ sub pp_lineseq {
     $deparsed;
 }
 
+sub pp_anonlist {
+    my $self = shift;
+    my @children = @{$self->children};
+    shift @children;  # skip pushmark
+    '[ ' . join(', ', map { $_->deparse } @children) . ' ]';
+}
+
+sub pp_list {
+    my $self = shift;
+    my @children = @{$self->children};
+    shift @children;  # skip pushmark
+
+    return '( ' . join(', ', map { $_->deparse } @children) . ' )';
+}
+
 1;

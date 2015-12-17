@@ -100,6 +100,22 @@ sub _class_for_op {
     my $b_class = B::class($op);
     if ($b_class eq 'OP') {
         return __PACKAGE__,
+    } elsif ($b_class eq 'UNOP'
+             and $op->name eq 'null'
+             and $op->flags & B::OPf_KIDS
+    ) {
+        my $num_children = 0;
+        for (my $kid_op = $op->first; $$kid_op; $kid_op = $kid_op->sibling) {
+            $num_children++ ;
+        }
+        if ($num_children > 2) {
+            return join('::', __PACKAGE__, 'LISTOP');
+        } elsif ($num_children > 1) {
+            return join('::', __PACKAGE__, 'BINOP');
+
+        } else {
+            return join('::', __PACKAGE__, 'UNOP');
+        }
     } else {
         join('::', __PACKAGE__, B::class($op));
     }
@@ -143,12 +159,19 @@ sub pp_padsv {
     # that happens at compile time
     $self->_padname_sv->PV;
 }
+*pp_padav = \&pp_padsv;
 
 sub pp_padrange {
     my $self = shift;
     # These are 'my' variables.  We're omitting the 'my' because
     # that happens at compile time
     $self->_padname_sv->PV;
+}
+
+sub pp_pushmark {
+    my $self = shift;
+
+    '(';
 }
 
 sub _padname_sv {
@@ -165,8 +188,13 @@ sub print_as_tree {
         my $op = shift;
         my($level, $parent) = (0, $op);
         $level++ while($parent = $parent->parent);
-        printf("%s%s %s\n", '  'x$level, B::class($op->op), $op->op->name);
+        printf("%s%s %s\n", '  'x$level, $op->class, $op->op->name);
     });
+}
+
+sub class {
+    my $self = shift;
+    return substr(ref($self), rindex(ref($self), ':')+1);
 }
 
 1;

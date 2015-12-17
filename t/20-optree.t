@@ -31,12 +31,18 @@ subtest construction => sub {
 
 subtest 'assignment' => sub {
     my %tests = (
+        list_assignment => join("\n", q(my @a = ( 1, 2 );),
+                                      q(my @b = ( 3, 4 );),
+                                      q(@a = @b;),
+                                      q(@a = ( @b, @a )),
+            ),
         scalar_ref_assignment => join("\n", q(my $a = 1;),
                                             q(my $b = \$a;),
                                             q($$b = 2)),
     );
     plan tests => scalar keys %tests;
 
+$DB::single=1;
     foreach my $test_name ( keys %tests ) {
         my $code = $tests{$test_name};
         eval "sub $test_name { $code }";
