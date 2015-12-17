@@ -6,7 +6,7 @@ use Devel::Chitin::Version;
 use strict;
 use warnings;
 
-sub d_const {
+sub pp_const {
     my $self = shift;
     my $sv = $self->op->sv;
     if ($sv->isa('B::IV')) {

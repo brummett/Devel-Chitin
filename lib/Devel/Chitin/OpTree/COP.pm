@@ -6,7 +6,7 @@ use Devel::Chitin::Version;
 use strict;
 use warnings;
 
-sub d_nextstate { '' }
-sub d_dbstate { '' }
+sub pp_nextstate { '' }
+sub pp_dbstate { '' }
 
 1;

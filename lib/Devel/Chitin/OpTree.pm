@@ -126,7 +126,7 @@ sub walk_inorder {
 
 sub deparse {
     my $self = shift;
-    my $bounce = 'd_' . $self->op->name;
+    my $bounce = 'pp_' . $self->op->name;
     $self->$bounce();
 }
 
@@ -137,7 +137,14 @@ sub _deparsed_children {
            @{ $self->children };
 }
 
-sub d_padsv {
+sub pp_padsv {
+    my $self = shift;
+    # These are 'my' variables.  We're omitting the 'my' because
+    # that happens at compile time
+    $self->_padname_sv->PV;
+}
+
+sub pp_padrange {
     my $self = shift;
     # These are 'my' variables.  We're omitting the 'my' because
     # that happens at compile time

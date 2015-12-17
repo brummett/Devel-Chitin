@@ -10,7 +10,7 @@ sub last {
     shift->{children}->[1];
 }
 
-sub d_sassign {
+sub pp_sassign {
     my $self = shift;
     return join(' = ', $self->last->deparse, $self->first->deparse);
 }

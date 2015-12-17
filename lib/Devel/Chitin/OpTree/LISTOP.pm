@@ -6,7 +6,7 @@ use Devel::Chitin::Version;
 use strict;
 use warnings;
 
-sub d_lineseq {
+sub pp_lineseq {
     my $self = shift;
     my($deparsed, $seen_cop);
     foreach my $child ( @{ $self->children } ) {

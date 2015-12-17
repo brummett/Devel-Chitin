@@ -10,23 +10,23 @@ sub first {
     shift->{children}->[0];
 }
 
-sub d_leavesub {
+sub pp_leavesub {
     my $self = shift;
     $self->first->deparse;
 }
 
-sub d_null {
+sub pp_null {
     my $self = shift;
     #print "found a null: ",$self->op->name,"\n";
     $self->first->deparse;
 }
 
-sub d_srefgen {
+sub pp_srefgen {
     my $self = shift;
     '\\' . $self->first->deparse;
 }
 
-sub d_rv2sv {
+sub pp_rv2sv {
     my $self = shift;
     '$' . $self->first->deparse;
 }
