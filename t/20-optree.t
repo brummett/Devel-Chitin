@@ -45,6 +45,9 @@ subtest 'assignment' => sub {
         scalar_ref_assignment => join("\n", q(my $a = 1;),
                                             q(my $b = \$a;),
                                             q($$b = 2)),
+
+        array_ref_assignment => join("\n",  q(my $a = [ 1, 2 ];),
+                                            q(@$a = ( 1, 2 ))),
     );
     plan tests => scalar keys %tests;
 

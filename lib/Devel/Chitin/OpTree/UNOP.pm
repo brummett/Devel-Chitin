@@ -47,4 +47,9 @@ sub pp_rv2sv {
     '$' . $self->first->deparse;
 }
 
+sub pp_rv2av {
+    my $self = shift;
+    '@' . $self->first->deparse;
+}
+
 1;
