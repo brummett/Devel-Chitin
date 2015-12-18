@@ -30,7 +30,7 @@ subtest construction => sub {
 };
 
 subtest 'assignment' => sub {
-    my %tests = (
+    _run_tests(
         list_assignment => join("\n", q(my @a = ( 1, 2 );),
                                       q(our @b = ( 3, 4 );),
                                       q(@a = @b;),
@@ -52,6 +52,10 @@ subtest 'assignment' => sub {
         hash_ref_assignment => join("\n",   q(my $a = { 1 => 1, two => 2 };),
                                             q(%$a = ( 'one', 1, 'two', 2 ))),
     );
+};
+
+sub _run_tests {
+    my %tests = @_;
     plan tests => scalar keys %tests;
 
     foreach my $test_name ( keys %tests ) {
@@ -64,7 +68,7 @@ subtest 'assignment' => sub {
         my $ops = _get_optree_for_sub_named($test_name);
         is($ops->deparse, $expected, "code for $test_name");
     }
-};
+}
 
 
 sub _get_optree_for_sub_named {
