@@ -18,4 +18,11 @@ sub pp_const {
     }
 }
 
+sub pp_gv {
+    my $self = shift;
+    # An 'our' varaible
+    $self->op->gv->NAME;
+}
+*pp_gvsv = \&pp_gv;
+
 1;

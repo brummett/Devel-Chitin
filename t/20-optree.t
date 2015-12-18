@@ -32,18 +32,18 @@ subtest construction => sub {
 subtest 'assignment' => sub {
     my %tests = (
         list_assignment => join("\n", q(my @a = ( 1, 2 );),
-                                      q(my @b = ( 3, 4 );),
+                                      q(our @b = ( 3, 4 );),
                                       q(@a = @b;),
                                       q(@a = ( @b, @a )),
             ),
         # These hash assigments are done with aassign, so there's no way to
         # tell that the lists would look better as ( one => 1, two => 2 )
         hash_assignment => join("\n",   q(my %a = ( 'one', 1, 'two', 2 );),
-                                        q(my %b = ( 'three', 3, 'four', 4 );),
+                                        q(our %b = ( 'three', 3, 'four', 4 );),
                                         q(%a = %b;),
                                         q(%a = ( %b, %a ))),
         scalar_ref_assignment => join("\n", q(my $a = 1;),
-                                            q(my $b = \$a;),
+                                            q(our $b = \$a;),
                                             q($$b = 2)),
 
         array_ref_assignment => join("\n",  q(my $a = [ 1, 2 ];),
@@ -57,7 +57,7 @@ subtest 'assignment' => sub {
     foreach my $test_name ( keys %tests ) {
         my $code = $tests{$test_name};
         eval "sub $test_name { $code }";
-        (my $expected = $code) =~ s/my //g;
+        (my $expected = $code) =~ s/my |our //g;
         if ($@) {
             die "Couldn't compile code for $test_name: $@";
         }
