@@ -8,15 +8,16 @@ use warnings;
 
 sub pp_lineseq {
     my $self = shift;
-    my($deparsed, $seen_cop);
-    foreach my $child ( @{ $self->children } ) {
-        if ($child->isa('Devel::Chitin::OpTree::COP')) {
-            if ($seen_cop++) {
+    my $deparsed;
+    my $children = $self->children;
+    for (my $i = 0; $i < @$children; $i++) {
+        if ($children->[$i]->isa('Devel::Chitin::OpTree::COP')) {
+            if ($i) {
                 $deparsed .= ";\n";
             }
             next;
         }
-        $deparsed .= $child->deparse;
+        $deparsed .= $children->[$i]->deparse;
     }
     $deparsed;
 }
