@@ -196,7 +196,11 @@ sub print_as_tree {
         my $op = shift;
         my($level, $parent) = (0, $op);
         $level++ while($parent = $parent->parent);
-        printf("%s%s %s\n", '  'x$level, $op->class, $op->op->name);
+        my $name = $op->op->name;
+        if ($name eq 'null') {
+            $name .= ' (ex-' . $op->_ex_name . ')';
+        }
+        printf("%s%s %s\n", '  'x$level, $op->class, $name);
     });
 }
 
