@@ -2,7 +2,6 @@ package Devel::Chitin::OpTree::UNOP;
 use base 'Devel::Chitin::OpTree';
 
 use Devel::Chitin::Version;
-use B qw(ppname);
 
 use strict;
 use warnings;
@@ -27,13 +26,6 @@ sub pp_null {
 sub pp_list {
     my $self = shift;
     $self->first->deparse;
-}
-
-sub _ex_name {
-    my $self = shift;
-    if ($self->op->name eq 'null') {
-        ppname($self->op->targ);
-    }
 }
 
 sub pp_srefgen {

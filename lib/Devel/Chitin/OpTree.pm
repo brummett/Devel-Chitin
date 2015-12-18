@@ -7,7 +7,7 @@ use Devel::Chitin::Version;
 
 use Carp;
 use Scalar::Util qw(blessed);
-use B;
+use B qw(ppname);
 
 use Devel::Chitin::OpTree::UNOP;
 use Devel::Chitin::OpTree::SVOP;
@@ -181,6 +181,13 @@ sub _padname_sv {
 #    print "PADLIST: ",$self->cv->PADLIST,"\n";
 #    print "ARRAYelt(0): ",$self->cv->PADLIST->ARRAYelt(0),"\n";
     return $self->cv->PADLIST->ARRAYelt(0)->ARRAYelt( $self->op->targ );
+}
+
+sub _ex_name {
+    my $self = shift;
+    if ($self->op->name eq 'null') {
+        ppname($self->op->targ);
+    }
 }
 
 sub print_as_tree {
