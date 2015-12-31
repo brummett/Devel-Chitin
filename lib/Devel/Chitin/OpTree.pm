@@ -209,4 +209,17 @@ sub class {
     return substr(ref($self), rindex(ref($self), ':')+1);
 }
 
+sub siblings {
+    my $self = shift;
+    my $parent = $self->parent;
+    return unless $parent;
+    my $all_siblings = $parent->children;
+    for(my $i = 0; $i < @$all_siblings; $i++) {
+        if ($all_siblings->[$i] eq $self) {
+            return @$all_siblings[$i+1 .. $#$all_siblings];
+        }
+    }
+    return;
+}
+
 1;
