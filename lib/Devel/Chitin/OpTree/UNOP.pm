@@ -71,8 +71,6 @@ sub pp_entersub {
     }
     my $sub_name_op = pop @params_ops;
 
-print "There are ", scalar(@params_ops)," children: ",join(', ', map { $_->op->name } @params_ops),"\n";
-
     return _deparse_sub_invocation($sub_name_op)
             . '( '
                 . join(', ', map { $_->deparse } @params_ops)
