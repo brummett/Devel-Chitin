@@ -52,4 +52,21 @@ foreach my $cond ( [lt => '<'],
     *$subname = $sub;
 }
 
+sub pp_aelem {
+    my $self = shift;
+    if ($self->is_null
+        and
+        $self->first->op->name eq 'aelemfast_lex'
+        and
+        $self->last->is_null
+    ) {
+        $self->first->deparse;
+
+    } else {
+        my $array_name = substr($self->first->deparse, 1); # remove the sigil
+        my $idx = $self->last->deparse;
+        "\$${array_name}[${idx}]";
+    }
+}
+
 1;

@@ -36,6 +36,10 @@ subtest 'assignment' => sub {
                                       q(@a = @b;),
                                       q(@a = ( @b, @a )),
             ),
+        list_index_assignment => join("\n", q(my @the_list;),
+                                            q(my $idx;),
+                                            q($the_list[2] = 'foo';),
+                                            q($the_list[$idx] = 'bar')),
         # These hash assigments are done with aassign, so there's no way to
         # tell that the lists would look better as ( one => 1, two => 2 )
         hash_assignment => join("\n",   q(my %a = ( 'one', 1, 'two', 2 );),
@@ -88,6 +92,8 @@ subtest 'subroutine call' => sub {
         'call_sub' => join("\n",    q(foo( 1, 2, 3 ))),
         'call_subref' => join("\n", q(my $a;),
                                     q($a->( 1, 'two', 3 ))),
+        'call_subref_from_array' => join("\n",  q(my @a;),
+                                                q($a[0]->( 1, 'two', 3 ))),
     );
 };
 

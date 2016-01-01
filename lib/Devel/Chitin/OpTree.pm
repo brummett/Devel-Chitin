@@ -153,6 +153,10 @@ sub _deparsed_children {
            @{ $self->children };
 }
 
+sub is_null {
+    return shift->op->name eq 'null';
+}
+
 sub pp_null {
     my $self = shift;
     my $bounce = $self->_ex_name;
@@ -167,6 +171,12 @@ sub pp_padsv {
 }
 *pp_padav = \&pp_padsv;
 *pp_padhv = \&pp_padsv;
+
+sub pp_aelemfast_lex {
+    my $self = shift;
+    my $list_name = substr($self->pp_padav, 1); # remove the sigil
+    "\$${list_name}[" . $self->op->private . ']';
+}
 
 sub pp_padrange {
     my $self = shift;
