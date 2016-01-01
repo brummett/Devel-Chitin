@@ -23,8 +23,14 @@ sub pp_const {
 
 sub pp_gv {
     my $self = shift;
-    # An 'our' varaible
-    $self->op->gv->NAME;
+    # An 'our' varaible or subroutine
+    my $last_cop = $self->nearest_cop();
+    my $curr_package = $last_cop->op->stashpv;
+    my $gv_package = $self->op->gv->STASH->NAME;
+
+    $curr_package eq $gv_package
+        ? $self->op->gv->NAME
+        : join('::', $gv_package, $self->op->gv->NAME);
 }
 *pp_gvsv = \&pp_gv;
 

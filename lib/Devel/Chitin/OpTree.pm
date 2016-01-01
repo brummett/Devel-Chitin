@@ -246,14 +246,22 @@ sub class {
     return substr(ref($self), rindex(ref($self), ':')+1);
 }
 
-sub siblings {
+sub nearest_cop {
     my $self = shift;
+
     my $parent = $self->parent;
     return unless $parent;
-    my $all_siblings = $parent->children;
-    for(my $i = 0; $i < @$all_siblings; $i++) {
-        if ($all_siblings->[$i] eq $self) {
-            return @$all_siblings[$i+1 .. $#$all_siblings];
+    my $siblings = $parent->children;
+    return unless $siblings and @$siblings;
+
+    for (my $i = 0; $i < @$siblings; $i++) {
+        my $sib = $siblings->[$i];
+        if ($sib eq $self) {
+            # Didn't find it on one of the siblings already executed, try the parent
+            return $parent->nearest_cop();
+
+        } elsif ($sib->class eq 'COP') {
+            return $sib;
         }
     }
     return;
