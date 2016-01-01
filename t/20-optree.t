@@ -86,6 +86,8 @@ subtest 'conditional' => sub {
 subtest 'subroutine call' => sub {
     _run_tests(
         'call_sub' => join("\n",    q(foo( 1, 2, 3 ))),
+        'call_subref' => join("\n", q(my $a;),
+                                    q($a->( 1, 'two', 3 ))),
     );
 };
 

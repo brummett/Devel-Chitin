@@ -59,7 +59,12 @@ sub pp_entersub {
     # list, followed by the sub name
     my $params_ops = $self->first->children;
 
-    return $params_ops->[-1]->deparse . '( '
+    my $sub_name_op = $params_ops->[-1]; # should be a rc2cv
+    my $sub_invocation = $sub_name_op->first->op->name eq 'gv'
+        ? $sub_name_op->deparse
+        : $sub_name_op->deparse . '->';
+
+    return $sub_invocation . '( '
             . join(', ', map { $_->deparse } @$params_ops[1 .. $#$params_ops-1])
             . ' )';
 }
