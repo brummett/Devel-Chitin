@@ -190,6 +190,17 @@ sub _ex_name {
     }
 }
 
+my %flag_values = (
+    WANT_VOID => B::OPf_WANT_VOID,
+    WANT_SCALAR => B::OPf_WANT_SCALAR,
+    WANT_LIST => B::OPf_WANT_LIST,
+    KIDS => B::OPf_KIDS,
+    PARENS => B::OPf_PARENS,
+    REF => B::OPf_REF,
+    MOD => B::OPf_MOD,
+    STACKED => B::OPf_STACKED,
+    SPECIAL => B::OPf_SPECIAL,
+);
 sub print_as_tree {
     my $self = shift;
     $self->walk_inorder(sub {
@@ -200,7 +211,17 @@ sub print_as_tree {
         if ($name eq 'null') {
             $name .= ' (ex-' . $op->_ex_name . ')';
         }
-        printf("%s%s %s\n", '  'x$level, $op->class, $name);
+
+        my $flags = $op->op->flags;
+        my @flags = map {
+                        $flags & $flag_values{$_}
+                            ? $_
+                            : ()
+                    }
+                    qw(WANT_VOID WANT_SCALAR WANT_LIST KIDS PARENS REF MOD STACKED SPECIAL);
+
+        printf("%s%s %s (%s)\n", '  'x$level, $op->class, $name,
+                                 join(', ', @flags));
     });
 }
 
