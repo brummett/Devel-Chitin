@@ -99,5 +99,12 @@ sub pp_leavetry {
     "eval {\n$inner\n}";
 }
 
+sub pp_crypt {
+    my $self = shift;
+    my $children = $self->children;
+    'crypt('
+        . join(', ', map { $_->deparse } @$children[1,2])  # [0] is pushmark
+        . ')';
+}
 
 1;

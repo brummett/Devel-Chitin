@@ -3,7 +3,7 @@ use warnings;
 
 use Devel::Chitin::OpTree;
 use Devel::Chitin::Location;
-use Test::More tests => 5;
+use Test::More tests => 6;
 
 subtest construction => sub {
     plan tests => 4;
@@ -131,6 +131,13 @@ subtest 'eval' => sub {
                                     q(    $a = 1;),
                                     q(    $a),
                                     q(})),
+    );
+};
+
+subtest 'scalar functions' => sub {
+    _run_tests(
+        crypt_fcn => join("\n", q(my $a;),
+                                q(crypt($a, 'salt'))),
     );
 };
 
