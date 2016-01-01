@@ -143,7 +143,7 @@ sub walk_inorder {
 sub deparse {
     my $self = shift;
     my $bounce = 'pp_' . $self->op->name;
-    $self->$bounce();
+    $self->$bounce(@_);
 }
 
 sub _deparsed_children {
