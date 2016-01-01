@@ -51,6 +51,10 @@ subtest 'assignment' => sub {
                                         q(our %b = ( 'three', 3, 'four', 4 );),
                                         q(%a = %b;),
                                         q(%a = ( %b, %a ))),
+        hash_slice_assignment => join("\n", q(my %the_hash;),
+                                            q(my @indexes;),
+                                            q(@the_hash{'1', 'key', @indexes} = ( 1, 2, 3 ))),
+
         scalar_ref_assignment => join("\n", q(my $a = 1;),
                                             q(our $b = \$a;),
                                             q($$b = 2)),
@@ -63,6 +67,9 @@ subtest 'assignment' => sub {
 
         hash_ref_assignment => join("\n",   q(my $a = { 1 => 1, two => 2 };),
                                             q(%$a = ( 'one', 1, 'two', 2 ))),
+        hasf_ref_slice_assignment => join("\n", q(my $hash = {  };),
+                                                q(my @list;),
+                                                q(@$hash{'one', @list, 'last'} = @list)),
     );
 };
 

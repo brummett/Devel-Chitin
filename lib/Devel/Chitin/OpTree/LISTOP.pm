@@ -57,7 +57,18 @@ sub pp_list {
 }
 
 sub pp_aslice {
-    my $self = shift;
+    push(@_, '[', ']'),
+    goto &_aslice_hslice_builder;
+}
+
+sub pp_hslice {
+    push(@_, '{', '}');
+    goto &_aslice_hslice_builder;
+}
+
+my %aslice_hslice_allowed_ops = map { $_ => 1 } qw( padav padhv rv2av rv2hv );
+sub _aslice_hslice_builder {
+    my($self, $open_paren, $close_paren) = @_;
 
     # first child is no-op pushmark, followed by slice elements, last is the array to slice
     my $children = $self->children;
@@ -68,16 +79,14 @@ sub pp_aslice {
             and
             $children->[1]->op->name eq 'list'
             and
-            ( $children->[2]->op->name eq 'padav'
-                or
-              $children->[2]->op->name eq 'rv2av'
-            )
+            $aslice_hslice_allowed_ops{ $children->[2]->op->name }
     ) {
-        die "unexpected aslice";
+        die "unexpected aslice/hslice for $open_paren $close_paren";
     }
 
     my $array_name = substr($self->children->[2]->deparse, 1); # remove the sigil
-    "\@${array_name}[" . $children->[1]->deparse(skip_parens => 1) . ']';
+    "\@${array_name}" . $open_paren . $children->[1]->deparse(skip_parens => 1) . $close_paren;
 }
+
 
 1;
