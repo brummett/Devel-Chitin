@@ -113,6 +113,11 @@ subtest 'subroutine call' => sub {
         'call_class_method_from_package' => q(Some::Other::Package->foo( 1, 2, 3 )),
         'call_instance_method' => join("\n",    q(my $obj;),
                                                 q($obj->foo( 1, 2, 3 ))),
+        'call_instance_variable_method' => join("\n",   q(my $obj;),
+                                                        q(my $method;),
+                                                        q($obj->$method( 1, 2, 3 ))),
+        'call_class_variable_method' => join("\n",  q(my $method;),
+                                                    q(Some::Other::Package->$method( 1, 2, 3 ))),
     );
 };
 

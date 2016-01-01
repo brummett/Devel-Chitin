@@ -97,13 +97,18 @@ sub _deparse_sub_invocation {
             $op->deparse . '->';
         }
 
-    } elsif ($op_name eq 'method_named') {
+    } elsif ($op_name eq 'method_named' or $op_name eq 'method') {
         join('->',  $op->parent->children->[1]->deparse(skip_quotes => 1),  # class
                     $op->deparse(skip_quotes => 1));
 
     } else {
         die "unknown sub invocation for $op_name";
     }
+}
+
+sub pp_method {
+    my $self = shift;
+    $self->first->deparse;
 }
 
 1;
