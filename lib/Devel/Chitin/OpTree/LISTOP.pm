@@ -8,9 +8,13 @@ use warnings;
 
 sub pp_lineseq {
     my $self = shift;
+    my %params = @_;
+
     my $deparsed;
     my $children = $self->children;
-    for (my $i = 0; $i < @$children; $i++) {
+
+    my $start = $params{skip} || 0;
+    for (my $i = $start; $i < @$children; $i++) {
         if ($children->[$i]->isa('Devel::Chitin::OpTree::COP')) {
             if ($i) {
                 $deparsed .= ";\n";
@@ -86,6 +90,13 @@ sub _aslice_hslice_builder {
 
     my $array_name = substr($self->children->[2]->deparse, 1); # remove the sigil
     "\@${array_name}" . $open_paren . $children->[1]->deparse(skip_parens => 1) . $close_paren;
+}
+
+sub pp_leavetry {
+    my $self = shift;
+
+    (my $inner = pp_lineseq($self, skip => 2)) =~ s/^/    /gm;
+    "eval {\n$inner\n}";
 }
 
 

@@ -3,7 +3,7 @@ use warnings;
 
 use Devel::Chitin::OpTree;
 use Devel::Chitin::Location;
-use Test::More tests => 4;
+use Test::More tests => 5;
 
 subtest construction => sub {
     plan tests => 4;
@@ -126,6 +126,11 @@ subtest 'eval' => sub {
         'const_string_eval' => q(eval 'this is a string'),
         'var_string_eval' => join("\n", q(my $a;),
                                         q(eval $a)),
+        'block_eval' => join("\n",  q(my $a;),
+                                    q(eval {),
+                                    q(    $a = 1;),
+                                    q(    $a),
+                                    q(})),
     );
 };
 

@@ -6,4 +6,6 @@ use Devel::Chitin::Version;
 use strict;
 use warnings;
 
+sub pp_entertry { '' }
+
 1;
