@@ -160,7 +160,9 @@ sub is_null {
 sub pp_null {
     my $self = shift;
     my $bounce = $self->_ex_name;
-    $self->$bounce(@_);
+    $bounce eq 'pp_null'
+        ? ";\n"   # maybe a COP that got optimized away?
+        : $self->$bounce(@_);
 }
 
 sub pp_padsv {
@@ -265,6 +267,10 @@ sub nearest_cop {
         }
     }
     return;
+}
+
+sub pp_const {
+    q('constant optimized away');
 }
 
 1;
