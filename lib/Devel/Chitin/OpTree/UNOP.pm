@@ -58,13 +58,16 @@ sub pp_entersub {
         # list, followed by the sub name
         (undef, @params_ops) = @{ $self->first->children };
 
-    } elsif ($self->first->op->name eq 'pushmark') {
+    } elsif ($self->first->op->name eq 'pushmark'
+            or
+            $self->first->op->name eq 'padrange'
+    ) {
         # method call
-        # the args are children of $self: a pushmark, invocant, then args, then method_named() with the method name
+        # the args are children of $self: a pushmark/padrange, invocant, then args, then method_named() with the method name
         (undef, undef, @params_ops) = @{ $self->children };
 
     } else {
-        die "unknown entersub";
+        die "unknown entersub first op " . $self->first->op->name;
     }
     my $sub_name_op = pop @params_ops;
 
