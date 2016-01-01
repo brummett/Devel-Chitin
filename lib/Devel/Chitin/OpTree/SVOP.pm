@@ -8,11 +8,15 @@ use warnings;
 
 sub pp_const {
     my $self = shift;
+    my %params = @_;
+
     my $sv = $self->op->sv;
     if ($sv->isa('B::IV')) {
         return $sv->int_value;
     } elsif ($sv->isa('B::PV')) {
-        return q(') . $sv->PV . q(');
+        return ($params{skip_quotes} ? '' : q('))
+                . $sv->PV
+                . ($params{skip_quotes} ? '' : q('));
     } elsif ($sv->isa('B::SPECIAL')) {
         '<???pp_const B::SPECIAL ' .  $B::specialsv_name[$$sv] . '>';
 
