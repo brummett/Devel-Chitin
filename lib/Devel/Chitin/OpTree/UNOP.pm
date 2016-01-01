@@ -109,4 +109,9 @@ sub pp_method {
     $self->first->deparse;
 }
 
+sub pp_entereval {
+    my $self = shift;
+    'eval ' . $self->first->deparse;
+}
+
 1;

@@ -121,6 +121,14 @@ subtest 'subroutine call' => sub {
     );
 };
 
+subtest 'eval' => sub {
+    _run_tests(
+        'const_string_eval' => q(eval 'this is a string'),
+        'var_string_eval' => join("\n", q(my $a;),
+                                        q(eval $a)),
+    );
+};
+
 sub _run_tests {
     my %tests = @_;
     plan tests => scalar keys %tests;
