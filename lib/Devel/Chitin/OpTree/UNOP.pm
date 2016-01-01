@@ -15,11 +15,6 @@ sub pp_leavesub {
     $self->first->deparse;
 }
 
-sub pp_null {
-    my $self = shift;
-    my $bounce = $self->_ex_name();
-    $self->$bounce();
-}
 
 # Normally, pp_list is a LISTOP, but this happens when a pp_list is turned
 # into a pp_null by the optimizer, and it has one child

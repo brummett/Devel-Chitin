@@ -153,6 +153,12 @@ sub _deparsed_children {
            @{ $self->children };
 }
 
+sub pp_null {
+    my $self = shift;
+    my $bounce = $self->_ex_name;
+    $self->$bounce(@_);
+}
+
 sub pp_padsv {
     my $self = shift;
     # These are 'my' variables.  We're omitting the 'my' because
