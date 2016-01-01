@@ -57,6 +57,9 @@ subtest 'assignment' => sub {
 
         array_ref_assignment => join("\n",  q(my $a = [ 1, 2 ];),
                                             q(@$a = ( 1, 2 ))),
+        array_ref_slice_assignment => join("\n",    q(my $list;),
+                                                    q(my $other_list;),
+                                                    q(@$list[1, @$other_list] = ( 1, 2, 3 ))),
 
         hash_ref_assignment => join("\n",   q(my $a = { 1 => 1, two => 2 };),
                                             q(%$a = ( 'one', 1, 'two', 2 ))),

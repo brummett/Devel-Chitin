@@ -68,7 +68,10 @@ sub pp_aslice {
             and
             $children->[1]->op->name eq 'list'
             and
-            $children->[2]->op->name eq 'padav'
+            ( $children->[2]->op->name eq 'padav'
+                or
+              $children->[2]->op->name eq 'rv2av'
+            )
     ) {
         die "unexpected aslice";
     }
