@@ -109,9 +109,16 @@ sub pp_method {
     $self->first->deparse;
 }
 
-sub pp_entereval {
-    my $self = shift;
-    'eval ' . $self->first->deparse;
+foreach my $a ( [ pp_entereval  => 'eval'],
+) {
+    my($pp_name, $perl_name) = @$a;
+    my $sub = sub {
+        my $arg = shift->first->deparse;
+        join(' ', $perl_name,
+                    $arg eq '$_' ? () : $arg);
+    };
+    no strict 'refs';
+    *$pp_name = $sub;
 }
 
 1;
