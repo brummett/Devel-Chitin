@@ -40,6 +40,11 @@ subtest 'assignment' => sub {
                                             q(my $idx;),
                                             q($the_list[2] = 'foo';),
                                             q($the_list[$idx] = 'bar')),
+
+        list_slice_assignment => join("\n", q(my @the_list;),
+                                            q(my $idx;),
+                                            q(my @other_list;),
+                                            q(@the_list[1, $idx, 3, @other_list] = @other_list[1, 2, 3])),
         # These hash assigments are done with aassign, so there's no way to
         # tell that the lists would look better as ( one => 1, two => 2 )
         hash_assignment => join("\n",   q(my %a = ( 'one', 1, 'two', 2 );),

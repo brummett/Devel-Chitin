@@ -56,4 +56,25 @@ sub pp_list {
         . ($params{skip_parens} ? '' :' )');
 }
 
+sub pp_aslice {
+    my $self = shift;
+
+    # first child is no-op pushmark, followed by slice elements, last is the array to slice
+    my $children = $self->children;
+
+    unless (@$children == 3
+            and
+            $children->[0]->op->name eq 'pushmark'
+            and
+            $children->[1]->op->name eq 'list'
+            and
+            $children->[2]->op->name eq 'padav'
+    ) {
+        die "unexpected aslice";
+    }
+
+    my $array_name = substr($self->children->[2]->deparse, 1); # remove the sigil
+    "\@${array_name}[" . $children->[1]->deparse(skip_parens => 1) . ']';
+}
+
 1;
