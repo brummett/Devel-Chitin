@@ -3,7 +3,7 @@ use warnings;
 
 use Devel::Chitin::OpTree;
 use Devel::Chitin::Location;
-use Test::More tests => 2;
+use Test::More tests => 3;
 
 subtest construction => sub {
     plan tests => 4;
@@ -51,6 +51,21 @@ subtest 'assignment' => sub {
 
         hash_ref_assignment => join("\n",   q(my $a = { 1 => 1, two => 2 };),
                                             q(%$a = ( 'one', 1, 'two', 2 ))),
+    );
+};
+
+subtest 'conditional' => sub {
+    _run_tests(
+        'num_lt' => join("\n",  q(my $a = 1;),
+                                q(my $result = $a < 5)),
+        'num_gt' => join("\n",  q(my $a = 1;),
+                                q(my $result = $a > 5)),
+        'num_eq' => join("\n",  q(my $a = 1;),
+                                q(my $result = $a == 5)),
+        'num_le' => join("\n",  q(my $a = 1;),
+                                q(my $result = $a <= 5)),
+        'num_ge' => join("\n",  q(my $a = 1;),
+                                q(my $result = $a >= 5)),
     );
 };
 

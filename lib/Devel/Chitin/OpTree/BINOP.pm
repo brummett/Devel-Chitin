@@ -27,6 +27,22 @@ sub pp_list {
     # We can emit a value without surrounding parens
     $self->last->deparse();
 }
-        
+
+foreach my $cond ( [lt => '<'],
+                   [le => '<='],
+                   [gt => '>'],
+                   [ge => '>='],
+                   [eq => '=='],
+                )
+{
+    my $expr = ' ' . $cond->[1] . ' ';
+    my $sub = sub {
+        my $self = shift;
+        return join($expr, $self->first->deparse, $self->last->deparse);
+    };
+    my $subname = 'pp_' . $cond->[0];
+    no strict 'refs';
+    *$subname = $sub;
+}
 
 1;
