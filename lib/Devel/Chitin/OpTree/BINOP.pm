@@ -33,6 +33,11 @@ foreach my $cond ( [lt => '<'],
                    [gt => '>'],
                    [ge => '>='],
                    [eq => '=='],
+                   [slt => 'lt'],
+                   [sle => 'le'],
+                   [sgt => 'gt'],
+                   [sge => 'ge'],
+                   [seq => 'eq'],
                 )
 {
     my $expr = ' ' . $cond->[1] . ' ';
