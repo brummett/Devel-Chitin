@@ -3,7 +3,7 @@ use warnings;
 
 use Devel::Chitin::OpTree;
 use Devel::Chitin::Location;
-use Test::More tests => 3;
+use Test::More tests => 4;
 
 subtest construction => sub {
     plan tests => 4;
@@ -80,6 +80,12 @@ subtest 'conditional' => sub {
                                 q(my $result = $a ge 'five')),
         'str_cmp' => join("\n", q(my $a = 1;),
                                 q(my $result = $a cmp 5)),
+    );
+};
+
+subtest 'subroutine call' => sub {
+    _run_tests(
+        'call_sub' => join("\n",    q(foo( 1, 2, 3 ))),
     );
 };
 

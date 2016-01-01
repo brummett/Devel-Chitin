@@ -48,4 +48,20 @@ sub pp_rv2hv {
     '%' . $self->first->deparse;
 }
 
+sub pp_rv2cv {
+    my $self = shift;
+    $self->first->deparse;
+}
+
+sub pp_entersub {
+    my $self = shift;
+    # first is a pp_list containing a pushmark, followed by the arg
+    # list, followed by the sub name
+    my $params_ops = $self->first->children;
+
+    return $params_ops->[-1]->deparse . '( '
+            . join(', ', map { $_->deparse } @$params_ops[1 .. $#$params_ops-1])
+            . ' )';
+}
+
 1;
