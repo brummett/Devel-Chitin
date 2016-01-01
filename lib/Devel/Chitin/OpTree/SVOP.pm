@@ -13,6 +13,9 @@ sub pp_const {
         return $sv->int_value;
     } elsif ($sv->isa('B::PV')) {
         return q(') . $sv->PV . q(');
+    } elsif ($sv->isa('B::SPECIAL')) {
+        '<???pp_const B::SPECIAL ' .  $B::specialsv_name[$$sv] . '>';
+
     } else {
         die "Don't know how to get the value of a const from $sv";
     }
