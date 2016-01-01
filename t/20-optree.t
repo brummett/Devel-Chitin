@@ -138,6 +138,11 @@ subtest 'scalar functions' => sub {
     _run_tests(
         crypt_fcn => join("\n", q(my $a;),
                                 q(crypt($a, 'salt'))),
+        map { ( "${_}_dfl"      => $_,
+                "${_}_on_val"   => join("\n",   q(my $a;),
+                                                "$_ \$a")
+              )
+            } qw( chomp chop chr hex lc lcfirst uc ucfirst length oct ord ),
     );
 };
 

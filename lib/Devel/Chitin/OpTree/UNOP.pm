@@ -110,6 +110,18 @@ sub pp_method {
 }
 
 foreach my $a ( [ pp_entereval  => 'eval'],
+                [ pp_schomp     => 'chomp'],
+                [ pp_schop      => 'chop'],
+                [ pp_chr        => 'chr'],
+                [ pp_hex        => 'hex'],
+                [ pp_lc         => 'lc'],
+                [ pp_lcfirst    => 'lcfirst'],
+                [ pp_uc         => 'uc'],
+                [ pp_ucfirst    => 'ucfirst'],
+                [ pp_length     => 'length'],
+                [ pp_oct        => 'oct'],
+                [ pp_ord        => 'ord'],
+                [ pp_reverse    => 'reverse'],
 ) {
     my($pp_name, $perl_name) = @$a;
     my $sub = sub {
