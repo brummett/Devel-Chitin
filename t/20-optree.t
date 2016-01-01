@@ -64,6 +64,8 @@ subtest 'conditional' => sub {
                                 q(my $result = $a == 5)),
         'num_le' => join("\n",  q(my $a = 1;),
                                 q(my $result = $a <= 5)),
+        'num_cmp' => join("\n", q(my $a = 1;),
+                                q(my $result = $a <=> 5)),
         'num_ge' => join("\n",  q(my $a = 1;),
                                 q(my $result = $a >= 5)),
         'str_lt' => join("\n",  q(my $a = 'one';),
@@ -76,6 +78,8 @@ subtest 'conditional' => sub {
                                 q(my $result = $a le 'five')),
         'str_ge' => join("\n",  q(my $a = 'one';),
                                 q(my $result = $a ge 'five')),
+        'str_cmp' => join("\n", q(my $a = 1;),
+                                q(my $result = $a cmp 5)),
     );
 };
 
