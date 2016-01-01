@@ -24,6 +24,7 @@ sub pp_const {
         die "Don't know how to get the value of a const from $sv";
     }
 }
+*pp_method_named = \&pp_const;
 
 sub pp_gv {
     my $self = shift;

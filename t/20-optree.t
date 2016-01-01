@@ -110,6 +110,7 @@ subtest 'subroutine call' => sub {
         'call_subref_from_array' => join("\n",  q(my @a;),
                                                 q($a[0]->( 1, 'two', 3 ))),
         'call_sub_from_package' => q(Some::Other::Package::foo( 1, 2, 3 )),
+        'call_class_method_from_package' => q(Some::Other::Package->foo( 1, 2, 3 )),
     );
 };
 
