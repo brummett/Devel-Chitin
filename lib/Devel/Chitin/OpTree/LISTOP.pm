@@ -107,15 +107,8 @@ foreach my $a ( [ pp_crypt  => 'crypt' ],
         my $self = shift;
         my $children = $self->children;
 
-        my $target = '';
-        if ($self->op->private & B::OPpTARGET_MY) {
-            # Some OPs have a special way of storing their return value
-            # index, wait, getppid, time, postinc, preinc, complement (~), negate,
-            # etc...  (from B::Deparse, maybe_targmy)
-            $target = $self->_padname_sv->PV . ' = ';
-        }
-
-        "${target}${perl_name}("
+        $self->_maybe_targmy
+            . "${perl_name}("
             . join(', ', map { $_->deparse } @$children[1 .. $#$children]) # [0] is pushmark
             . ')';
     };

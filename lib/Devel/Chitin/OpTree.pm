@@ -273,4 +273,16 @@ sub pp_const {
     q('constant optimized away');
 }
 
+# The return values for some OPs is encoded specially, and not through a
+# normal sassign
+sub _maybe_targmy {
+    my $self = shift;
+
+    if ($self->op->private & B::OPpTARGET_MY) {
+        $self->_padname_sv->PV . ' = ';
+    } else {
+        '';
+    }
+}
+
 1;
