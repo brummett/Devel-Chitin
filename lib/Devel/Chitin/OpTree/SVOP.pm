@@ -12,9 +12,15 @@ sub pp_const {
 
     my $sv = $self->op->sv;
     if ($sv->isa('B::PV')) {
-        return ($params{skip_quotes} ? '' : q('))
-                . $sv->PV
-                . ($params{skip_quotes} ? '' : q('));
+        my $string = $sv->PV;
+
+        my $quote = $params{skip_quotes} ? '' : q(');
+        if ($string =~ m/[\000-\037]/ and !$params{regex_x_flag}) {
+            $quote = '"' unless $params{skip_quotes};
+            $string = $self->_escape_for_double_quotes($string, %params);
+        }
+
+        return "${quote}${string}${quote}";
     } elsif ($sv->isa('B::IV')) {
         return $sv->int_value;
     } elsif ($sv->isa('B::SPECIAL')) {

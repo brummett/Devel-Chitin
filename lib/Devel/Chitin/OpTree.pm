@@ -310,4 +310,25 @@ sub is_scalar_container {
     }->{$op_name};
 }
 
+my %control_chars = ((map { chr($_) => '\c'.chr($_ + 64) } (1 .. 26)),  # \cA .. \cZ
+                     "\c@" => '\c@', "\c[" => '\c[');
+my $control_char_rx = join('|', sort keys %control_chars);
+sub _escape_for_double_quotes {
+    my($self, $str, %params) = @_;
+
+    $str =~ s/\\/\\\\/g;
+    $str =~ s/\a/\\a/g;  # alarm
+    $str =~ s/\cH/\\b/g unless $params{in_regex}; # backspace
+    $str =~ s/\e/\\e/g;  # escape
+    $str =~ s/\f/\\f/g;  # form feed
+    $str =~ s/\n/\\n/g;  # newline
+    $str =~ s/\r/\\r/g;  # CR
+    $str =~ s/\t/\\t/g;  # tab
+    $str =~ s/"/\\"/g;
+    $str =~ s/($control_char_rx)/$control_chars{$1}/ge;
+    $str =~ s/([[:^print:]])/sprintf('\x{%x}', ord($1))/ge;
+
+    $str;
+}
+
 1;

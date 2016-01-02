@@ -43,7 +43,8 @@ sub pp_subst {
 
     my $re;
     if ($children[1] and $children[1]->op->name eq 'regcomp') {
-        $re = $children[1]->deparse;
+        $re = $children[1]->deparse(in_regex => 1,
+                                    regex_x_flag => $self->op->pmflags & PMf_EXTENDED);
     } else {
         $re = $self->op->precomp;
     }
@@ -63,7 +64,8 @@ sub _match_op {
     my $re = $self->op->precomp;
     foreach my $child ( @$children ) {
         if ($child->op->name eq 'regcomp') {
-            $re = $child->deparse;
+            $re = $child->deparse(in_regex => 1,
+                                  regex_x_flag => $self->op->pmflags & PMf_EXTENDED);
             last;
         }
     }
