@@ -3,7 +3,7 @@ use warnings;
 
 use Devel::Chitin::OpTree;
 use Devel::Chitin::Location;
-use Test::More tests => 6;
+use Test::More tests => 7;
 
 subtest construction => sub {
     plan tests => 4;
@@ -173,6 +173,16 @@ subtest 'string functions' => sub {
     );
 };
 
+subtest regex => sub {
+    _run_tests(
+        anon_regex => join("\n",    q(my $a = qr/abc\w(\s+)/ims;),
+                                    q(my $b = qr/abc),
+                                    q(           \w),
+                                    q(           $a),
+                                    q(           (\s+)/iox)),
+    );
+};
+
 sub _run_tests {
     my %tests = @_;
     plan tests => scalar keys %tests;
@@ -180,7 +190,7 @@ sub _run_tests {
     foreach my $test_name ( keys %tests ) {
         my $code = $tests{$test_name};
         eval "sub $test_name { $code }";
-        (my $expected = $code) =~ s/my |our //g;
+        (my $expected = $code) =~ s/my(?: )?|our(?: )? //g;
         if ($@) {
             die "Couldn't compile code for $test_name: $@";
         }

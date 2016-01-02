@@ -54,9 +54,10 @@ sub pp_list {
     my %params = @_;
 
     my $children = $self->children;
+    my $joiner = exists($params{join_with}) ? $params{join_with} : ', ';
 
     ($params{skip_parens} ? '' : '( ')
-        . join(', ', map { $_->deparse } @$children[1 .. $#$children]) # skip the first op: pushmark
+        . join($joiner, map { $_->deparse(%params) } @$children[1 .. $#$children]) # skip the first op: pushmark
         . ($params{skip_parens} ? '' :' )');
 }
 
