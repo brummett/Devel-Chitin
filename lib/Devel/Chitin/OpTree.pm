@@ -190,7 +190,7 @@ sub pp_padrange {
 sub pp_pushmark {
     my $self = shift;
 
-    '(';
+    die "didn't expect to deparse a pushmark";
 }
 
 sub _padname_sv {
