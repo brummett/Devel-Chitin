@@ -17,12 +17,6 @@ sub pp_sassign {
 
 *pp_aassign = \&pp_sassign;
 
-my %include_parens_for = (
-    rv2sv => 1,
-    pp_rv2sv => 1,
-    padsv => 1,
-    pp_padsv => 1,
-);
 sub pp_list {
     my $self = shift;
 
@@ -35,12 +29,7 @@ sub pp_list {
 
     my $contents = $self->last->deparse;
 
-    if ($include_parens_for{ $self->last->op->name }
-        or
-        ( $self->last->is_null
-            and
-          $include_parens_for{ $self->last->_ex_name } )
-    ) {
+    if ($self->last->is_scalar_container) {
         "(${contents})";
 
     } else {

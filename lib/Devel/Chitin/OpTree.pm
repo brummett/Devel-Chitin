@@ -285,4 +285,17 @@ sub _maybe_targmy {
     }
 }
 
+# return true for scalar things we can assign to
+sub is_scalar_container {
+    my $self = shift;
+    my $op_name = $self->is_null
+                    ? $self->_ex_name
+                    : $self->op->name;
+    {   rv2sv => 1,
+        pp_rv2sv => 1,
+        padsv => 1,
+        pp_padsv => 1,
+    }->{$op_name};
+}
+
 1;
