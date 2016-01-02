@@ -142,10 +142,23 @@ subtest 'scalar functions' => sub {
                                 q($a = index($a, 'foo');),
                                 q(index($a, 'foo', 1))),
         map { ( "${_}_dfl"      => $_,
+                "${_}_to_var"   => join("\n",   q(my $a;),
+                                                "\$a = $_"),
                 "${_}_on_val"   => join("\n",   q(my $a;),
                                                 "$_ \$a")
               )
             } qw( chomp chop chr hex lc lcfirst uc ucfirst length oct ord ),
+        #index
+        #pack
+        #q
+        #qq
+        #reverse
+        #rindex
+        #sprintf
+        #substr
+        #tr
+        #y
+        #fc
     );
 };
 

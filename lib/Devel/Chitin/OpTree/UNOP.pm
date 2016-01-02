@@ -109,25 +109,29 @@ sub pp_method {
     $self->first->deparse;
 }
 
-foreach my $a ( [ pp_entereval  => 'eval'],
-                [ pp_schomp     => 'chomp'],
-                [ pp_schop      => 'chop'],
-                [ pp_chr        => 'chr'],
-                [ pp_hex        => 'hex'],
-                [ pp_lc         => 'lc'],
-                [ pp_lcfirst    => 'lcfirst'],
-                [ pp_uc         => 'uc'],
-                [ pp_ucfirst    => 'ucfirst'],
-                [ pp_length     => 'length'],
-                [ pp_oct        => 'oct'],
-                [ pp_ord        => 'ord'],
-                [ pp_reverse    => 'reverse'],
+#                   OP name        Perl fcn    targmy?
+foreach my $a ( [ pp_entereval  => 'eval',      0 ],
+                [ pp_schomp     => 'chomp',     1 ],
+                [ pp_schop      => 'chop',      1 ],
+                [ pp_chr        => 'chr',       1 ],
+                [ pp_hex        => 'hex',       1 ],
+                [ pp_lc         => 'lc',        0 ],
+                [ pp_lcfirst    => 'lcfirst',   0 ],
+                [ pp_uc         => 'uc',        0 ],
+                [ pp_ucfirst    => 'ucfirst',   0 ],
+                [ pp_length     => 'length',    1 ],
+                [ pp_oct        => 'oct',       1 ],
+                [ pp_ord        => 'ord',       1 ],
+                [ pp_reverse    => 'reverse',   0 ],
 ) {
-    my($pp_name, $perl_name) = @$a;
+    my($pp_name, $perl_name, $targmy) = @$a;
     my $sub = sub {
-        my $arg = shift->first->deparse;
-        join(' ', $perl_name,
-                    $arg eq '$_' ? () : $arg);
+        my $self = shift;
+        my $arg = $self->first->deparse;
+
+        my $target = $targmy ? $self->_maybe_targmy : '';
+        $target . join(' ', $perl_name,
+                            $arg eq '$_' ? () : $arg);
     };
     no strict 'refs';
     *$pp_name = $sub;
