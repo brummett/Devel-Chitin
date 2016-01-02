@@ -32,18 +32,6 @@ sub pp_match {
 sub _match_op {
     my($self, $operator) = @_;
 
-    my $match_flags = $self->op->pmflags;
-    my $flags = join('', map { $match_flags & $_->[0] ? $_->[1] : '' }
-                            (   [ PMf_CONTINUE,     'c' ],
-                                [ PMf_ONCE,         'o' ],
-                                [ PMf_GLOBAL,       'g' ],
-                                [ PMf_FOLD,         'i' ],
-                                [ PMf_MULTILINE,    'm' ],
-                                [ PMf_KEEP,         'o' ],
-                                [ PMf_SINGLELINE,   's' ],
-                                [ PMf_EXTENDED,     'x' ],
-                                [ RXf_PMf_KEEPCOPY, 'p' ],
-                            ));
 
     my $children = $self->children;
 
@@ -55,7 +43,26 @@ sub _match_op {
         }
     }
 
+    my $flags = _match_flags($self);
+
     "${operator}/${re}/${flags}";
+}
+
+sub _match_flags {
+    my $self = shift;
+
+    my $match_flags = $self->op->pmflags;
+    join('', map { $match_flags & $_->[0] ? $_->[1] : '' }
+                (   [ PMf_CONTINUE,     'c' ],
+                    [ PMf_ONCE,         'o' ],
+                    [ PMf_GLOBAL,       'g' ],
+                    [ PMf_FOLD,         'i' ],
+                    [ PMf_MULTILINE,    'm' ],
+                    [ PMf_KEEP,         'o' ],
+                    [ PMf_SINGLELINE,   's' ],
+                    [ PMf_EXTENDED,     'x' ],
+                    [ RXf_PMf_KEEPCOPY, 'p' ],
+                ));
 }
 
 1;
