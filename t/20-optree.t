@@ -3,7 +3,7 @@ use warnings;
 
 use Devel::Chitin::OpTree;
 use Devel::Chitin::Location;
-use Test::More tests => 7;
+use Test::More tests => 8;
 
 subtest construction => sub {
     plan tests => 4;
@@ -194,6 +194,19 @@ subtest regex => sub {
                                     q(my $rx = qr/def/;),
                                     q(s/abd $rx/def/x;),
                                     q($a =~ s/abd $rx/def/x)),
+    );
+};
+
+subtest numeric => sub {
+    _run_tests(
+        atan2_func => join("\n",    q(my( $a, $b );),
+                                    q($a = atan2($a, $b))),
+        map { ( "${_}_func" => join("\n", q(my $a;),
+                                        "\$a = $_;",
+                                        "\$a = $_ \$a;",
+                                        "$_ \$a")
+              )
+            } qw(abs cos exp int log rand sin sqrt srand),
     );
 };
 

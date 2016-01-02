@@ -108,6 +108,7 @@ foreach my $a ( [ pp_crypt      => 'crypt',     1 ],
                 [ pp_reverse    => 'reverse',   0 ],
                 [ pp_substr     => 'substr',    0 ],
                 [ pp_sprintf    => 'sprintf',   0 ],
+                [ pp_atan2      => 'atan2',     1 ],
 ) {
     my($pp_name, $perl_name, $targmy) = @$a;
     my $sub = sub {
