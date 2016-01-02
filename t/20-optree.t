@@ -187,6 +187,13 @@ subtest regex => sub {
                                     q(my($b) = $a =~ m/abc$rx/;),
                                     q(my($c) = m/$rx def/x;),
                                     q($c = $1)),
+        substitute  => join("\n",   q(s/abc/def/i;),
+                                    q(my $a;),
+                                    q($a =~ s/abc/def/;),
+                                    q($a =~ s/abc/def$a/;),
+                                    q(my $rx = qr/def/;),
+                                    q(s/abd $rx/def/x;),
+                                    q($a =~ s/abd $rx/def/x)),
     );
 };
 

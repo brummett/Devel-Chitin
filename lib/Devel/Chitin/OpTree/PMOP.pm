@@ -29,6 +29,31 @@ sub pp_match {
     $var . $re;
 }
 
+sub pp_subst {
+    my $self = shift;
+
+    my @children = @{ $self->children };
+
+    # children always come in this order, though they're not
+    # always present: bound-variable, replacement, regex
+    my $var = '';
+    if ($children[0]->is_scalar_container) {
+        $var = shift(@children)->deparse . ' =~ ';
+    }
+
+    my $re;
+    if ($children[1] and $children[1]->op->name eq 'regcomp') {
+        $re = $children[1]->deparse;
+    } else {
+        $re = $self->op->precomp;
+    }
+
+    my $replacement = $children[0]->deparse(skip_quotes => 1);
+
+    my $flags = _match_flags($self);
+    "${var}s/${re}/${replacement}/${flags}";
+}
+
 sub _match_op {
     my($self, $operator) = @_;
 

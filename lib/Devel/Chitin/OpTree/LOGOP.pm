@@ -17,4 +17,9 @@ sub pp_regcomp {
     join('', $rx_op->deparse(skip_parens => 1, skip_quotes => 1, join_with => ''));
 }
 
+sub pp_substcont {
+    my $self = shift;
+    join('', $self->first->deparse(skip_concat => 1, skip_quotes => 1));
+}
+
 1;
