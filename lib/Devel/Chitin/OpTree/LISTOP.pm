@@ -99,16 +99,17 @@ sub pp_leavetry {
     "eval {\n$inner\n}";
 }
 
-foreach my $a ( [ pp_crypt  => 'crypt' ],
-                [ pp_index  => 'index' ],
+#                 OP name           Perl fcn    targmy?
+foreach my $a ( [ pp_crypt      => 'crypt',     1 ],
+                [ pp_index      => 'index',     1 ],
 ) {
-    my($pp_name, $perl_name) = @$a;
+    my($pp_name, $perl_name, $targmy) = @$a;
     my $sub = sub {
         my $self = shift;
         my $children = $self->children;
 
-        $self->_maybe_targmy
-            . "${perl_name}("
+        my $target = $targmy ? $self->_maybe_targmy : '';
+        "${target}${perl_name}("
             . join(', ', map { $_->deparse } @$children[1 .. $#$children]) # [0] is pushmark
             . ')';
     };
