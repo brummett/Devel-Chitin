@@ -180,6 +180,13 @@ subtest regex => sub {
                                     q(           \w),
                                     q(           $a),
                                     q(           (\s+)/iox)),
+        match       => join("\n",   q(m/abc/;),
+                                    q(our $a;),
+                                    q($a =~ m/abc/;),
+                                    q(my $rx = qr/def/;),
+                                    q(my($b) = $a =~ m/abc$rx/;),
+                                    q(my($c) = m/$rx def/x;),
+                                    q($c = $1)),
     );
 };
 

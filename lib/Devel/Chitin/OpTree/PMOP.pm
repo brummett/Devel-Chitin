@@ -12,6 +12,23 @@ sub pp_qr {
     shift->_match_op('qr')
 }
 
+sub pp_match {
+    my $self = shift;
+
+    my($var, $re) = ('', '');
+    my $children = $self->children;
+    if (@$children == 2
+        or
+        ( @$children == 1 and $children->[0]->is_scalar_container)
+    ) {
+        $var = $children->[0]->deparse . ' =~ ';
+    }
+
+    $re = $self->_match_op('m');
+
+    $var . $re;
+}
+
 sub _match_op {
     my($self, $operator) = @_;
 
@@ -29,9 +46,14 @@ sub _match_op {
                             ));
 
     my $children = $self->children;
-    my $re = @$children == 1
-                ? $children->[0]->deparse
-                : $self->op->precomp;
+
+    my $re = $self->op->precomp;
+    foreach my $child ( @$children ) {
+        if ($child->op->name eq 'regcomp') {
+            $re = $child->deparse;
+            last;
+        }
+    }
 
     "${operator}/${re}/${flags}";
 }
