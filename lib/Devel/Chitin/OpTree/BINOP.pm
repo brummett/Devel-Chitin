@@ -69,4 +69,36 @@ sub pp_aelem {
     }
 }
 
+sub pp_stringify {
+    my $self = shift;
+
+    unless ($self->first->op->name eq 'null'
+            and
+            $self->first->_ex_name eq 'pp_pushmark'
+    ) {
+        die "unknown stringify ".$self->first->op->name;
+    }
+
+    my $children = $self->children;
+    unless (@$children == 2) {
+        die "expected 2 children but got " . scalar(@$children)
+            . ': ' . join(', ', map { $_->op->name } @$children);
+    }
+
+    my $target = $self->_maybe_targmy;
+
+    "${target}qq(" . $children->[1]->deparse(skip_concat => 1, skip_quotes => 1) . ')';
+}
+
+sub pp_concat {
+    my $self = shift;
+    my %params = @_;
+
+    my $target = $self->_maybe_targmy;
+
+    $target . join($params{skip_concat} ? '' : ' . ',
+                    $self->first->deparse(%params),
+                    $self->last->deparse(%params));
+}
+
 1;
