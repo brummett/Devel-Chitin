@@ -273,7 +273,7 @@ sub pp_const {
     q('constant optimized away');
 }
 
-# Usually, rand/srand is an UNOP, but with no args, it's a base-OP
+# Usually, rand/srand/pop/shift is an UNOP, but with no args, it's a base-OP
 sub pp_rand {
     my $target = shift->_maybe_targmy;
     "${target}rand";
@@ -282,6 +282,8 @@ sub pp_srand {
     my $target = shift->_maybe_targmy;
     "${target}srand";
 }
+sub pp_pop { 'pop' }
+sub pp_shift { 'shift' }
 
 # The return values for some OPs is encoded specially, and not through a
 # normal sassign

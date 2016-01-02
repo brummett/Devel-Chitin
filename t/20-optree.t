@@ -3,7 +3,7 @@ use warnings;
 
 use Devel::Chitin::OpTree;
 use Devel::Chitin::Location;
-use Test::More tests => 8;
+use Test::More tests => 9;
 
 subtest construction => sub {
     plan tests => 4;
@@ -209,6 +209,45 @@ subtest numeric => sub {
             } qw(abs cos exp int log rand sin sqrt srand),
     );
 };
+
+subtest 'array functions' => sub {
+    _run_tests(
+        pop_fcn => join("\n",   q(my( $a, @list );),
+                                q($a = pop @list;),
+                                q(pop @list;),
+                                q($a = pop)),
+        push_fcn => join("\n",  q(my( $a, @list );),
+                                q(push(@list, 1, 2, 3);),
+                                q($a = push(@list, 1))),
+        shift_fcn => join("\n", q(my( $a, @list );),
+                                q($a = shift @list;),
+                                q(shift @list;),
+                                q($a = shift)),
+        unshift_fcn => join("\n",   q(my( $a, @list );),
+                                    q(unshift(@list, 1, 2, 3);),
+                                    q($a = unshift(@list, 1))),
+        splice_fcn => join("\n",q(my( $a, @list, @rv );),
+                                q($a = splice(@list);),
+                                q(@rv = splice(@list, 1);),
+                                q(@rv = splice(@list, 1, 2);),
+                                q(@rv = splice(@list, 1, 2, @rv);),
+                                q(@rv = splice(@list, 1, 2, 3, 4, 5))),
+        array_len => join("\n", q(my( $a, @list, $listref );),
+                                q($a = $#list;),
+                                q($a = $#$listref;),
+                                q($a = scalar @list)),
+    );
+};
+
+
+# Tests for 5.12
+# keys/values/each work on arrays
+
+# Tests for 5.14
+# keys/values/each/pop/push/shift/unshift/splice work on array/hash-refs
+
+# Tests for 5.18
+# each() assigns to $_ in a lone while test
 
 sub _run_tests {
     my %tests = @_;

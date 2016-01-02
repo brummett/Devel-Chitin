@@ -109,6 +109,13 @@ sub pp_method {
     $self->first->deparse;
 }
 
+sub pp_av2arylen {
+    my $self = shift;
+
+    substr(my $list_name = $self->first->deparse, 0, 1, ''); # remove sigil
+    '$#' . $list_name;
+}
+
 #                   OP name        Perl fcn    targmy?
 foreach my $a ( [ pp_entereval  => 'eval',      0 ],
                 [ pp_schomp     => 'chomp',     1 ],
@@ -132,6 +139,8 @@ foreach my $a ( [ pp_entereval  => 'eval',      0 ],
                 [ pp_rand       => 'rand',      1 ],
                 [ pp_sqrt       => 'sqrt',      1 ],
                 [ pp_srand      => 'srand',     1 ],
+                [ pp_pop        => 'pop',       0 ],
+                [ pp_shift      => 'shift',     0 ],
 ) {
     my($pp_name, $perl_name, $targmy) = @$a;
     my $sub = sub {
