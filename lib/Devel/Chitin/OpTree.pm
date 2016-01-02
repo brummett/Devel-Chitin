@@ -47,10 +47,10 @@ sub build_from_location {
         if (B::class($op) eq 'PMOP'
             and ref($op->pmreplroot)
             and ${$op->pmreplroot}
-            and $op->plreplroot->isa('B::OP')
+            and $op->pmreplroot->isa('B::OP')
         ) {
             unshift @parents, $self;
-            push @children, $build_walker->($op->plreplroot);
+            push @children, $build_walker->($op->pmreplroot);
             shift @parents;
         }
 
