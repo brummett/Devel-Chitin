@@ -138,6 +138,9 @@ subtest 'scalar functions' => sub {
     _run_tests(
         crypt_fcn => join("\n", q(my $a;),
                                 q(crypt($a, 'salt'))),
+        index_fcn => join("\n", q(my $a;),
+                                q($a = index($a, 'foo');),
+                                q(index($a, 'foo', 1))),
         map { ( "${_}_dfl"      => $_,
                 "${_}_on_val"   => join("\n",   q(my $a;),
                                                 "$_ \$a")

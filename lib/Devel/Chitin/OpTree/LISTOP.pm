@@ -99,12 +99,28 @@ sub pp_leavetry {
     "eval {\n$inner\n}";
 }
 
-sub pp_crypt {
-    my $self = shift;
-    my $children = $self->children;
-    'crypt('
-        . join(', ', map { $_->deparse } @$children[1,2])  # [0] is pushmark
-        . ')';
+foreach my $a ( [ pp_crypt  => 'crypt' ],
+                [ pp_index  => 'index' ],
+) {
+    my($pp_name, $perl_name) = @$a;
+    my $sub = sub {
+        my $self = shift;
+        my $children = $self->children;
+
+        my $target = '';
+        if ($self->op->private & B::OPpTARGET_MY) {
+            # Some OPs have a special way of storing their return value
+            # index, wait, getppid, time, postinc, preinc, complement (~), negate,
+            # etc...  (from B::Deparse, maybe_targmy)
+            $target = $self->_padname_sv->PV . ' = ';
+        }
+
+        "${target}${perl_name}("
+            . join(', ', map { $_->deparse } @$children[1 .. $#$children]) # [0] is pushmark
+            . ')';
+    };
+    no strict 'refs';
+    *$pp_name = $sub;
 }
 
 1;
