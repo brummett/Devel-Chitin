@@ -102,6 +102,8 @@ sub pp_leavetry {
 #                 OP name           Perl fcn    targmy?
 foreach my $a ( [ pp_crypt      => 'crypt',     1 ],
                 [ pp_index      => 'index',     1 ],
+                [ pp_pack       => 'pack',      0 ],
+                [ pp_reverse    => 'reverse',   0 ],
 ) {
     my($pp_name, $perl_name, $targmy) = @$a;
     my $sub = sub {

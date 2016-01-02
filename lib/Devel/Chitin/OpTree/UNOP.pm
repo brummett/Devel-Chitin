@@ -122,7 +122,7 @@ foreach my $a ( [ pp_entereval  => 'eval',      0 ],
                 [ pp_length     => 'length',    1 ],
                 [ pp_oct        => 'oct',       1 ],
                 [ pp_ord        => 'ord',       1 ],
-                [ pp_reverse    => 'reverse',   0 ],
+                [ pp_scalar     => 'scalar',    0 ],
 ) {
     my($pp_name, $perl_name, $targmy) = @$a;
     my $sub = sub {

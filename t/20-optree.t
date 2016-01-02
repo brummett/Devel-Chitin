@@ -134,13 +134,21 @@ subtest 'eval' => sub {
     );
 };
 
-subtest 'scalar functions' => sub {
+subtest 'string functions' => sub {
     _run_tests(
         crypt_fcn => join("\n", q(my $a;),
                                 q(crypt($a, 'salt'))),
         index_fcn => join("\n", q(my $a;),
                                 q($a = index($a, 'foo');),
                                 q(index($a, 'foo', 1))),
+        pack_fcn  => join("\n", q(my $a;),
+                                q($a = pack($a, 1, 2, 3))),
+        reverse_fcn => join("\n",   q(my $a;),
+                                    q($a = reverse(@_);),
+                                    q($a = reverse($a);),
+                                    q(scalar reverse(@_);),
+                                    q(my @a;),
+                                    q(@a = reverse(@_))),
         map { ( "${_}_dfl"      => $_,
                 "${_}_to_var"   => join("\n",   q(my $a;),
                                                 "\$a = $_"),
@@ -148,8 +156,6 @@ subtest 'scalar functions' => sub {
                                                 "$_ \$a")
               )
             } qw( chomp chop chr hex lc lcfirst uc ucfirst length oct ord ),
-        #index
-        #pack
         #q
         #qq
         #reverse
