@@ -3,7 +3,7 @@ use warnings;
 
 use Devel::Chitin::OpTree;
 use Devel::Chitin::Location;
-use Test::More tests => 9;
+use Test::More tests => 10;
 
 subtest construction => sub {
     plan tests => 4;
@@ -249,6 +249,16 @@ subtest 'array functions' => sub {
                                 q($a = join("\n", 2, 3, 4);),
                                 q($a = join(1, @list);),
                                 q(join(@list))),
+    );
+};
+
+subtest 'sort/map/grep' => sub {
+    _run_tests(
+        map_fcn => join("\n",  q(my( $a, @list );),
+                                q(map(chr, $a, $a);),
+                                q(map(chr, @list);),
+                                q(map { chr } ( $a, $a );),
+                                q(map { chr } @list)),
     );
 };
 

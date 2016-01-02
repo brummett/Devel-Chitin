@@ -25,6 +25,8 @@ sub pp_lineseq {
     }
     $deparsed;
 }
+*pp_scope = \&pp_lineseq;
+*pp_leave = \&pp_lineseq;
 
 sub pp_anonhash {
     my $self = shift;

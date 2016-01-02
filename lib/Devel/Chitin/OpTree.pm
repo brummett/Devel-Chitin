@@ -165,6 +165,10 @@ sub pp_null {
         : $self->$bounce(@_);
 }
 
+# These are nextstate/dbstate that got optimized away to null
+*pp_nextstate = \&Devel::Chitin::OpTree::COP::pp_nextstate;
+*pp_dbstate = \&Devel::Chitin::OpTree::COP::pp_dbstate;
+
 sub pp_padsv {
     my $self = shift;
     # These are 'my' variables.  We're omitting the 'my' because
@@ -285,6 +289,8 @@ sub pp_srand {
 sub pp_pop { 'pop' }
 sub pp_shift { 'shift' }
 
+sub pp_enter { '' }
+
 # The return values for some OPs is encoded specially, and not through a
 # normal sassign
 sub _maybe_targmy {
@@ -307,6 +313,18 @@ sub is_scalar_container {
         pp_rv2sv => 1,
         padsv => 1,
         pp_padsv => 1,
+    }->{$op_name};
+}
+
+sub is_scopelike {
+    my $self = shift;
+    my $op_name = $self->is_null
+                    ? $self->_ex_name
+                    : $self->op->name;
+    {   scope => 1,
+        pp_scope => 1,
+        leave => 1,
+        pp_leave => 1,
     }->{$op_name};
 }
 
