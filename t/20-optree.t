@@ -161,6 +161,8 @@ subtest 'string functions' => sub {
                                     q(scalar reverse(@_);),
                                     q(my @a;),
                                     q(@a = reverse(@_))),
+        tr_operator => join("\n",   q(my $a;),
+                                    q($a = tr/$a/zyxw/cdsr)),
         map { ( "${_}_dfl"      => $_,
                 "${_}_to_var"   => join("\n",   q(my $a;),
                                                 "\$a = $_"),
@@ -168,15 +170,6 @@ subtest 'string functions' => sub {
                                                 "$_ \$a")
               )
             } qw( chomp chop chr hex lc lcfirst uc ucfirst length oct ord ),
-        #q
-        #qq
-        #reverse
-        #rindex
-        #sprintf
-        #substr
-        #tr
-        #y
-        #fc
     );
 };
 
