@@ -17,6 +17,12 @@ sub pp_sassign {
 
 *pp_aassign = \&pp_sassign;
 
+my %include_parens_for = (
+    rv2sv => 1,
+    pp_rv2sv => 1,
+    padsv => 1,
+    pp_padsv => 1,
+);
 sub pp_list {
     my $self = shift;
 
@@ -24,8 +30,22 @@ sub pp_list {
     # actually a 'null' ex-list, and there's only one item in the list.
     # $self->first will be a pushmark
     # @list = @other_list;
-    # We can emit a value without surrounding parens
-    $self->last->deparse();
+    # We can emit a value without surrounding parens unless it's a scalar
+    # being assigned to
+
+    my $contents = $self->last->deparse;
+
+    if ($include_parens_for{ $self->last->op->name }
+        or
+        ( $self->last->is_null
+            and
+          $include_parens_for{ $self->last->_ex_name } )
+    ) {
+        "(${contents})";
+
+    } else {
+        $contents;
+    }
 }
 
 foreach my $cond ( [lt => '<'],
