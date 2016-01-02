@@ -274,7 +274,11 @@ sub _run_tests {
             die "Couldn't compile code for $test_name: $@";
         }
         my $ops = _get_optree_for_sub_named($test_name);
-        is($ops->deparse, $expected, "code for $test_name");
+        is(eval { $ops->deparse }, $expected, "code for $test_name")
+            || do {
+                diag("\$\@: $@\nTree:\n");
+                $ops->print_as_tree
+            };
     }
 }
 
