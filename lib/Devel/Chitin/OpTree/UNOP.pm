@@ -141,6 +141,7 @@ foreach my $a ( [ pp_entereval  => 'eval',      0 ],
                 [ pp_srand      => 'srand',     1 ],
                 [ pp_pop        => 'pop',       0 ],
                 [ pp_shift      => 'shift',     0 ],
+                [ pp_quotemeta  => 'quotemeta', 1 ],
 ) {
     my($pp_name, $perl_name, $targmy) = @$a;
     my $sub = sub {

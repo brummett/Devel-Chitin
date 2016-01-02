@@ -155,6 +155,10 @@ subtest 'string functions' => sub {
                                     q($b = qq($b $b))),
         pack_fcn  => join("\n", q(my $a;),
                                 q($a = pack($a, 1, 2, 3))),
+        unpack_fcn => join("\n",q(my $a;),
+                                q($a = unpack($a);),
+                                q($a = unpack('%32b', $a);),
+                                q($a = unpack($a, $a))),
         reverse_fcn => join("\n",   q(my $a;),
                                     q($a = reverse(@_);),
                                     q($a = reverse($a);),
@@ -163,6 +167,10 @@ subtest 'string functions' => sub {
                                     q(@a = reverse(@_))),
         tr_operator => join("\n",   q(my $a;),
                                     q($a = tr/$a/zyxw/cdsr)),
+        quotemeta_fcn => join("\n", q(my $a;),
+                                    q($a = quotemeta;),
+                                    q($a = quotemeta $a;),
+                                    q(quotemeta $a)),
         map { ( "${_}_dfl"      => $_,
                 "${_}_to_var"   => join("\n",   q(my $a;),
                                                 "\$a = $_"),
@@ -236,6 +244,10 @@ subtest 'array functions' => sub {
                                 q($a = $#list;),
                                 q($a = $#$listref;),
                                 q($a = scalar @list)),
+        join_fcn => join("\n",  q(my( $a, @list );),
+                                q($a = join("\n", 2, 3, 4);),
+                                q($a = join(1, @list);),
+                                q(join(@list))),
     );
 };
 

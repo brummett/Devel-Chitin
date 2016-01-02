@@ -100,6 +100,16 @@ sub pp_leavetry {
     "eval {\n$inner\n}";
 }
 
+sub pp_unpack {
+    my $self = shift;
+    my $children = $self->children;
+    my @args = map { $_->deparse } @$children[1, 2];
+    pop @args if $args[1] eq '$_';
+    'unpack('
+        . join(', ', @args)
+        . ')';
+}
+
 #                 OP name           Perl fcn    targmy?
 foreach my $a ( [ pp_crypt      => 'crypt',     1 ],
                 [ pp_index      => 'index',     1 ],
@@ -112,6 +122,7 @@ foreach my $a ( [ pp_crypt      => 'crypt',     1 ],
                 [ pp_push       => 'push',      1 ],
                 [ pp_unshift    => 'unshift',   1 ],
                 [ pp_splice     => 'splice',    1 ],
+                [ pp_join       => 'join',      1 ],
 ) {
     my($pp_name, $perl_name, $targmy) = @$a;
     my $sub = sub {
