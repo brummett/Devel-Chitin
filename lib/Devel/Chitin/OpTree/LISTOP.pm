@@ -25,8 +25,16 @@ sub pp_lineseq {
     }
     $deparsed;
 }
-*pp_scope = \&pp_lineseq;
-*pp_leave = \&pp_lineseq;
+#*pp_scope = \&pp_lineseq;
+sub pp_scope {
+    push @_, skip => 1;  # skip nextstate
+    goto &pp_lineseq;
+}
+#*pp_leave = \&pp_lineseq;
+sub pp_leave {
+    push @_, skip => 2;  # skip enter, nextstate
+    goto &pp_lineseq;
+}
 
 sub pp_anonhash {
     my $self = shift;
@@ -135,7 +143,8 @@ sub pp_sort {
 
         } else {
             # otherwise, it's a sort block
-            $sort_fcn = '{ ' . $sort_fcn_op->deparse . ' } ';
+            my $sort_fcn_contents = $sort_fcn_op->deparse || ';';
+            $sort_fcn = "{ $sort_fcn_contents } ";
         }
         $first_sort_value_child = 2;
 

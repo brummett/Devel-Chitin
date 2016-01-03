@@ -143,4 +143,15 @@ sub pp_reverse {
     'reverse ' . shift->last->deparse;
 }
 
+# leave is normally a LISTOP, but this happens when this is run
+# in the debugger
+# sort { ; } @list
+# The leave is turned into a null:
+# ex-leave
+#   enter
+#   stub
+sub pp_leave {
+    shift->last->deparse;
+}
+
 1;
