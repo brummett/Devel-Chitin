@@ -112,6 +112,60 @@ sub pp_unpack {
         . ')';
 }
 
+sub pp_sort {
+    my $self = shift;
+
+    my @sort_values;
+    my($sort_fcn, $assignment) = ('', '');
+
+    my $children = $self->children;
+    my $first_sort_value_child = 1; # skip pushmark
+    if ($self->op->flags & B::OPf_STACKED) {
+        my $sort_fcn_op = $children->[1]; # skip pushmark
+        $sort_fcn_op = $sort_fcn_op->first if $sort_fcn_op->is_null;
+
+        $sort_fcn = $sort_fcn_op->deparse;
+        if ($sort_fcn_op->op->name eq 'const') {
+            # it's a function name
+            $sort_fcn = $sort_fcn_op->deparse(skip_quotes => 1) . ' ';
+
+        } elsif ($sort_fcn_op->is_scalar_container) {
+            # a coderef
+            $sort_fcn = $sort_fcn_op->deparse . ' ';
+
+        } else {
+            # otherwise, it's a sort block
+            $sort_fcn = '{ ' . $sort_fcn_op->deparse . ' } ';
+        }
+        $first_sort_value_child = 2;
+
+    } else {
+        # using some default sort sub
+        my $priv_flags = $self->op->private;
+        if ($priv_flags & B::OPpSORT_NUMERIC) {
+            $sort_fcn = $priv_flags & B::OPpSORT_DESCEND
+                            ? '{ $b <=> $a } '
+                            : '{ $a <=> $b } ';
+        } elsif ($priv_flags & B::OPpSORT_DESCEND) {
+            $sort_fcn = '{ $b cmp $a } ';  # There's no $a cmp $b because it's the default sort
+        }
+
+    }
+
+    @sort_values = map { $_->deparse }
+                    @$children[$first_sort_value_child .. $#$children];
+
+    # now handled by aassign
+    #if ($self->op->private & B::OPpSORT_INPLACE) {
+    #    $assignment = $sort_values[0] . ' = ';
+    #}
+
+    "${assignment}sort ${sort_fcn}"
+        . ( @sort_values > 1 ? '( ' : '' )
+        . join(', ', @sort_values )
+        . ( @sort_values > 1 ? ' )' : '' );
+}
+
 #                 OP name           Perl fcn    targmy?
 foreach my $a ( [ pp_crypt      => 'crypt',     1 ],
                 [ pp_index      => 'index',     1 ],

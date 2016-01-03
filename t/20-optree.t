@@ -264,6 +264,17 @@ subtest 'sort/map/grep' => sub {
                                 q(grep(m/a/, @list);),
                                 q(grep { m/a/ } ( $a, $a );),
                                 q(grep { m/a/ } @list)),
+        sort_fcn => join("\n",  q(my( @a, $subref, $val );),
+                                q(@a = sort @a;),
+                                q(@a = sort ( $val, @a );),
+                                q(@a = sort { 1 } @a;),
+                                q(@a = sort { ; } @a;),
+                                q(@a = sort { $a <=> $b } @a;),
+                                q(@a = sort { $b <=> $a } @a;),
+                                q(@a = sort { $b cmp $a } @a;),
+                                q(@a = reverse sort { $b cmp $a } @a;),
+                                q(@a = sort scalar_assignment @a;),
+                                q(@a = sort $subref @a)),
     );
 };
 

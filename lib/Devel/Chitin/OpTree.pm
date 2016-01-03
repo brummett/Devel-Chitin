@@ -290,6 +290,7 @@ sub pp_pop { 'pop' }
 sub pp_shift { 'shift' }
 
 sub pp_enter { '' }
+sub pp_stub { ';' }
 
 # The return values for some OPs is encoded specially, and not through a
 # normal sassign
@@ -313,6 +314,18 @@ sub is_scalar_container {
         pp_rv2sv => 1,
         padsv => 1,
         pp_padsv => 1,
+    }->{$op_name};
+}
+
+sub is_array_container {
+    my $self = shift;
+    my $op_name = $self->is_null
+                    ? $self->_ex_name
+                    : $self->op->name;
+    {   rv2av => 1,
+        pp_rv2av => 1,
+        padav => 1,
+        pp_padav => 1,
     }->{$op_name};
 }
 

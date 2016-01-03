@@ -15,7 +15,34 @@ sub pp_sassign {
     return join(' = ', $self->last->deparse, $self->first->deparse);
 }
 
-*pp_aassign = \&pp_sassign;
+sub pp_aassign {
+    my $self = shift;
+
+    my $container;
+    if ($self->is_null
+        and
+            # assigning-to is optimized away
+            $self->last->is_null and $self->last->_ex_name eq 'pp_list'
+            and
+            $self->last->children->[1]->is_null and $self->last->children->[1]->is_array_container
+        and
+            # value is an in-place sort: @a = sort @a;
+            $self->first->is_null and $self->first->_ex_name eq 'pp_list'
+            and
+            $self->first->children->[1]->op->name eq 'sort'
+            and
+            $self->first->children->[1]->op->private & B::OPpSORT_INPLACE
+    ) {
+        # since we're optimized away, we can't find out what variable we're
+        # assigning .  It's the variable the sort is acting on.
+        $container = $self->first->children->[1]->children->[-1]->deparse;
+
+    } else {
+        $container = $self->last->deparse;
+    }
+
+    "$container = " . $self->first->deparse;
+}
 
 sub pp_list {
     my $self = shift;
@@ -108,6 +135,12 @@ sub pp_concat {
     $target . join($params{skip_concat} ? '' : ' . ',
                     $self->first->deparse(%params),
                     $self->last->deparse(%params));
+}
+
+sub pp_reverse {
+    # a BINOP reverse is only acting on a single item
+    # 0th child is pushmark, skip it
+    'reverse ' . shift->last->deparse;
 }
 
 1;
