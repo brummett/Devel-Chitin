@@ -116,6 +116,14 @@ sub pp_av2arylen {
     '$#' . $list_name;
 }
 
+sub pp_delete {
+    my $self = shift;
+    my $local = $self->op->private & B::OPpLVAL_INTRO
+                    ? 'local '
+                    : '';
+    "delete ${local}" . $self->first->deparse;
+}
+
 #                   OP name        Perl fcn    targmy?
 foreach my $a ( [ pp_entereval  => 'eval',      0 ],
                 [ pp_schomp     => 'chomp',     1 ],

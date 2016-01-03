@@ -154,4 +154,12 @@ sub pp_leave {
     shift->last->deparse;
 }
 
+sub pp_helem {
+    my $self = shift;
+
+    my($hash, $key) = ($self->first->deparse, $self->last->deparse);
+    substr($hash, 0, 1) = '$';
+    "${hash}{${key}}";
+}
+
 1;

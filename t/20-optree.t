@@ -3,7 +3,7 @@ use warnings;
 
 use Devel::Chitin::OpTree;
 use Devel::Chitin::Location;
-use Test::More tests => 10;
+use Test::More tests => 11;
 
 subtest construction => sub {
     plan tests => 4;
@@ -279,6 +279,24 @@ subtest 'sort/map/grep' => sub {
     );
 };
 
+subtest 'hash functions' => sub {
+    _run_tests(
+        delete_hash => join("\n",   q(our %hash;),
+                                    q(my $a = delete $hash{'foo'};),
+                                    q(my @a = delete @hash{'foo', 'bar'};),
+                                    q(@a = delete @hash{@a};),
+                                    q(delete @hash{@a};),
+                                    q(delete local @hash{@a})),
+        delete_array => join("\n",  q(our @array;),
+                                    q(my $a = delete $array[1];),
+                                    q(my @a = delete @array[1, 2];),
+                                    q(@a = delete @array[@a];),
+                                    q(delete local @array[@a]),),
+    );
+};
+
+# test different dereferences
+# @{$a->{key}->[1]}
 
 # Tests for 5.12
 # keys/values/each work on arrays

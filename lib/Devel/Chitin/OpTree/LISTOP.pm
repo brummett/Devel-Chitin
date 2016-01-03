@@ -92,7 +92,10 @@ sub _aslice_hslice_builder {
             and
             $children->[0]->op->name eq 'pushmark'
             and
-            $children->[1]->op->name eq 'list'
+            ( $children->[1]->op->name eq 'list'
+                or
+              $children->[1]->op->name eq 'padav'
+            )
             and
             $aslice_hslice_allowed_ops{ $children->[2]->op->name }
     ) {
