@@ -292,6 +292,17 @@ subtest 'hash functions' => sub {
                                     q(my @a = delete @array[1, 2];),
                                     q(@a = delete @array[@a];),
                                     q(delete local @array[@a]),),
+        exists_hash => join("\n",   q(my %hash;),
+                                    q(my $a = exists $hash{'foo'})),
+        exists_array => join("\n",  q(my @array;),
+                                    q(my $a = exists $array[1])),
+        exists_sub => q(my $a = exists &scalar_assignment),
+        each_fcn => join("\n",  q(my %h;),
+                                q(my( $k, $v ) = each %h)),
+        keys_fcn => join("\n",  q(my %h;),
+                                q(my @keys = keys %h)),
+        values_fcn => join("\n",q(my %h;),
+                                q(my @vals = values %h)),
     );
 };
 

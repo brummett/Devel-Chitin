@@ -124,6 +124,15 @@ sub pp_delete {
     "delete ${local}" . $self->first->deparse;
 }
 
+sub pp_exists {
+    my $self = shift;
+    my $arg = $self->first->deparse;
+    if ($self->op->private & B::OPpEXISTS_SUB) {
+        $arg = "&${arg}";
+    }
+    "exists $arg";
+}
+
 #                   OP name        Perl fcn    targmy?
 foreach my $a ( [ pp_entereval  => 'eval',      0 ],
                 [ pp_schomp     => 'chomp',     1 ],
@@ -150,6 +159,9 @@ foreach my $a ( [ pp_entereval  => 'eval',      0 ],
                 [ pp_pop        => 'pop',       0 ],
                 [ pp_shift      => 'shift',     0 ],
                 [ pp_quotemeta  => 'quotemeta', 1 ],
+                [ pp_each       => 'each',      0 ],
+                [ pp_keys       => 'keys',      0 ],
+                [ pp_values     => 'values',    0 ],
 ) {
     my($pp_name, $perl_name, $targmy) = @$a;
     my $sub = sub {
