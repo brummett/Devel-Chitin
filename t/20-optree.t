@@ -259,6 +259,11 @@ subtest 'sort/map/grep' => sub {
                                 q(map(chr, @list);),
                                 q(map { chr } ( $a, $a );),
                                 q(map { chr } @list)),
+        grep_fcn => join("\n",  q(my( $a, @list );),
+                                q(grep(m/a/, $a, $a);),
+                                q(grep(m/a/, @list);),
+                                q(grep { m/a/ } ( $a, $a );),
+                                q(grep { m/a/ } @list)),
     );
 };
 

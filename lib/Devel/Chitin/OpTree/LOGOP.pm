@@ -34,7 +34,15 @@ sub pp_substcont {
 #            list-1
 #            ...
 sub pp_mapwhile {
-    my $self = shift;
+    _deparse_map_grep(shift, 'map');
+}
+
+sub pp_grepwhile {
+    _deparse_map_grep(shift, 'grep');
+}
+
+sub _deparse_map_grep {
+    my($self, $function) = @_;
 
     my $mapstart = $self->first;
     my $children = $mapstart->children;
@@ -44,19 +52,22 @@ sub pp_mapwhile {
 
     my @map_params = map { $_->deparse } @$children[2 .. $#$children];
     if ($block_or_expr->is_scopelike) {
-        my $use_parens = @map_params > 1 or substr($map_params[0], 1, 0) ne '@';
+        # map { ... } @list
+        my $use_parens = (@map_params > 1 or substr($map_params[0], 0, 1) ne '@');
 
         my $skip = $block_or_expr->op->name eq 'scope'
                         ? 1     # normal execution, skip an ex-nextstate
                         : 2;    # run in debugger, skip enter and dbstate
 
-        'map { ' . $block_or_expr->deparse(skip => $skip) . ' } '  # skip enter and nextstate
+        "${function} { " . $block_or_expr->deparse(skip => $skip) . ' } '  # skip enter and nextstate
             . ($use_parens ? '( ' : '')
             . join(', ', @map_params)
             . ($use_parens ? ' )' : '');
 
     } else {
-        'map('
+        # map(expr, @list)
+
+        "${function}("
             . $block_or_expr->deparse
             . ', '
             . join(', ', @map_params)
