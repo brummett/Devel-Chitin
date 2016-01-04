@@ -122,8 +122,19 @@ sub pp_unpack {
 }
 
 sub pp_sort {
-    my $self = shift;
-    _deparse_sortlike($self, 'sort', @_);
+    _deparse_sortlike(shift, 'sort', @_);
+}
+
+sub pp_print {
+    _deparse_sortlike(shift, 'print', is_printlike => 1, @_);
+}
+
+sub pp_prtf {
+    _deparse_sortlike(shift, 'printf', is_printlike => 1, @_);
+}
+
+sub pp_say {
+    _deparse_sortlike(shift, 'say', is_printlike => 1, @_);
 }
 
 # deparse something that may have a block or expression as
@@ -131,23 +142,39 @@ sub pp_sort {
 #     sort { ... } @list
 #     print $f @messages;
 sub _deparse_sortlike {
-    my($self, $function) = @_;
+    my($self, $function, %params) = @_;
 
     my $children = $self->children;
 
-    my $block = '';
+    my $is_stacked = $self->op->flags & B::OPf_STACKED;
+
+    if ($params{is_printlike}
+        and
+        ! $is_stacked
+        and
+        @$children == 2  # 0th is pushmark
+        and
+        $children->[1]->deparse eq '$_'
+    ) {
+        return 'print()';
+    }
+
+    # Note the space:
+    # sort (items, in, list)
+    # print(items, in, list)
+    my $block = $function eq 'sort' ? ' ' : '';
     my $first_value_child_op_idx = 1; # skip pushmark
-    if ($self->op->flags & B::OPf_STACKED) {
+    if ($is_stacked) {
         my $block_op = $children->[1]; # skip pushmark
         $block_op = $block_op->first if $block_op->is_null;
 
         if ($block_op->op->name eq 'const') {
             # it's a function name
-            $block = $block_op->deparse(skip_quotes => 1) . ' ';
+            $block = ' ' . $block_op->deparse(skip_quotes => 1) . ' ';
 
         } else {
             # a block or some other expression
-            $block = $block_op->deparse . ' ';
+            $block = ' ' . $block_op->deparse(skip_sigil => 1) . ' ';
         }
         $first_value_child_op_idx = 2;  # also skip block
 
@@ -156,10 +183,10 @@ sub _deparse_sortlike {
         my $priv_flags = $self->op->private;
         if ($priv_flags & B::OPpSORT_NUMERIC) {
             $block = $priv_flags & B::OPpSORT_DESCEND
-                            ? '{ $b <=> $a } '
-                            : '{ $a <=> $b } ';
+                            ? ' { $b <=> $a } '
+                            : ' { $a <=> $b } ';
         } elsif ($priv_flags & B::OPpSORT_DESCEND) {
-            $block = '{ $b cmp $a } ';  # There's no $a cmp $b because it's the default sort
+            $block = ' { $b cmp $a } ';  # There's no $a cmp $b because it's the default sort
         }
 
     }
@@ -172,7 +199,7 @@ sub _deparse_sortlike {
     #    $assignment = $sort_values[0] . ' = ';
     #}
 
-    "${function} ${block}"
+    "${function}${block}"
         . ( @values > 1 ? '(' : '' )
         . join(', ', @values )
         . ( @values > 1 ? ')' : '' );

@@ -34,8 +34,11 @@ sub pp_rv2hv { '%' . shift->first->deparse }
 sub pp_rv2cv { shift->first->deparse }
 
 sub pp_rv2gv {
-    my $self = shift;
-    if ($self->op->flags & B::OPf_SPECIAL) {
+    my($self, %params) = @_;
+    if ($self->op->flags & B::OPf_SPECIAL
+        or
+        $params{skip_sigil}  # this is a hack for print to deparse correctly :(
+    ) {
         return $self->first->deparse;
     } else {
         return '*' . $self->first->deparse;

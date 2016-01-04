@@ -359,11 +359,22 @@ subtest 'I/O' => sub {
                                     q(dbmclose(%h))),
         dbmopen_fcn => join("\n",   q(my %h;),
                                     q(dbmopen(%h, '/some/path/name', 0666))),
+        print_fcn => join("\n",     q(my $a = print();),
+                                    q(print('foo bar', 'baz', "\n");),
+                                    q(print F ('foo bar', 'baz', "\n");),
+                                    q(my $f;),
+                                    q(print { $f } ('foo bar', 'baz', "\n");),
+                                    q(print { *$f } ('foo bar', 'baz', "\n"))),
+        printf_fcn => join("\n",    q(printf F ($a, 'foo', 'bar');),
+                                    q(printf($a, 'foo', 'bar'))),
     );
 };
 
 # test different dereferences
 # @{$a->{key}->[1]}
+
+# Tests for 5.10
+# say
 
 # Tests for 5.12
 # keys/values/each work on arrays
