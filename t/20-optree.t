@@ -387,6 +387,14 @@ subtest 'I/O' => sub {
                                     q(print { *$f } ('foo bar', 'baz', "\n"))),
         printf_fcn => join("\n",    q(printf F ($a, 'foo', 'bar');),
                                     q(printf($a, 'foo', 'bar'))),
+        readline_fcn => join("\n",  q(my $line = <ARGV>;),
+                                    q($line = readline(*F);),
+                                    q($line = <F>;),
+                                    q(my $fh;),
+                                    q($line = <$fh>;),
+                                    q(my @lines = readline($fh);),
+                                    q(@lines = readline(*$fh);),
+                                    q(@lines = <$fh>)),
     );
 };
 

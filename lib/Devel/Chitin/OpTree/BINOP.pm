@@ -11,8 +11,12 @@ sub last {
 }
 
 sub pp_sassign {
-    my $self = shift;
-    return join(' = ', $self->last->deparse, $self->first->deparse);
+    my($self, %params) = @_;
+    # normally, the args are ordered: value, variable
+    my($var, $value) = $params{is_swapped}
+                        ? ($self->first->deparse, $self->last->deparse)
+                        : ($self->last->deparse, $self->first->deparse);
+    return join(' = ', $var, $value);
 }
 
 sub pp_aassign {

@@ -130,6 +130,33 @@ sub pp_exists {
     "exists($arg)";
 }
 
+sub pp_readline {
+    my $self = shift;
+    my $arg = $self->first->deparse;
+    my $first = $self->first;
+
+    my $flags = $self->op->flags;
+    if ($flags & B::OPf_SPECIAL) {
+        # <$fh>
+        "<${arg}>";
+
+    } elsif ($self->first->op->name eq 'gv') {
+        # <F>
+        "<${arg}>"
+
+#    } elsif ($flags & B::OPf_STACKED) {
+#        # readline(*F)
+#        "readline(${arg})"
+#
+#    } else {
+#        # readline($fh)
+#        "readline(${arg})";
+#    }
+    } else {
+        "readline(${arg})";
+    }
+}
+
 # Functions that can operate on $_
 #                   OP name        Perl fcn    targmy?
 foreach my $a ( [ pp_entereval  => 'eval',      0 ],

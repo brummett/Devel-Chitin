@@ -160,9 +160,21 @@ sub is_null {
 sub pp_null {
     my $self = shift;
     my $bounce = $self->_ex_name;
-    $bounce eq 'pp_null'
-        ? ";\n"   # maybe a COP that got optimized away?
-        : $self->$bounce(@_);
+
+    if ($bounce eq 'pp_null') {
+        if (@{$self->children} == 2
+            and $self->first->is_scalar_container
+            and $self->last->op->name eq 'readline'
+        ) {
+            # not sure why this gets special-cased...
+            $self->Devel::Chitin::OpTree::BINOP::pp_sassign(is_swapped => 1);
+        } else {
+            ";\n"   # maybe a COP that got optimized away?
+        }
+
+    } else {
+        $self->$bounce(@_);
+    }
 }
 
 # These are nextstate/dbstate that got optimized away to null
