@@ -28,25 +28,10 @@ sub pp_srefgen {
     '\\' . $self->first->deparse;
 }
 
-sub pp_rv2sv {
-    my $self = shift;
-    '$' . $self->first->deparse;
-}
-
-sub pp_rv2av {
-    my $self = shift;
-    '@' . $self->first->deparse;
-}
-
-sub pp_rv2hv {
-    my $self = shift;
-    '%' . $self->first->deparse;
-}
-
-sub pp_rv2cv {
-    my $self = shift;
-    $self->first->deparse;
-}
+sub pp_rv2sv { '$' . shift->first->deparse }
+sub pp_rv2av { '@' . shift->first->deparse }
+sub pp_rv2hv { '%' . shift->first->deparse }
+sub pp_rv2cv { shift->first->deparse }
 
 sub pp_entersub {
     my $self = shift;
