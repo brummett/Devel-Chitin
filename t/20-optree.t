@@ -125,6 +125,7 @@ subtest 'eval' => sub {
     _run_tests(
         'const_string_eval' => q(eval 'this is a string'),
         'var_string_eval' => join("\n", q(my $a;),
+                                        q(eval;),
                                         q(eval $a)),
         'block_eval' => join("\n",  q(my $a;),
                                     q(eval {),

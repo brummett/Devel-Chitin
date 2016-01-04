@@ -133,6 +133,7 @@ sub pp_exists {
     "exists $arg";
 }
 
+# Functions that can operate on $_
 #                   OP name        Perl fcn    targmy?
 foreach my $a ( [ pp_entereval  => 'eval',      0 ],
                 [ pp_schomp     => 'chomp',     1 ],
@@ -146,22 +147,14 @@ foreach my $a ( [ pp_entereval  => 'eval',      0 ],
                 [ pp_length     => 'length',    1 ],
                 [ pp_oct        => 'oct',       1 ],
                 [ pp_ord        => 'ord',       1 ],
-                [ pp_scalar     => 'scalar',    0 ],
                 [ pp_abs        => 'abs',       1 ],
                 [ pp_cos        => 'cos',       1 ],
                 [ pp_sin        => 'sin',       1 ],
                 [ pp_exp        => 'exp',       1 ],
                 [ pp_int        => 'int',       1 ],
                 [ pp_log        => 'log',       1 ],
-                [ pp_rand       => 'rand',      1 ],
                 [ pp_sqrt       => 'sqrt',      1 ],
-                [ pp_srand      => 'srand',     1 ],
-                [ pp_pop        => 'pop',       0 ],
-                [ pp_shift      => 'shift',     0 ],
                 [ pp_quotemeta  => 'quotemeta', 1 ],
-                [ pp_each       => 'each',      0 ],
-                [ pp_keys       => 'keys',      0 ],
-                [ pp_values     => 'values',    0 ],
 ) {
     my($pp_name, $perl_name, $targmy) = @$a;
     my $sub = sub {
@@ -175,5 +168,29 @@ foreach my $a ( [ pp_entereval  => 'eval',      0 ],
     no strict 'refs';
     *$pp_name = $sub;
 }
+
+# Functions that don't operate on $_
+#                   OP name        Perl fcn    targmy?
+foreach my $a ( [ pp_scalar     => 'scalar',    0 ],
+                [ pp_rand       => 'rand',      1 ],
+                [ pp_srand      => 'srand',     1 ],
+                [ pp_pop        => 'pop',       0 ],
+                [ pp_shift      => 'shift',     0 ],
+                [ pp_each       => 'each',      0 ],
+                [ pp_keys       => 'keys',      0 ],
+                [ pp_values     => 'values',    0 ],
+) {
+    my($pp_name, $perl_name, $targmy) = @$a;
+    my $sub = sub {
+        my $self = shift;
+        my $arg = $self->first->deparse;
+
+        my $target = $targmy ? $self->_maybe_targmy : '';
+        $target . join(' ', $perl_name, $arg);
+    };
+    no strict 'refs';
+    *$pp_name = $sub;
+}
+
 
 1;
