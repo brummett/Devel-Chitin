@@ -314,9 +314,24 @@ subtest 'user/group info' => sub {
         endhostent_fcn =>   q(endhostent),
         endnetent_fcn =>    q(endnetent),
         endpwent_fcn =>     q(endpwent),
+        setpwent_fcn =>     q(setpwent),
         endgrent_fcn =>     q(endgrent),
+        setgrent_fcn =>     q(setgrent),
+        getlogin_fcn =>     q(my $a = getlogin),
+        getgrgid_fcn => join("\n",  q(my $gid;),
+                                    q(my $a = getgrgid $gid)),
+        getgrnam_fcn => join("\n",  q(my $name;),
+                                    q(my $a = getgrnam $name)),
+        getpwent_fcn => join("\n",  q(my $name = getpwent;),
+                                    q(my @info = getpwent;),
+                                    q(my( $n, $pass, $uid, $gid ) = getpwent)),
+        getpwnam_fcn => join("\n",  q(my $gid = getpwnam 'root';),
+                                    q(my @info = getpwnam 'root';),
+                                    q(my( $name, $pass, $uid, $g ) = getpwnam 'root')),
+        getpwuid_fcn => join("\n",  q(my $name = getpwuid 0;),
+                                    q(my @info = getpwuid 0;),
+                                    q(my( $n, $pass, $uid, $gid ) = getpwuid 0)),
     );
-
 };
 
 # test different dereferences

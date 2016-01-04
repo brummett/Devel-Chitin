@@ -298,6 +298,10 @@ sub pp_ehostent { 'endhostent' }
 sub pp_enetent { 'endnetent' }
 sub pp_egrent { 'endgrent' }
 sub pp_epwent { 'endpwent' }
+sub pp_spwent { 'setpwent' }
+sub pp_sgrent { 'setgrent' }
+sub pp_gpwent { 'getpwent' }
+sub pp_getlogin { 'getlogin' }
 
 # The return values for some OPs is encoded specially, and not through a
 # normal sassign
