@@ -56,9 +56,9 @@ sub _deparse_map_grep {
         my $use_parens = (@map_params > 1 or substr($map_params[0], 0, 1) ne '@');
 
         "${function} { " . $block_or_expr->deparse . ' } '
-            . ($use_parens ? '( ' : '')
+            . ($use_parens ? '(' : '')
             . join(', ', @map_params)
-            . ($use_parens ? ' )' : '');
+            . ($use_parens ? ')' : '');
 
     } else {
         # map(expr, @list)

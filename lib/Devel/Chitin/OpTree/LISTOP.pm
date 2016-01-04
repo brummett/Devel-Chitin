@@ -41,7 +41,7 @@ sub pp_anonhash {
     my @children = @{$self->children};
     shift @children; # skip pushmark
 
-    my $deparsed = '{ ';
+    my $deparsed = '{';
     for (my $i = 0; $i < @children; $i+=2) {
         (my $key = $children[$i]->deparse) =~ s/^'|'$//g; # remove quotes around the key
         $deparsed .= $key
@@ -49,14 +49,14 @@ sub pp_anonhash {
                      . $children[$i+1]->deparse;
         $deparsed .= ', ' unless ($i+2) >= @children;
     }
-    $deparsed . ' }';
+    $deparsed . '}';
 }
 
 sub pp_anonlist {
     my $self = shift;
     my @children = @{$self->children};
     shift @children;  # skip pushmark
-    '[ ' . join(', ', map { $_->deparse } @children) . ' ]';
+    '[' . join(', ', map { $_->deparse } @children) . ']';
 }
 
 sub pp_list {
@@ -66,9 +66,9 @@ sub pp_list {
     my $children = $self->children;
     my $joiner = exists($params{join_with}) ? $params{join_with} : ', ';
 
-    ($params{skip_parens} ? '' : '( ')
+    ($params{skip_parens} ? '' : '(')
         . join($joiner, map { $_->deparse(%params) } @$children[1 .. $#$children]) # skip the first op: pushmark
-        . ($params{skip_parens} ? '' :' )');
+        . ($params{skip_parens} ? '' :')');
 }
 
 sub pp_aslice {
@@ -173,9 +173,9 @@ sub pp_sort {
     #}
 
     "${assignment}sort ${sort_fcn}"
-        . ( @sort_values > 1 ? '( ' : '' )
+        . ( @sort_values > 1 ? '(' : '' )
         . join(', ', @sort_values )
-        . ( @sort_values > 1 ? ' )' : '' );
+        . ( @sort_values > 1 ? ')' : '' );
 }
 
 #                 OP name           Perl fcn    targmy?

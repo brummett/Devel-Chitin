@@ -72,9 +72,9 @@ sub pp_entersub {
     my $sub_name_op = pop @params_ops;
 
     return _deparse_sub_invocation($sub_name_op)
-            . '( '
+            . '('
                 . join(', ', map { $_->deparse } @params_ops)
-            . ' )';
+            . ')';
 }
 
 sub _deparse_sub_invocation {
@@ -121,7 +121,7 @@ sub pp_delete {
     my $local = $self->op->private & B::OPpLVAL_INTRO
                     ? 'local '
                     : '';
-    "delete ${local}" . $self->first->deparse;
+    "delete(${local}" . $self->first->deparse . ')';
 }
 
 sub pp_exists {
@@ -130,7 +130,7 @@ sub pp_exists {
     if ($self->op->private & B::OPpEXISTS_SUB) {
         $arg = "&${arg}";
     }
-    "exists $arg";
+    "exists($arg)";
 }
 
 # Functions that can operate on $_
@@ -162,8 +162,9 @@ foreach my $a ( [ pp_entereval  => 'eval',      0 ],
         my $arg = $self->first->deparse;
 
         my $target = $targmy ? $self->_maybe_targmy : '';
-        $target . join(' ', $perl_name,
-                            $arg eq '$_' ? () : $arg);
+        "${target}${perl_name}("
+            . ($arg eq '$_' ? '' : $arg)
+            . ')';
     };
     no strict 'refs';
     *$pp_name = $sub;
@@ -191,7 +192,7 @@ foreach my $a ( [ pp_scalar     => 'scalar',    0 ],
         my $arg = $self->first->deparse;
 
         my $target = $targmy ? $self->_maybe_targmy : '';
-        $target . join(' ', $perl_name, $arg);
+        "${target}${perl_name}($arg)";
     };
     no strict 'refs';
     *$pp_name = $sub;

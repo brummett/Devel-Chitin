@@ -140,7 +140,7 @@ sub pp_concat {
 sub pp_reverse {
     # a BINOP reverse is only acting on a single item
     # 0th child is pushmark, skip it
-    'reverse ' . shift->last->deparse;
+    'reverse(' . shift->last->deparse . ')';
 }
 
 # leave is normally a LISTOP, but this happens when this is run

@@ -280,28 +280,28 @@ sub pp_const {
 # Usually, rand/srand/pop/shift is an UNOP, but with no args, it's a base-OP
 sub pp_rand {
     my $target = shift->_maybe_targmy;
-    "${target}rand";
+    "${target}rand()";
 }
 sub pp_srand {
     my $target = shift->_maybe_targmy;
-    "${target}srand";
+    "${target}srand()";
 }
-sub pp_pop { 'pop' }
-sub pp_shift { 'shift' }
+sub pp_pop { 'pop()' }
+sub pp_shift { 'shift()' }
 
 sub pp_enter { '' }
 sub pp_stub { ';' }
 
-sub pp_ggrent { 'getgrent' }
-sub pp_eggrent { 'endgrent' }
-sub pp_ehostent { 'endhostent' }
-sub pp_enetent { 'endnetent' }
-sub pp_egrent { 'endgrent' }
-sub pp_epwent { 'endpwent' }
-sub pp_spwent { 'setpwent' }
-sub pp_sgrent { 'setgrent' }
-sub pp_gpwent { 'getpwent' }
-sub pp_getlogin { 'getlogin' }
+sub pp_ggrent { 'getgrent()' }
+sub pp_eggrent { 'endgrent()' }
+sub pp_ehostent { 'endhostent()' }
+sub pp_enetent { 'endnetent()' }
+sub pp_egrent { 'endgrent()' }
+sub pp_epwent { 'endpwent()' }
+sub pp_spwent { 'setpwent()' }
+sub pp_sgrent { 'setgrent()' }
+sub pp_gpwent { 'getpwent()' }
+sub pp_getlogin { 'getlogin()' }
 
 # The return values for some OPs is encoded specially, and not through a
 # normal sassign
