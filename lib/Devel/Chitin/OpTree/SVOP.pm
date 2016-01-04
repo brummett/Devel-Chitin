@@ -21,6 +21,8 @@ sub pp_const {
         }
 
         return "${quote}${string}${quote}";
+    } elsif ($sv->isa('B::NV')) {
+        return $sv->NV;
     } elsif ($sv->isa('B::IV')) {
         return $sv->int_value;
     } elsif ($sv->isa('B::SPECIAL')) {
