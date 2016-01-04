@@ -123,51 +123,59 @@ sub pp_unpack {
 
 sub pp_sort {
     my $self = shift;
+    _deparse_sortlike($self, 'sort', @_);
+}
 
-    my @sort_values;
-    my $sort_fcn = '';
+# deparse something that may have a block or expression as
+# its first arg:
+#     sort { ... } @list
+#     print $f @messages;
+sub _deparse_sortlike {
+    my($self, $function) = @_;
 
     my $children = $self->children;
-    my $first_sort_value_child = 1; # skip pushmark
-    if ($self->op->flags & B::OPf_STACKED) {
-        my $sort_fcn_op = $children->[1]; # skip pushmark
-        $sort_fcn_op = $sort_fcn_op->first if $sort_fcn_op->is_null;
 
-        if ($sort_fcn_op->op->name eq 'const') {
+    my $block = '';
+    my $first_value_child_op_idx = 1; # skip pushmark
+    if ($self->op->flags & B::OPf_STACKED) {
+        my $block_op = $children->[1]; # skip pushmark
+        $block_op = $block_op->first if $block_op->is_null;
+
+        if ($block_op->op->name eq 'const') {
             # it's a function name
-            $sort_fcn = $sort_fcn_op->deparse(skip_quotes => 1) . ' ';
+            $block = $block_op->deparse(skip_quotes => 1) . ' ';
 
         } else {
             # a block or some other expression
-            $sort_fcn = $sort_fcn_op->deparse . ' ';
+            $block = $block_op->deparse . ' ';
         }
-        $first_sort_value_child = 2;  # also skip the sort function
+        $first_value_child_op_idx = 2;  # also skip block
 
-    } else {
+    } elsif ($function eq 'sort') {
         # using some default sort sub
         my $priv_flags = $self->op->private;
         if ($priv_flags & B::OPpSORT_NUMERIC) {
-            $sort_fcn = $priv_flags & B::OPpSORT_DESCEND
+            $block = $priv_flags & B::OPpSORT_DESCEND
                             ? '{ $b <=> $a } '
                             : '{ $a <=> $b } ';
         } elsif ($priv_flags & B::OPpSORT_DESCEND) {
-            $sort_fcn = '{ $b cmp $a } ';  # There's no $a cmp $b because it's the default sort
+            $block = '{ $b cmp $a } ';  # There's no $a cmp $b because it's the default sort
         }
 
     }
 
-    @sort_values = map { $_->deparse }
-                    @$children[$first_sort_value_child .. $#$children];
+    my @values = map { $_->deparse }
+                    @$children[$first_value_child_op_idx .. $#$children];
 
     # now handled by aassign
     #if ($self->op->private & B::OPpSORT_INPLACE) {
     #    $assignment = $sort_values[0] . ' = ';
     #}
 
-    "sort ${sort_fcn}"
-        . ( @sort_values > 1 ? '(' : '' )
-        . join(', ', @sort_values )
-        . ( @sort_values > 1 ? ')' : '' );
+    "${function} ${block}"
+        . ( @values > 1 ? '(' : '' )
+        . join(', ', @values )
+        . ( @values > 1 ? ')' : '' );
 }
 
 sub pp_dbmopen {
