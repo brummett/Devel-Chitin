@@ -179,6 +179,9 @@ foreach my $a ( [ pp_scalar     => 'scalar',    0 ],
                 [ pp_gpwnam     => 'getpwnam',  0 ],
                 [ pp_gpwent     => 'getpwent',  0 ],
                 [ pp_ggrnam     => 'getgrnam',  0 ],
+                [ pp_close      => 'close',     0 ],
+                [ pp_closedir   => 'closedir',  0 ],
+                [ pp_dbmclose   => 'dbmclose',  0 ],
 ) {
     my($pp_name, $perl_name, $targmy) = @$a;
     my $sub = sub {

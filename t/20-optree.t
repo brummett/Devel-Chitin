@@ -338,12 +338,27 @@ subtest 'user/group info' => sub {
 subtest 'I/O' => sub {
     _run_tests(
         binmode_fcn => join("\n",   q(binmode(F);),
-                                    q(binmode(F, ':raw');),
+                                    q(binmode(*F, ':raw');),
                                     q(binmode(F, ':crlf');),
                                     q(my $fh;),
                                     q(binmode($fh);),
-                                    q(binmode($fh, ':raw');),
+                                    q(binmode(*$fh, ':raw');),
                                     q(binmode($fh, ':crlf'))),
+        close_fcn => join("\n",     q(close(F);),
+                                    q(close(*G);),
+                                    q(my $f;),
+                                    q(close($f);),
+                                    q(close(*$f);),
+                                    q(close())),
+        closedir_fcn => join("\n",  q(closedir(D);),
+                                    q(closedir(*D);),
+                                    q(my $d;),
+                                    q(closedir($d);),
+                                    q(closedir(*$d))),
+        dbmclose_fcn => join("\n",  q(my %h;),
+                                    q(dbmclose(%h))),
+        dbmopen_fcn => join("\n",   q(my %h;),
+                                    q(dbmopen(%h, '/some/path/name', 0666))),
     );
 };
 

@@ -178,6 +178,16 @@ sub pp_sort {
         . ( @sort_values > 1 ? ')' : '' );
 }
 
+sub pp_dbmopen {
+    my $self = shift;
+    my $children = $self->children;
+    'dbmopen('
+        . $children->[1]->deparse . ', '   # hash
+        . $children->[2]->deparse . ', '   # file
+        . sprintf('0%3o', $children->[3]->deparse)
+    . ')';
+}
+
 #                 OP name           Perl fcn    targmy?
 foreach my $a ( [ pp_crypt      => 'crypt',     1 ],
                 [ pp_index      => 'index',     1 ],
