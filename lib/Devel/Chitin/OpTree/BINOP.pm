@@ -150,9 +150,7 @@ sub pp_reverse {
 # ex-leave
 #   enter
 #   stub
-sub pp_leave {
-    shift->last->deparse;
-}
+*pp_leave = \&Devel::Chitin::OpTree::LISTOP::pp_leave;
 
 sub pp_helem {
     my $self = shift;

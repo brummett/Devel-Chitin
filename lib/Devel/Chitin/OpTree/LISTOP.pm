@@ -10,7 +10,7 @@ sub pp_lineseq {
     my $self = shift;
     my %params = @_;
 
-    my $deparsed;
+    my $deparsed = '';
     my $children = $self->children;
 
     my $start = $params{skip} || 0;
@@ -25,15 +25,13 @@ sub pp_lineseq {
     }
     $deparsed;
 }
-#*pp_scope = \&pp_lineseq;
 sub pp_scope {
-    push @_, skip => 1;  # skip nextstate
-    goto &pp_lineseq;
+    my $deparsed = pp_lineseq(@_, skip => 1) || ';';
+    "{ $deparsed }";
 }
-#*pp_leave = \&pp_lineseq;
 sub pp_leave {
-    push @_, skip => 2;  # skip enter, nextstate
-    goto &pp_lineseq;
+    my $deparsed = pp_lineseq(@_, skip => 2) || ';';
+    "{ $deparsed }";
 }
 
 sub pp_anonhash {
@@ -127,7 +125,7 @@ sub pp_sort {
     my $self = shift;
 
     my @sort_values;
-    my($sort_fcn, $assignment) = ('', '');
+    my $sort_fcn = '';
 
     my $children = $self->children;
     my $first_sort_value_child = 1; # skip pushmark
@@ -135,21 +133,15 @@ sub pp_sort {
         my $sort_fcn_op = $children->[1]; # skip pushmark
         $sort_fcn_op = $sort_fcn_op->first if $sort_fcn_op->is_null;
 
-        $sort_fcn = $sort_fcn_op->deparse;
         if ($sort_fcn_op->op->name eq 'const') {
             # it's a function name
             $sort_fcn = $sort_fcn_op->deparse(skip_quotes => 1) . ' ';
 
-        } elsif ($sort_fcn_op->is_scalar_container) {
-            # a coderef
-            $sort_fcn = $sort_fcn_op->deparse . ' ';
-
         } else {
-            # otherwise, it's a sort block
-            my $sort_fcn_contents = $sort_fcn_op->deparse || ';';
-            $sort_fcn = "{ $sort_fcn_contents } ";
+            # a block or some other expression
+            $sort_fcn = $sort_fcn_op->deparse . ' ';
         }
-        $first_sort_value_child = 2;
+        $first_sort_value_child = 2;  # also skip the sort function
 
     } else {
         # using some default sort sub
@@ -172,7 +164,7 @@ sub pp_sort {
     #    $assignment = $sort_values[0] . ' = ';
     #}
 
-    "${assignment}sort ${sort_fcn}"
+    "sort ${sort_fcn}"
         . ( @sort_values > 1 ? '(' : '' )
         . join(', ', @sort_values )
         . ( @sort_values > 1 ? ')' : '' );
