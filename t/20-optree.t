@@ -3,7 +3,7 @@ use warnings;
 
 use Devel::Chitin::OpTree;
 use Devel::Chitin::Location;
-use Test::More tests => 11;
+use Test::More tests => 12;
 
 subtest construction => sub {
     plan tests => 4;
@@ -304,6 +304,18 @@ subtest 'hash functions' => sub {
         values_fcn => join("\n",q(my %h;),
                                 q(my @vals = values %h)),
     );
+};
+
+subtest 'user/group info' => sub {
+    _run_tests(
+        getgrent_fcn => join("\n",  q(my $a = getgrent;),
+                                    q($a = getgrent)),
+        endhostent_fcn =>   q(endhostent),
+        endnetent_fcn =>    q(endnetent),
+        endpwent_fcn =>     q(endpwent),
+        endgrent_fcn =>     q(endgrent),
+    );
+
 };
 
 # test different dereferences

@@ -292,6 +292,13 @@ sub pp_shift { 'shift' }
 sub pp_enter { '' }
 sub pp_stub { ';' }
 
+sub pp_ggrent { 'getgrent' }
+sub pp_eggrent { 'endgrent' }
+sub pp_ehostent { 'endhostent' }
+sub pp_enetent { 'endnetent' }
+sub pp_egrent { 'endgrent' }
+sub pp_epwent { 'endpwent' }
+
 # The return values for some OPs is encoded specially, and not through a
 # normal sassign
 sub _maybe_targmy {
