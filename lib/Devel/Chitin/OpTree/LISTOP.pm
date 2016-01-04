@@ -3,6 +3,8 @@ use base Devel::Chitin::OpTree::BINOP;
 
 use Devel::Chitin::Version;
 
+use Fcntl qw(:flock);
+
 use strict;
 use warnings;
 
@@ -215,6 +217,25 @@ sub pp_dbmopen {
     . ')';
 }
 
+sub pp_flock {
+    my $self = shift;
+    my $children = $self->children;
+
+    my $target = $self->_maybe_targmy;
+
+    my $flags = $children->[2]->deparse;
+    my @flags = map { $flags & $_->[1] ? $_->[0] : () }
+                  ( [ LOCK_SH => LOCK_SH ],
+                    [ LOCK_EX => LOCK_EX ],
+                    [ LOCK_UN => LOCK_UN ],
+                    [ LOCK_NB => LOCK_NB ] );
+    "${target}flock("
+        . $children->[1]->deparse
+        . ', '
+        . join(' | ', @flags)
+        . ')';
+}
+
 #                 OP name           Perl fcn    targmy?
 foreach my $a ( [ pp_crypt      => 'crypt',     1 ],
                 [ pp_index      => 'index',     1 ],
@@ -229,6 +250,7 @@ foreach my $a ( [ pp_crypt      => 'crypt',     1 ],
                 [ pp_splice     => 'splice',    1 ],
                 [ pp_join       => 'join',      1 ],
                 [ pp_binmode    => 'binmode',   0 ],
+                [ pp_die        => 'die',       0 ],
 ) {
     my($pp_name, $perl_name, $targmy) = @$a;
     my $sub = sub {

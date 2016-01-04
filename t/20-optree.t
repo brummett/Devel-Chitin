@@ -5,6 +5,8 @@ use Devel::Chitin::OpTree;
 use Devel::Chitin::Location;
 use Test::More tests => 13;
 
+use Fcntl qw(:flock);
+
 subtest construction => sub {
     plan tests => 4;
 
@@ -359,6 +361,24 @@ subtest 'I/O' => sub {
                                     q(dbmclose(%h))),
         dbmopen_fcn => join("\n",   q(my %h;),
                                     q(dbmopen(%h, '/some/path/name', 0666))),
+        die_fcn => q(die('some list', 'of things', 1, 1.234)),
+        eof_fcn => join("\n",   q(my $a = eof(F);),
+                                q($a = eof(*F);),
+                                q(my $f;),
+                                q($a = eof($f);),
+                                q($a = eof(*$f);),
+                                q($a = eof;),
+                                q($a = eof())),
+        fileno_fcn => join("\n",    q(my $a = fileno(F);),
+                                    q(my $f;),
+                                    q($a = fileno(*$f))),
+        flock_fcn => join("\n",     q(my $a = flock(F, LOCK_SH | LOCK_NB);),
+                                    q($a = flock(*F, LOCK_EX | LOCK_NB);),
+                                    q(my $f;),
+                                    q($a = flock($f, LOCK_UN);),
+                                    q($a = flock(*$f, LOCK_UN | LOCK_NB))),
+        getc_fcn => join("\n",      q(my $a = getc(F);),
+                                    q($a = getc())),
         print_fcn => join("\n",     q(my $a = print();),
                                     q(print('foo bar', 'baz', "\n");),
                                     q(print F ('foo bar', 'baz', "\n");),

@@ -289,6 +289,7 @@ sub pp_srand {
 sub pp_pop { 'pop()' }
 sub pp_shift { 'shift()' }
 sub pp_close { 'close()' }
+sub pp_getc { 'getc()' }
 
 sub pp_enter { '' }
 sub pp_stub { ';' }
@@ -303,6 +304,12 @@ sub pp_spwent { 'setpwent()' }
 sub pp_sgrent { 'setgrent()' }
 sub pp_gpwent { 'getpwent()' }
 sub pp_getlogin { 'getlogin()' }
+
+sub pp_eof {
+    shift->op->flags & B::OPf_SPECIAL
+        ? 'eof()'
+        : 'eof';
+}
 
 # The return values for some OPs is encoded specially, and not through a
 # normal sassign
