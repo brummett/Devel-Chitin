@@ -33,6 +33,15 @@ sub pp_rv2av { '@' . shift->first->deparse }
 sub pp_rv2hv { '%' . shift->first->deparse }
 sub pp_rv2cv { shift->first->deparse }
 
+sub pp_rv2gv {
+    my $self = shift;
+    if ($self->op->flags & B::OPf_SPECIAL) {
+        return $self->first->deparse;
+    } else {
+        return '*' . $self->first->deparse;
+    }
+}
+
 sub pp_entersub {
     my $self = shift;
 

@@ -3,7 +3,7 @@ use warnings;
 
 use Devel::Chitin::OpTree;
 use Devel::Chitin::Location;
-use Test::More tests => 12;
+use Test::More tests => 13;
 
 subtest construction => sub {
     plan tests => 4;
@@ -332,6 +332,18 @@ subtest 'user/group info' => sub {
         getpwuid_fcn => join("\n",  q(my $name = getpwuid(0);),
                                     q(my @info = getpwuid(0);),
                                     q(my($n, $pass, $uid, $gid) = getpwuid(0))),
+    );
+};
+
+subtest 'I/O' => sub {
+    _run_tests(
+        binmode_fcn => join("\n",   q(binmode(F);),
+                                    q(binmode(F, ':raw');),
+                                    q(binmode(F, ':crlf');),
+                                    q(my $fh;),
+                                    q(binmode($fh);),
+                                    q(binmode($fh, ':raw');),
+                                    q(binmode($fh, ':crlf'))),
     );
 };
 
