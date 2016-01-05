@@ -3,7 +3,7 @@ use base Devel::Chitin::OpTree::BINOP;
 
 use Devel::Chitin::Version;
 
-use Fcntl qw(:flock);
+use Fcntl qw(:flock SEEK_SET SEEK_CUR SEEK_END);
 
 use strict;
 use warnings;
@@ -233,6 +233,26 @@ sub pp_flock {
         . $children->[1]->deparse
         . ', '
         . join(' | ', @flags)
+        . ')';
+}
+
+sub pp_seek { shift->_deparse_seeklike('seek') }
+sub pp_sysseek { shift->_deparse_seeklike('sysseek') }
+
+my %seek_flags = (
+        SEEK_SET() => 'SEEK_SET',
+        SEEK_CUR() => 'SEEK_CUR',
+        SEEK_END() => 'SEEK_END',
+    );
+sub _deparse_seeklike {
+    my($self, $function) = @_;
+    my $children = $self->children;
+
+    my $whence = $children->[3]->deparse(skip_quotes => 1);
+
+    "${function}(" . join(', ', $children->[1]->deparse,
+                         $children->[2]->deparse,
+                         (exists($seek_flags{$whence}) ? $seek_flags{$whence} : $whence))
         . ')';
 }
 

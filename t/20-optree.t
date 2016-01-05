@@ -5,7 +5,7 @@ use Devel::Chitin::OpTree;
 use Devel::Chitin::Location;
 use Test::More tests => 14;
 
-use Fcntl qw(:flock);
+use Fcntl qw(:flock SEEK_SET SEEK_CUR SEEK_END);
 
 subtest construction => sub {
     plan tests => 4;
@@ -417,6 +417,14 @@ subtest 'I/O' => sub {
                                     q(@lines = <$fh>)),
         rewinddir_fcn =>    q(rewinddir(D)),
         seekdir_fcn =>      q(seekdir(D, 10)),
+        seek_fcn => join("\n",      q(my $a = seek(F, 10, SEEK_CUR);),
+                                    q(my $fh;),
+                                    q(seek($fh, -10, SEEK_END);),
+                                    q(seek(*$fh, 0, SEEK_SET))),
+        sysseek_fcn => join("\n",   q(my $a = sysseek(F, 10, SEEK_CUR);),
+                                    q(my $fh;),
+                                    q(sysseek($fh, -10, SEEK_END);),
+                                    q(sysseek(*$fh, 0, SEEK_SET))),
         tell_fcn => join("\n",      q(my $a = tell(F);),
                                     q($a = tell(*F);),
                                     q($a = tell();),
