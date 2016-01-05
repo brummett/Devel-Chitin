@@ -305,6 +305,18 @@ sub pp_getc { 'getc()' }
 sub pp_tell { 'tell()' }
 sub pp_enterwrite { 'write()' }
 
+# Chdir can be either a UNOP or base-OP
+sub pp_chdir {
+    my $self = shift;
+    my $children = $self->children;
+    my $target = $self->_maybe_targmy;
+    if (@$children) {
+        "${target}chdir(" . $children->[0]->deparse . ')';
+    } else {
+        "${target}chdir()";
+    }
+}
+
 sub pp_enter { '' }
 sub pp_stub { ';' }
 

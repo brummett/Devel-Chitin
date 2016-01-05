@@ -469,6 +469,9 @@ subtest 'files' => sub {
                                     q($a = -M _;),
                                     q($a = -A '/some/file/name';),
                                     q($a = -C $fh)),
+        chdir_expr => join("\n",    q(my $a = chdir('/some/path/name');),
+                                    q($a = chdir())),
+        chdir_fh => q(chdir(*F)),
     );
 };
 
