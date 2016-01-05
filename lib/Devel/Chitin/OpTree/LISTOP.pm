@@ -251,6 +251,12 @@ foreach my $a ( [ pp_crypt      => 'crypt',     1 ],
                 [ pp_join       => 'join',      1 ],
                 [ pp_binmode    => 'binmode',   0 ],
                 [ pp_die        => 'die',       0 ],
+                [ pp_warn       => 'warn',      0 ],
+                [ pp_read       => 'read',      0 ],
+                [ pp_sysread    => 'sysread',   0 ],
+                [ pp_syswrite   => 'syswrite',  0 ],
+                [ pp_seekdir    => 'seekdir',   0 ],
+                [ pp_syscall    => 'syscall',   0 ],
 ) {
     my($pp_name, $perl_name, $targmy) = @$a;
     my $sub = sub {

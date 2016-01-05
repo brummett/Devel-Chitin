@@ -35,7 +35,7 @@ sub pp_rv2cv { shift->first->deparse }
 
 sub pp_rv2gv {
     my($self, %params) = @_;
-    if ($self->op->flags & B::OPf_SPECIAL
+    if ($self->op->flags & B::OPf_SPECIAL    # happens in syswrite($fh, ...) and other I/O functions
         or
         $params{skip_sigil}  # this is a hack for print to deparse correctly :(
     ) {
@@ -215,6 +215,11 @@ foreach my $a ( [ pp_scalar     => 'scalar',    0 ],
                 [ pp_eof        => 'eof',       0 ],
                 [ pp_fileno     => 'fileno',    0 ],
                 [ pp_getc       => 'getc',      0 ],
+                [ pp_readdir    => 'readdir',   0 ],
+                [ pp_rewinddir  => 'rewinddir', 0 ],
+                [ pp_tell       => 'tell',      0 ],
+                [ pp_telldir    => 'telldir',   0 ],
+                [ pp_enterwrite => 'write',     0 ],
 ) {
     my($pp_name, $perl_name, $targmy) = @$a;
     my $sub = sub {

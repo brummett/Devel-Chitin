@@ -302,6 +302,8 @@ sub pp_pop { 'pop()' }
 sub pp_shift { 'shift()' }
 sub pp_close { 'close()' }
 sub pp_getc { 'getc()' }
+sub pp_tell { 'tell()' }
+sub pp_enterwrite { 'write()' }
 
 sub pp_enter { '' }
 sub pp_stub { ';' }
