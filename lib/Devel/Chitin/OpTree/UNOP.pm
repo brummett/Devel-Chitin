@@ -37,7 +37,9 @@ sub pp_rv2gv {
     my($self, %params) = @_;
     if ($self->op->flags & B::OPf_SPECIAL    # happens in syswrite($fh, ...) and other I/O functions
         or
-        $params{skip_sigil}  # this is a hack for print to deparse correctly :(
+        $self->op->private & B::OPpDEREF_SV  # happens in select($fh)
+        or
+        $params{skip_sigil}  # this is a hack for "print F ..." to deparse correctly :(
     ) {
         return $self->first->deparse;
     } else {
@@ -179,6 +181,7 @@ foreach my $a ( [ pp_entereval  => 'eval',      0 ],
                 [ pp_log        => 'log',       1 ],
                 [ pp_sqrt       => 'sqrt',      1 ],
                 [ pp_quotemeta  => 'quotemeta', 1 ],
+                [ pp_chroot     => 'chroot',    1 ],
 ) {
     my($pp_name, $perl_name, $targmy) = @$a;
     my $sub = sub {

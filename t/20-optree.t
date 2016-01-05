@@ -176,6 +176,8 @@ subtest 'string functions' => sub {
                                     q($a = quotemeta();),
                                     q($a = quotemeta($a);),
                                     q(quotemeta($a))),
+        vec_fcn => join("\n",       q(my $a = vec('abcdef', 1, 4);),
+                                    q(vec($a, 2, 2) = 4)),
         map { ( "${_}_dfl"      => "$_()",
                 "${_}_to_var"   => join("\n",   q(my $a;),
                                                 "\$a = $_()"),
@@ -444,6 +446,16 @@ subtest 'I/O' => sub {
                                     q(my $fh;),
                                     q(write($fh);),
                                     q(write())),
+        select_fh => join("\n",     q(my $fh = select();),
+                                    q(select(F);),
+                                    q(select(*F);),
+                                    q(select($fh);),
+                                    q(select(*$fh))),
+        select_sycall => join("\n", q(my($found, $time) = select(*F, 1, 2, 3);),
+                                    q($found = select(*F, 1, 2, 3);),
+                                    q(my $fh;),
+                                    q(($found, $time) = select($fh, 1, 2, 3);),
+                                    q($found = select(*$fh, 1, 2, 3))),
     );
 };
 
@@ -480,6 +492,15 @@ subtest 'files' => sub {
         chdir_expr => join("\n",    q(my $a = chdir('/some/path/name');),
                                     q($a = chdir())),
         chdir_fh => q(chdir(*F)),
+        chown_fcn => join("\n",     q(my $a = chown(0, 3, '/some/file/name', '/other/file');),
+                                    q(chown(1, 999, 'foo'))),
+        chroot_fcn => join("\n",    q(my $a = chroot('/some/file/name');),
+                                    q(chroot())),
+        fcntl_fcn => join("\n",     q(my $a = fcntl(F, 1, 2);),
+                                    q(fcntl(*F, 2, 'foo');),
+                                    q(my($fh, $buf);),
+                                    q(fcntl($fh, 3, $buf);),
+                                    q(fcntl(*$fh, 4, 0))),
     );
 };
 
