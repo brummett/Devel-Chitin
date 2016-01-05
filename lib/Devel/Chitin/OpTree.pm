@@ -325,6 +325,54 @@ sub pp_eof {
         : 'eof';
 }
 
+# file test operators
+# These actually show up as UNOPs (usually) and SVOPs (-X _) but it's
+# convienent to put them here in the base class
+foreach my $a ( [ pp_fteread    => '-r' ],
+                [ pp_ftewrite   => '-w' ],
+                [ pp_fteexec    => '-x' ],
+                [ pp_fteowned   => '-o' ],
+                [ pp_ftrread    => '-R' ],
+                [ pp_ftrwrite   => '-W' ],
+                [ pp_ftrexec    => '-X' ],
+                [ pp_ftrowned   => '-O' ],
+                [ pp_ftis       => '-e' ],
+                [ pp_ftzero     => '-z' ],
+                [ pp_ftsize     => '-s' ],
+                [ pp_ftfile     => '-f' ],
+                [ pp_ftdir      => '-d' ],
+                [ pp_ftlink     => '-l' ],
+                [ pp_ftpipe     => '-p' ],
+                [ pp_ftblk      => '-b' ],
+                [ pp_ftsock     => '-S' ],
+                [ pp_ftchr      => '-c' ],
+                [ pp_fttty      => '-t' ],
+                [ pp_ftsuid     => '-u' ],
+                [ pp_ftsgid     => '-g' ],
+                [ pp_ftsvtx     => '-k' ],
+                [ pp_fttext     => '-T' ],
+                [ pp_ftbinary   => '-B' ],
+                [ pp_ftmtime    => '-M' ],
+                [ pp_ftatime    => '-A' ],
+                [ pp_ftctime    => '-C' ],
+) {
+    my($pp_name, $perl_name) = @$a;
+    my $sub = sub {
+        my $self = shift;
+        if ($self->class eq 'UNOP') {
+            my $fh = $self->children->[0]->deparse;
+            join(' ', $perl_name,
+                        $fh eq '$_' ? () : $fh);
+        } else {
+            # it's an SVOP
+            my $fh = $self->Devel::Chitin::OpTree::SVOP::pp_gv();
+            $perl_name . ' ' . $fh;
+        }
+    };
+    no strict 'refs';
+    *$pp_name = $sub;
+}
+
 # The return values for some OPs is encoded specially, and not through a
 # normal sassign
 sub _maybe_targmy {

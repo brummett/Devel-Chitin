@@ -3,7 +3,7 @@ use warnings;
 
 use Devel::Chitin::OpTree;
 use Devel::Chitin::Location;
-use Test::More tests => 13;
+use Test::More tests => 14;
 
 use Fcntl qw(:flock);
 
@@ -436,6 +436,39 @@ subtest 'I/O' => sub {
                                     q(my $fh;),
                                     q(write($fh);),
                                     q(write())),
+    );
+};
+
+subtest 'files' => sub {
+    _run_tests(
+        file_tests =>   join("\n",  q(my $fh;),
+                                    q(my $a = -r *F;),
+                                    q($a = -w '/some/path/name';),
+                                    q($a = -x $fh;),
+                                    q($a = -o;),
+                                    q($a = -R _;),
+                                    q($a = -W $fh;),
+                                    q($a = -X *F;),
+                                    q($a = -O '/some/file/name';),
+                                    q($a = -e;),
+                                    q($a = -z _;),
+                                    q($a = -s '/some/file/name';),
+                                    q($a = -f $fh;),
+                                    q($a = -d *F;),
+                                    q($a = -l;),
+                                    q($a = -p _;),
+                                    q($a = -S *F;),
+                                    q($a = -b '/some/file/name';),
+                                    q($a = -c $fh;),
+                                    q($a = -t _;),
+                                    q($a = -u;),
+                                    q($a = -g $fh;),
+                                    q($a = -k *F;),
+                                    q($a = -T '/some/file/name';),
+                                    q($a = -B;),
+                                    q($a = -M _;),
+                                    q($a = -A '/some/file/name';),
+                                    q($a = -C $fh)),
     );
 };
 
