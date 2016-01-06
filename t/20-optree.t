@@ -441,6 +441,11 @@ subtest 'I/O' => sub {
         syscall_fcn => join("\n",   q(my $a = syscall(1, 2, 3);),
                                     q(my $str = 'foo';),
                                     q($a = syscall(4, $str, 5))),
+        truncate_fcn => join("\n",  q(my $a = truncate(F, 10);),
+                                    q($a = truncate(*F, 11);),
+                                    q(my($fh, %h);),
+                                    q(truncate($fh, 12);),
+                                    q(truncate($h{'foo'}, 14))),
         write_fcn => join("\n",     q(write(F);),
                                     q(write(*F);),
                                     q(my $fh;),
@@ -492,6 +497,8 @@ subtest 'files' => sub {
         chdir_expr => join("\n",    q(my $a = chdir('/some/path/name');),
                                     q($a = chdir())),
         chdir_fh => q(chdir(*F)),
+        chmod_fcn => join("\n",     q(my $a = chmod(0755, '/some/file/name', '/other/file');),
+                                    q(chmod(04322, 'foo'))),
         chown_fcn => join("\n",     q(my $a = chown(0, 3, '/some/file/name', '/other/file');),
                                     q(chown(1, 999, 'foo'))),
         chroot_fcn => join("\n",    q(my $a = chroot('/some/file/name');),
@@ -501,6 +508,7 @@ subtest 'files' => sub {
                                     q(my($fh, $buf);),
                                     q(fcntl($fh, 3, $buf);),
                                     q(fcntl(*$fh, 4, 0))),
+        glob_fcn =>     q(my @files = glob('some *patterns{one,two}')),
     );
 };
 

@@ -256,6 +256,40 @@ sub _deparse_seeklike {
         . ')';
 }
 
+sub pp_truncate {
+    my $self = shift;
+    my $children = $self->children;
+
+    my $fh;
+    if ($self->op->flags & B::OPf_SPECIAL) {
+        # 1st arg is a bareword filehandle
+        $fh = $children->[1]->deparse(skip_quotes => 1);
+
+    } else {
+        $fh = $children->[1]->deparse;
+    }
+
+    "truncate(${fh}, " . $children->[2]->deparse . ')';
+}
+
+sub pp_chmod {
+    my $self = shift;
+    my $children = $self->children;
+    my $mode = sprintf('0%3o', $children->[1]->deparse);
+    my $target = $self->_maybe_targmy;
+    "${target}chmod(${mode}, " . join(', ', map { $_->deparse } @$children[2 .. $#$children]) . ')';
+}
+
+# strange... glob is a LISTOP, but always has 3 children
+# 1. ex-pushmark
+# 2. arg containing the pattern
+# 3. a gv SVOP refering to a bogus glob in no package with no name
+# There's no way to distinguish glob(...) from <...>
+sub pp_glob {
+    my $self = shift;
+    'glob(' . $self->children->[1]->deparse . ')';
+}
+
 #                 OP name           Perl fcn    targmy?
 foreach my $a ( [ pp_crypt      => 'crypt',     1 ],
                 [ pp_index      => 'index',     1 ],
