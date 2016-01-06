@@ -3,7 +3,7 @@ use warnings;
 
 use Devel::Chitin::OpTree;
 use Devel::Chitin::Location;
-use Test::More tests => 14;
+use Test::More tests => 15;
 
 use Fcntl qw(:flock SEEK_SET SEEK_CUR SEEK_END);
 
@@ -501,6 +501,33 @@ subtest 'files' => sub {
                                     q(my($fh, $buf);),
                                     q(fcntl($fh, 3, $buf);),
                                     q(fcntl(*$fh, 4, 0))),
+    );
+};
+
+subtest operators => sub {
+    _run_tests(
+        add_op => join("\n",    q(my($a, $b);),
+                                q($a = $a + $b;),
+                                q($b = $a + $b + 1)),
+        sub_op => join("\n",    q(my($a, $b);),
+                                q($a = $a - $b;),
+                                q($b = $a - $b - 1)),
+        mul_op => join("\n",    q(my($a, $b);),
+                                q($a = $a * $b;),
+                                q($b = $a * $b * 2)),
+        div_op => join("\n",    q(my($a, $b);),
+                                q($a = $a / $b;),
+                                q($b = $a / $b / 2)),
+        mod_op => join("\n",    q(my($a, $b);),
+                                q($a = $a % $b;),
+                                q($b = $a % $b % 2)),
+        preinc_op => join("\n", q(my $a = 4;),
+                                q(my $b = ++$a)),
+        postinc_op => join("\n",q(my $a = 4;),
+                                q(my $b = $a++)),
+        bin_negate => join("\n",q(my $a = 3;),
+                                q(my $b = ~$a;),
+                                q($a = ~$b)),
     );
 };
 

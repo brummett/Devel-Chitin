@@ -164,4 +164,28 @@ sub pp_helem {
     "${hash}{${key}}";
 }
 
+# Operators
+#               OP name         operator    targmy?
+foreach my $a ( [ pp_add        => '+',     1 ],
+                [ pp_i_add      => '+',     1 ],
+                [ pp_subtract   => '-',     1 ],
+                [ pp_i_subtract => '-',     1 ],
+                [ pp_multiply   => '*',     1 ],
+                [ pp_i_multiply => '*',     1 ],
+                [ pp_divide     => '/',     1 ],
+                [ pp_i_divide   => '/',     1 ],
+                [ pp_modulo     => '%',     1 ],
+                [ pp_i_modulo   => '%',     1 ],
+                
+) {
+    my($pp_name, $perl_name, $targmy) = @$a;
+    my $sub = sub {
+        my $self = shift;
+        my $target = $targmy ? $self->_maybe_targmy : '';
+        $target . $self->first->deparse . " $perl_name " . $self->last->deparse;
+    };
+    no strict 'refs';
+    *$pp_name = $sub;
+}
+
 1;

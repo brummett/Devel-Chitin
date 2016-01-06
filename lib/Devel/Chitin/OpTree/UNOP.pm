@@ -236,5 +236,29 @@ foreach my $a ( [ pp_scalar     => 'scalar',    0 ],
     *$pp_name = $sub;
 }
 
+# Operators
+#               OP name         perl op   pre?  targmy?
+foreach my $a ( [ pp_preinc     => '++',    1,  0 ],
+                [ pp_i_preinc   => '++',    1,  0 ],
+                [ pp_postinc    => '++',    0,  1 ],
+                [ pp_i_postinc  => '++',    0,  1 ],
+                [ pp_predec     => '--',    1,  0 ],
+                [ pp_i_predec   => '--',    1,  0 ],
+                [ pp_postdec    => '--',    0,  1 ],
+                [ pp_i_postdec  => '--',    0,  1 ],
+                [ pp_complement => '~',     1,  1 ],
+) {
+    my($pp_name, $op, $is_prefix, $is_targmy) = @$a;
+
+    my $sub = sub {
+        my $self = shift;
+        my $target = $self->_maybe_targmy if $is_targmy;
+        $is_prefix
+            ? ($op . $self->first->deparse)
+            : ($self->first->deparse . $op);
+    };
+    no strict 'refs';
+    *$pp_name = $sub;
+}
 
 1;
