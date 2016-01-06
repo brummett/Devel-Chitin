@@ -217,6 +217,22 @@ sub _padname_sv {
     return $self->cv->PADLIST->ARRAYelt(0)->ARRAYelt( $self->op->targ );
 }
 
+sub _padval_sv {
+    my($self, $idx) = @_;
+    return $self->cv->PADLIST->ARRAYelt(1)->ARRAYelt( $idx );
+}
+
+sub _gv_name {
+    my($self, $gv) = @_;
+    my $last_cop = $self->nearest_cop();
+    my $curr_package = $last_cop->op->stashpv;
+    my $gv_package = $gv->STASH->NAME;
+
+    $curr_package eq $gv_package
+        ? $gv->NAME
+        : join('::', $gv_package, $gv->NAME);
+}
+
 sub _ex_name {
     my $self = shift;
     if ($self->op->name eq 'null') {
@@ -376,8 +392,10 @@ foreach my $a ( [ pp_fteread    => '-r' ],
             join(' ', $perl_name,
                         $fh eq '$_' ? () : $fh);
         } else {
-            # it's an SVOP
-            my $fh = $self->Devel::Chitin::OpTree::SVOP::pp_gv();
+            # It's a test on _: -w _
+            my $fh = $self->class eq 'SVOP'
+                        ? $self->Devel::Chitin::OpTree::SVOP::pp_gv()
+                        : $self->Devel::Chitin::OpTree::PADOP::pp_gv();
             $perl_name . ' ' . $fh;
         }
     };
