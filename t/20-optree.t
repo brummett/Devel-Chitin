@@ -536,6 +536,16 @@ subtest operators => sub {
         bin_negate => join("\n",q(my $a = 3;),
                                 q(my $b = ~$a;),
                                 q($a = ~$b)),
+        deref_op => join("\n",  q(my $a;),
+                                q(our $b;),
+                                q($a = $a->{'foo'};),
+                                q($a = $b->{'foo'}->[2];),
+                                q($a = @{ $a->{'foo'}->[3]->{'bar'} };),
+                                q($a = %{ $b->[2]->{'foo'}->[4] };),
+                                q($a = ${ $a->{'foo'}->[5]->{'bar'} };),
+                                q($a = *{ $b->[$a]->{'foo'}->[5] };),
+                                q($a = $$a;),
+                                q($b = $$b)),
     );
 };
 

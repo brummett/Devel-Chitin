@@ -92,23 +92,6 @@ foreach my $cond ( [lt => '<'],
     *$subname = $sub;
 }
 
-sub pp_aelem {
-    my $self = shift;
-    if ($self->is_null
-        and
-        $self->first->op->name eq 'aelemfast_lex'
-        and
-        $self->last->is_null
-    ) {
-        $self->first->deparse;
-
-    } else {
-        my $array_name = substr($self->first->deparse, 1); # remove the sigil
-        my $idx = $self->last->deparse;
-        "\$${array_name}[${idx}]";
-    }
-}
-
 sub pp_stringify {
     my $self = shift;
 
@@ -156,12 +139,57 @@ sub pp_reverse {
 #   stub
 *pp_leave = \&Devel::Chitin::OpTree::LISTOP::pp_leave;
 
+# from B::Concise
+use constant DREFAV => 32;
+use constant DREFHV => 64;
+use constant DREFSV => 96;
+
 sub pp_helem {
     my $self = shift;
 
-    my($hash, $key) = ($self->first->deparse, $self->last->deparse);
-    substr($hash, 0, 1) = '$';
-    "${hash}{${key}}";
+    my $first = $self->first;
+    my($hash, $key) = ($first->deparse, $self->last->deparse);
+    if ($self->_is_chain_deref('rv2hv', DREFHV)) {
+        # This is a dereference, like $a->{foo}
+        substr($hash, 1) . '->{' . $key . '}';
+    } else {
+        substr($hash, 0, 1) = '$';
+        "${hash}{${key}}";
+    }
+}
+
+sub _is_chain_deref {
+    my($self, $expected_first_op, $expected_flag) = @_;
+    my $child = $self->first;
+    return unless $child->isa('Devel::Chitin::OpTree::UNOP');
+
+    $child->op->name eq $expected_first_op
+    and
+    $child->first->op->private & $expected_flag
+}
+
+sub pp_aelem {
+    my $self = shift;
+    my $first = $self->first;
+
+    my($array, $elt) = ($first->deparse, $self->last->deparse);
+    if ($self->is_null
+        and
+        $first->op->name eq 'aelemfast_lex'
+        and
+        $self->last->is_null
+    ) {
+        $array;
+
+    } elsif ($self->_is_chain_deref('rv2av', DREFAV)) {
+        # This is a dereference, like $a->[1]
+        substr($array, 1) . '->[' . $elt . ']';
+
+    } else {
+        substr($array, 0, 1) = '$';
+        my $idx = $self->last->deparse;
+        "${array}[${idx}]";
+    }
 }
 
 # Operators
