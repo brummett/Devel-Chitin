@@ -73,12 +73,14 @@ foreach my $cond ( [lt => '<'],
                    [gt => '>'],
                    [ge => '>='],
                    [eq => '=='],
+                   [ne => '!='],
                    [ncmp => '<=>'],
                    [slt => 'lt'],
                    [sle => 'le'],
                    [sgt => 'gt'],
                    [sge => 'ge'],
                    [seq => 'eq'],
+                   [sne => 'ne'],
                    [scmp => 'cmp'],
                 )
 {
@@ -204,6 +206,13 @@ foreach my $a ( [ pp_add        => '+',     1 ],
                 [ pp_i_divide   => '/',     1 ],
                 [ pp_modulo     => '%',     1 ],
                 [ pp_i_modulo   => '%',     1 ],
+                [ pp_pow        => '**',    1 ],
+                [ pp_left_shift => '<<',    1 ],
+                [ pp_right_shift => '>>',   1 ],
+                [ pp_repeat     => 'x',     0 ],
+                [ pp_bit_and    => '&',     0 ],
+                [ pp_bit_or     => '|',     0 ],
+                [ pp_bit_xor    => '^',     0 ],
                 
 ) {
     my($pp_name, $perl_name, $targmy) = @$a;
