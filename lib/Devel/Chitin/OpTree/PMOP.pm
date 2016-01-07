@@ -17,16 +17,24 @@ sub pp_match {
 
     my($var, $re) = ('', '');
     my $children = $self->children;
-    if (@$children == 2
-        or
-        ( @$children == 1 and $children->[0]->is_scalar_container)
-    ) {
-        $var = $children->[0]->deparse . ' =~ ';
+    if ($self->_has_bound_variable) {
+        $var = $children->[0]->deparse
+                    . ( $self->parent->op->name eq 'not'
+                          ? ' !~ '
+                          : ' =~ ' );
     }
 
     $re = $self->_match_op('m');
 
     $var . $re;
+}
+
+sub _has_bound_variable {
+    my $children = shift->children;
+
+    @$children == 2
+    or
+    (@$children == 1 and $children->[0]->is_scalar_container)
 }
 
 sub pp_subst {

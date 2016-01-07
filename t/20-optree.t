@@ -199,7 +199,7 @@ subtest regex => sub {
                                     q(our $a;),
                                     q($a =~ m/abc/;),
                                     q(my $rx = qr/def/;),
-                                    q(my($b) = $a =~ m/abc$rx/;),
+                                    q(my($b) = $a !~ m/abc$rx/i;),
                                     q(my($c) = m/$rx def/x;),
                                     q($c = $1)),
         substitute  => join("\n",   q(s/abc/def/i;),
@@ -546,6 +546,8 @@ subtest operators => sub {
                                 q($a = *{ $b->[$a]->{'foo'}->[5] };),
                                 q($a = $$a;),
                                 q($b = $$b)),
+        log_negate => join("\n",q(my $a = 1;),
+                                q($a = !$a)),
     );
 };
 

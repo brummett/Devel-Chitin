@@ -236,6 +236,21 @@ foreach my $a ( [ pp_scalar     => 'scalar',    0 ],
     *$pp_name = $sub;
 }
 
+# Note that there's no way to tell the difference between "!" and "not"
+sub pp_not {
+    my $first = shift->first;
+    my $first_deparsed = $first->deparse;
+
+    if ($first->op->name eq 'match'
+        and
+        $first->_has_bound_variable
+    ) {
+        $first_deparsed;  # The match op will turn it into $var !~ m/.../
+    } else {
+        '!' . $first_deparsed;
+    }
+}
+
 # Operators
 #               OP name         perl op   pre?  targmy?
 foreach my $a ( [ pp_preinc     => '++',    1,  0 ],
