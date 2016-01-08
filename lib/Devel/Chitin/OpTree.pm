@@ -351,6 +351,7 @@ sub pp_spwent { 'setpwent()' }
 sub pp_sgrent { 'setgrent()' }
 sub pp_gpwent { 'getpwent()' }
 sub pp_getlogin { 'getlogin()' }
+sub pp_undef { 'undef' }
 
 sub pp_eof {
     shift->op->flags & B::OPf_SPECIAL

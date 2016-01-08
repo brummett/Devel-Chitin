@@ -31,7 +31,20 @@ sub pp_srefgen {
 sub pp_rv2sv { '$' . shift->first->deparse }
 sub pp_rv2av { '@' . shift->first->deparse }
 sub pp_rv2hv { '%' . shift->first->deparse }
-sub pp_rv2cv { shift->first->deparse }
+sub pp_rv2cv {
+    my $self = shift;
+    # The null case is the most common.  not-null happens
+    # with undef(&function::name) and generates this optree:
+    # undef
+    #   rv2cv
+    #     ex-list
+    #       ex-pushmark
+    #       ex-rv2cv
+    #           gv(*function::name)
+    # We only want the sigil prepended once
+    my $sigil = $self->is_null ? '' : '&';
+    $sigil . $self->first->deparse;
+}
 
 sub pp_rv2gv {
     my($self, %params) = @_;
@@ -157,6 +170,17 @@ sub pp_readline {
     } else {
         "readline(${arg})";
     }
+}
+
+sub pp_undef {
+    #'undef(' . shift->first->deparse . ')'
+    my $self = shift;
+    my $arg = $self->first->deparse;
+    if ($arg =~ m/::/) {
+        $DB::single=1 if $arg =~ m/::/;
+        $arg = $self->first->deparse;
+    }
+    "undef($arg)";
 }
 
 # Functions that can operate on $_

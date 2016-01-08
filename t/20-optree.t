@@ -515,12 +515,37 @@ subtest 'files' => sub {
         glob_fcn =>     join("\n",  q(my @files = glob('some *patterns{one,two}');),
                                     q(my $file = glob('*.c');),
                                     q($file = glob('*.h'))),
+        ioctl_fcn => join("\n",     q(my($a, $fh);),
+                                    q(my $rv = ioctl(F, 1, $a);),
+                                    q($rv = ioctl(*F, 2, $a);),
+                                    q(ioctl($fh, 3, $a);),
+                                    q($rv = ioctl(*$fh, 4, $a))),
+        link_fcn => join("\n",  q(my $a = link('/old/path', '/new/path');),
+                                q($a = link($a, '/foo/bar'))),
+        mkdir_fcn => join("\n", q(my $a = mkdir('/some/path', 0755);),
+                                q(mkdir();),
+                                q($a = mkdir('/other/path'))),
+#        stat_fcn => join("\n",  q(my(@rv, $fh)
+
+        
+
+#    "-X", "chdir", "chmod", "chown", "chroot", "fcntl", "glob",
+#           "ioctl", "link", "lstat", "mkdir", "open", "opendir", "readlink",
+#           "rename", "rmdir", "stat", "symlink", "sysopen", "umask", "unlink",
+#           "utime"
     );
 };
 
 subtest operators => sub {
-$DB::stopper=1;
     _run_tests(
+        undef_op => join("\n",  q(my $a = undef;),
+                                q(undef($a);),
+                                q(my(@a, %a);),
+                                q(undef($a[1]);),
+                                q(undef($a{'foo'});),
+                                q(undef(@a);),
+                                q(undef(%a);),
+                                q(undef(&some::function::name))),
         add_op => join("\n",    q(my($a, $b);),
                                 q($a = $a + $b;),
                                 q($b = $a + $b + 1)),
