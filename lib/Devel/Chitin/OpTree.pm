@@ -162,12 +162,17 @@ sub pp_null {
     my $bounce = $self->_ex_name;
 
     if ($bounce eq 'pp_null') {
-        if (@{$self->children} == 2
+        my $children = $self->children;
+        if (@$children == 2
             and $self->first->is_scalar_container
             and $self->last->op->name eq 'readline'
         ) {
             # not sure why this gets special-cased...
             $self->Devel::Chitin::OpTree::BINOP::pp_sassign(is_swapped => 1);
+
+        } elsif (@$children == 1) {
+            $children->[0]->deparse;
+
         } else {
             ";\n"   # maybe a COP that got optimized away?
         }

@@ -571,6 +571,10 @@ subtest operators => sub {
                                 q(my $b = $a | 3 | $a)),
         bit_xor => join("\n",   q(my $a;),
                                 q($a = $a ^ 1)),
+        log_and => join("\n",   q(my $a;),
+                                q(our $b;),
+                                q($a = $a && $b;),
+                                q($b = $b && $a)),
     );
 };
 

@@ -6,6 +6,10 @@ use Devel::Chitin::Version;
 use strict;
 use warnings;
 
+sub other {
+    shift->{children}->[1];
+}
+
 sub pp_entertry { '' }
 
 sub pp_regcomp {
@@ -69,6 +73,11 @@ sub _deparse_map_grep {
             . join(', ', @map_params)
         . ')';
     }
+}
+
+sub pp_and {
+    my $self = shift;
+    $self->first->deparse . ' && ' . $self->other->deparse;
 }
 
 1;
