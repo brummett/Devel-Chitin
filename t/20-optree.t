@@ -512,11 +512,14 @@ subtest 'files' => sub {
                                     q(my($fh, $buf);),
                                     q(fcntl($fh, 3, $buf);),
                                     q(fcntl(*$fh, 4, 0))),
-        glob_fcn =>     q(my @files = glob('some *patterns{one,two}')),
+        glob_fcn =>     join("\n",  q(my @files = glob('some *patterns{one,two}');),
+                                    q(my $file = glob('*.c');),
+                                    q($file = glob('*.h'))),
     );
 };
 
 subtest operators => sub {
+$DB::stopper=1;
     _run_tests(
         add_op => join("\n",    q(my($a, $b);),
                                 q($a = $a + $b;),
