@@ -85,6 +85,15 @@ sub pp_or {
     $self->first->deparse . ' || ' . $self->other->deparse;
 }
 
+sub pp_andassign { _and_or_assign(shift, '&&=') }
+sub pp_orassign { _and_or_assign(shift, '||=') }
+sub _and_or_assign {
+    my($self, $op) = @_;
+    my $var = $self->first->deparse;
+    my $value = $self->other->first->deparse;  # skip over sassign (other)
+    join(' ', $var, $op, $value);
+}
+
 sub pp_cond_expr {
     my $children = shift->children;
     $children->[0]->deparse . ' ? ' . $children->[1]->deparse . ' : ' . $children->[2]->deparse;

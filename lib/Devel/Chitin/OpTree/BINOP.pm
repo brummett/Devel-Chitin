@@ -119,11 +119,20 @@ sub pp_concat {
     my $self = shift;
     my %params = @_;
 
-    my $target = $self->_maybe_targmy;
+    my $first = $self->first;
+    if ($self->op->flags & B::OPf_STACKED
+        and
+        $first->op->name ne 'concat'
+    ) {
+        # This is an assignment-concat: $a .= 'foo'
+        $first->deparse . ' .= ' . $self->last->deparse;
 
-    $target . join($params{skip_concat} ? '' : ' . ',
-                    $self->first->deparse(%params),
-                    $self->last->deparse(%params));
+    } else {
+        my $target = $self->_maybe_targmy;
+        $target . join($params{skip_concat} ? '' : ' . ',
+                        $first->deparse(%params),
+                        $self->last->deparse(%params));
+    }
 }
 
 sub pp_reverse {
@@ -213,13 +222,21 @@ foreach my $a ( [ pp_add        => '+',     1 ],
                 [ pp_bit_and    => '&',     0 ],
                 [ pp_bit_or     => '|',     0 ],
                 [ pp_bit_xor    => '^',     0 ],
+                [ pp_xor        => 'xor',   0 ],
                 
 ) {
     my($pp_name, $perl_name, $targmy) = @$a;
     my $sub = sub {
         my $self = shift;
-        my $target = $targmy ? $self->_maybe_targmy : '';
-        $target . $self->first->deparse . " $perl_name " . $self->last->deparse;
+
+        if ($self->op->flags & B::OPf_STACKED) {
+            # This is an assignment op: +=
+            my $first = $self->first->deparse;
+            "$first ${perl_name}= " . $self->last->deparse;
+        } else {
+            my $target = $targmy ? $self->_maybe_targmy : '';
+            $target . $self->first->deparse . " $perl_name " . $self->last->deparse;
+        }
     };
     no strict 'refs';
     *$pp_name = $sub;
