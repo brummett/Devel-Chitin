@@ -3,7 +3,7 @@ use base Devel::Chitin::OpTree::BINOP;
 
 use Devel::Chitin::Version;
 
-use Fcntl qw(:flock SEEK_SET SEEK_CUR SEEK_END);
+use Fcntl qw(:DEFAULT :flock SEEK_SET SEEK_CUR SEEK_END);
 
 use strict;
 use warnings;
@@ -251,6 +251,34 @@ sub _deparse_seeklike {
                          $children->[2]->deparse,
                          (exists($seek_flags{$whence}) ? $seek_flags{$whence} : $whence))
         . ')';
+}
+
+my @sysopen_flags = map {
+                        my $val = eval "$_";
+                        $val ? ( $_ => $val )
+                             : ()
+                    } qw( O_RDONLY O_WRONLY O_RDWR O_NONBLOCK O_APPEND O_CREAT
+                         O_TRUNC O_EXCL O_SHLOCK O_EXLOCK O_NOFOLLOW O_SYMLINK
+                         O_EVTONLY O_CLOEXEC);
+sub pp_sysopen {
+    my $self = shift;
+    my $children = $self->children;
+
+    my $mode = $self->_deparse_flags($children->[3]->deparse(skip_quotes => 1),
+                                     \@sysopen_flags);
+    $mode ||= 'O_RDONLY';
+    my @params = (
+            # skip pushmark
+            $children->[1]->deparse,  # filehandle
+            $children->[2]->deparse,  # file name
+            $mode,
+        );
+
+    if ($children->[4]) {
+        # perms
+        push @params, $self->_as_octal($children->[4]->deparse(skip_quotes => 1));
+    }
+    'sysopen(' . join(', ', @params) . ')';
 }
 
 sub pp_truncate {

@@ -5,7 +5,7 @@ use Devel::Chitin::OpTree;
 use Devel::Chitin::Location;
 use Test::More tests => 15;
 
-use Fcntl qw(:flock SEEK_SET SEEK_CUR SEEK_END);
+use Fcntl qw(:flock :DEFAULT SEEK_SET SEEK_CUR SEEK_END);
 
 subtest construction => sub {
     plan tests => 4;
@@ -525,10 +525,10 @@ subtest 'files' => sub {
         mkdir_fcn => join("\n", q(my $a = mkdir('/some/path', 0755);),
                                 q(mkdir();),
                                 q($a = mkdir('/other/path'))),
-#        stat_fcn => join("\n",  q(my(@rv, $fh)
-
-        
-
+        sysopen_fcn => join("\n",   q(my $rv = sysopen(F, '/path/name', O_RDONLY);),
+                                    q($rv = sysopen(*F, '/path_name', O_RDWR | O_TRUNC);),
+                                    q(sysopen(my $fh, '/path/name', O_WRONLY | O_CREAT, 0777);),
+                                    q(sysopen(*$fh, '/path/name', O_WRONLY | O_CREAT | O_EXCL))),
 #    "-X", "chdir", "chmod", "chown", "chroot", "fcntl", "glob",
 #           "ioctl", "link", "lstat", "mkdir", "open", "opendir", "readlink",
 #           "rename", "rmdir", "stat", "symlink", "sysopen", "umask", "unlink",

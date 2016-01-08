@@ -479,6 +479,11 @@ sub _escape_for_double_quotes {
     $str;
 }
 
+sub _as_octal {
+    my($self, $val) = @_;
+    sprintf('0%3o', $val);
+}
+
 # given an integer and a list of bitwise flag name/value pairs, return
 # a string representing the flags or-ed together
 sub _deparse_flags {
