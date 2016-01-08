@@ -389,20 +389,33 @@ foreach my $a ( [ pp_fteread    => '-r' ],
                 [ pp_ftmtime    => '-M' ],
                 [ pp_ftatime    => '-A' ],
                 [ pp_ftctime    => '-C' ],
+                [ pp_stat       => 'stat' ],
+                [ pp_lstat      => 'lstat' ],
 ) {
     my($pp_name, $perl_name) = @$a;
     my $sub = sub {
         my $self = shift;
+
+        my $fh;
         if ($self->class eq 'UNOP') {
-            my $fh = $self->children->[0]->deparse;
-            join(' ', $perl_name,
-                        $fh eq '$_' ? () : $fh);
+            $fh = $self->children->[0]->deparse;
+            $fh = '' if $fh eq '$_';
         } else {
             # It's a test on _: -w _
-            my $fh = $self->class eq 'SVOP'
+            $fh = $self->class eq 'SVOP'
                         ? $self->Devel::Chitin::OpTree::SVOP::pp_gv()
                         : $self->Devel::Chitin::OpTree::PADOP::pp_gv();
-            $perl_name . ' ' . $fh;
+        }
+
+        if (substr($perl_name, 0, 1) eq '-') {
+            # -X type test
+            if ($fh) {
+                "$perl_name $fh";
+            } else {
+                $perl_name;
+            }
+        } else {
+            "${perl_name}($fh)";
         }
     };
     no strict 'refs';
