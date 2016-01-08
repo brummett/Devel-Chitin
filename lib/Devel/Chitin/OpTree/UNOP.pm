@@ -251,6 +251,18 @@ sub pp_not {
     }
 }
 
+sub pp_flop {
+    my $self = shift;
+    my $flip = $self->first;
+    my $op = ($flip->op->flags & B::OPf_SPECIAL) ? '...' : '..';
+
+    my $range = $flip->first;
+    my $start = $range->first->deparse;
+    my $end = $range->other->deparse;
+
+    "$start $op $end";
+}
+
 # Operators
 #               OP name         perl op   pre?  targmy?
 foreach my $a ( [ pp_preinc     => '++',    1,  0 ],

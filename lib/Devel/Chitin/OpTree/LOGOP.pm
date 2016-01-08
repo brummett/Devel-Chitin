@@ -80,4 +80,14 @@ sub pp_and {
     $self->first->deparse . ' && ' . $self->other->deparse;
 }
 
+sub pp_or {
+    my $self = shift;
+    $self->first->deparse . ' || ' . $self->other->deparse;
+}
+
+sub pp_cond_expr {
+    my $children = shift->children;
+    $children->[0]->deparse . ' ? ' . $children->[1]->deparse . ' : ' . $children->[2]->deparse;
+}
+
 1;

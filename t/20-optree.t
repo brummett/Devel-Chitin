@@ -575,6 +575,19 @@ subtest operators => sub {
                                 q(our $b;),
                                 q($a = $a && $b;),
                                 q($b = $b && $a)),
+        log_or => join("\n",    q(my $a;),
+                                q(our $b;),
+                                q($a = $a || $b;),
+                                q($b = $b || $a)),
+        log_xor => join("\n",   q(my $a;),
+                                q(our $b;),
+                                q($a = $a xor $b;),
+                                q($b = $b xor $a)),
+        conditional_op => join("\n",    q(my($a, $b);),
+                                        q($a = $b ? $a : 1)),
+        flip_flop => join("\n",     q(my($a, $b);),
+                                    q($a = $a .. $b;),
+                                    q($a = $a ... $b)),
     );
 };
 
