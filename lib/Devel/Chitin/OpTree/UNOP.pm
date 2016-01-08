@@ -206,6 +206,8 @@ foreach my $a ( [ pp_entereval  => 'eval',      0 ],
                 [ pp_sqrt       => 'sqrt',      1 ],
                 [ pp_quotemeta  => 'quotemeta', 1 ],
                 [ pp_chroot     => 'chroot',    1 ],
+                [ pp_readlink   => 'readlink',  0 ],
+                [ pp_rmdir      => 'rmdir',     1 ],
 ) {
     my($pp_name, $perl_name, $targmy) = @$a;
     my $sub = sub {

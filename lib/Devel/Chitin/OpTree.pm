@@ -359,6 +359,18 @@ sub pp_eof {
         : 'eof';
 }
 
+# umask is a base-op with no args and a UNOP with one.
+# we'll just handle both cases here
+sub pp_umask {
+    my $self = shift;
+    my $children = $self->children;
+    if (@$children) {
+        'umask(' . $self->_as_octal($children->[0]->deparse(skip_quotes => 1)) . ')';
+    } else {
+        'umask()';
+    }
+}
+
 # file test operators
 # These actually show up as UNOPs (usually) and SVOPs (-X _) but it's
 # convienent to put them here in the base class

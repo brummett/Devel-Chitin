@@ -305,6 +305,23 @@ sub pp_chmod {
     "${target}chmod(${mode}, " . join(', ', map { $_->deparse } @$children[2 .. $#$children]) . ')';
 }
 
+sub pp_mkdir {
+    my $self = shift;
+    my $children = $self->children;
+    my $target = $self->_maybe_targmy;
+    my $dir = $children->[1]->deparse;  # 0th is pushmark
+    if (@$children == 2) {
+        if ($dir eq '$_') {
+            "${target}mkdir()";
+        } else {
+            "${target}mkdir($dir)";
+        }
+    } else {
+        my $mode = $self->_as_octal($children->[2]->deparse);
+        "${target}mkdir($dir, $mode)";
+    }
+}
+
 # strange... glob is a LISTOP, but always has 3 children
 # 1. ex-pushmark
 # 2. arg containing the pattern
@@ -341,6 +358,15 @@ foreach my $a ( [ pp_crypt      => 'crypt',     1 ],
                 [ pp_vec        => 'vec',       0 ],
                 [ pp_chown      => 'chown',     1 ],
                 [ pp_fcntl      => 'fcntl',     1 ],
+                [ pp_ioctl      => 'ioctl',     1 ],
+                [ pp_link       => 'link',      1 ],
+                [ pp_open       => 'open',      0 ],
+                [ pp_open_dir   => 'opendir',   0 ],
+                [ pp_rename     => 'rename',    0 ],
+                [ pp_link       => 'link',      1 ],
+                [ pp_symlink    => 'symlink',   1 ],
+                [ pp_unlink     => 'unlink',    1 ],
+                [ pp_utime      => 'utime',     1 ],
 ) {
     my($pp_name, $perl_name, $targmy) = @$a;
     my $sub = sub {
