@@ -300,7 +300,7 @@ sub pp_truncate {
 sub pp_chmod {
     my $self = shift;
     my $children = $self->children;
-    my $mode = sprintf('0%3o', $children->[1]->deparse);
+    my $mode = $self->_as_octal($children->[1]->deparse);
     my $target = $self->_maybe_targmy;
     "${target}chmod(${mode}, " . join(', ', map { $_->deparse } @$children[2 .. $#$children]) . ')';
 }
