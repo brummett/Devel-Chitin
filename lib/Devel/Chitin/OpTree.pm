@@ -506,13 +506,19 @@ sub _escape_for_double_quotes {
 
 sub _as_octal {
     my($self, $val) = @_;
-    sprintf('0%3o', $val);
+    $val + 0 eq $val
+        ? sprintf('0%3o', $val)
+        : $val;
 }
 
 # given an integer and a list of bitwise flag name/value pairs, return
 # a string representing the flags or-ed together
 sub _deparse_flags {
     my($self, $val, $flags_listref) = @_;
+
+    unless ($val + 0 eq $val) {
+        return $val;  # wasn't a number
+    }
 
     my @flags;
     for (my $i = 0; $i < @$flags_listref; $i += 2) {
