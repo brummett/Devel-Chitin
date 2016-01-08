@@ -223,17 +223,14 @@ sub pp_flock {
 
     my $target = $self->_maybe_targmy;
 
-    my $flags = $children->[2]->deparse;
-    my @flags = map { $flags & $_->[1] ? $_->[0] : () }
-                  ( [ LOCK_SH => LOCK_SH ],
-                    [ LOCK_EX => LOCK_EX ],
-                    [ LOCK_UN => LOCK_UN ],
-                    [ LOCK_NB => LOCK_NB ] );
+    my $flags = $self->_deparse_flags($children->[2]->deparse(skip_quotes => 1),
+                                      [ LOCK_SH => LOCK_SH,
+                                        LOCK_EX => LOCK_EX,
+                                        LOCK_UN => LOCK_UN,
+                                        LOCK_NB => LOCK_NB ]);
     "${target}flock("
         . $children->[1]->deparse
-        . ', '
-        . join(' | ', @flags)
-        . ')';
+        . ", $flags)";
 }
 
 sub pp_seek { shift->_deparse_seeklike('seek') }

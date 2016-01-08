@@ -479,4 +479,24 @@ sub _escape_for_double_quotes {
     $str;
 }
 
+# given an integer and a list of bitwise flag name/value pairs, return
+# a string representing the flags or-ed together
+sub _deparse_flags {
+    my($self, $val, $flags_listref) = @_;
+
+    my @flags;
+    for (my $i = 0; $i < @$flags_listref; $i += 2) {
+        my($flag_name, $flag_value) = @$flags_listref[$i, $i+1];
+        if ($val & $flag_value) {
+            push @flags, $flag_name;
+            $val ^= $flag_value;
+        }
+    }
+    if ($val) {
+        # there were unexpected bits set
+        push @flags, $val;
+    }
+    join(' | ', @flags);
+}
+
 1;
