@@ -127,6 +127,11 @@ sub op { shift->{op} }
 sub parent { shift->{parent} }
 sub children { shift->{children} }
 sub cv { shift->{cv} }
+sub root_op {
+    my $obj = shift;
+    $obj = $obj->parent while ($obj->parent);
+    $obj;
+}
 
 sub walk_preorder {
     my($self, $cb) = @_;

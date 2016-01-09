@@ -9,7 +9,7 @@ use Fcntl qw(:flock :DEFAULT SEEK_SET SEEK_CUR SEEK_END);
 use Socket;
 
 subtest construction => sub {
-    plan tests => 4;
+    plan tests => 5;
 
     sub scalar_assignment {
         my $a = 1;
@@ -18,7 +18,8 @@ subtest construction => sub {
     my $ops = _get_optree_for_sub_named('scalar_assignment');
     ok($ops, 'create optree');
     my $count = 0;
-    $ops->walk_inorder(sub { $count++ });
+    my $last_op;
+    $ops->walk_inorder(sub { $last_op = shift; $count++ });
     ok($count > 1, 'More than one op is part of scalar_assignment');
 
     is($ops->deparse, '$a = 1', 'scalar_assignment');
@@ -30,6 +31,8 @@ subtest construction => sub {
     is(_get_optree_for_sub_named('multi_statement_scalar_assignment')->deparse,
         join("\n", q($a = 1;), q($b = 2)),
         'multi_statement_scalar_assignment');
+
+    is($last_op->root_op, $ops, 'root_op property');
 };
 
 subtest 'assignment' => sub {
