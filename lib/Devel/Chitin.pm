@@ -929,8 +929,8 @@ watched expression's value ever changes, the client that added the expression
 will be notified via its C<notify_watch_expr()> method.  These expressions
 are always evaluated in list context.  They are considered changed if the
 list's length changes, or if one of the elements has a different value
-when compared as strings.  This comparison is only a shallow; it will not
-recurse deeply into references.
+when compared as strings.  This comparison is only shallow; it will not
+recurse into references or nested data structures.
 
 =over 4
 
