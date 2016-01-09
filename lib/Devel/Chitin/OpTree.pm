@@ -345,12 +345,17 @@ sub pp_ggrent { 'getgrent()' }
 sub pp_eggrent { 'endgrent()' }
 sub pp_ehostent { 'endhostent()' }
 sub pp_enetent { 'endnetent()' }
+sub pp_eservent { 'endservent()' }
 sub pp_egrent { 'endgrent()' }
 sub pp_epwent { 'endpwent()' }
 sub pp_spwent { 'setpwent()' }
 sub pp_sgrent { 'setgrent()' }
 sub pp_gpwent { 'getpwent()' }
 sub pp_getlogin { 'getlogin()' }
+sub pp_ghostent { 'gethostent()' }
+sub pp_gnetent { 'getnetent()' }
+sub pp_gprotoent { 'getprotoent()' }
+sub pp_gservent { 'getservent()' }
 sub pp_undef { 'undef' }
 
 sub pp_eof {

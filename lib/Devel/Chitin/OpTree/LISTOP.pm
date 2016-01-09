@@ -4,6 +4,7 @@ use base Devel::Chitin::OpTree::BINOP;
 use Devel::Chitin::Version;
 
 use Fcntl qw(:DEFAULT :flock SEEK_SET SEEK_CUR SEEK_END);
+use Socket ();
 
 use strict;
 use warnings;
@@ -253,13 +254,16 @@ sub _deparse_seeklike {
         . ')';
 }
 
-my @sysopen_flags = map {
-                        my $val = eval "$_";
-                        $val ? ( $_ => $val )
-                             : ()
-                    } qw( O_RDONLY O_WRONLY O_RDWR O_NONBLOCK O_APPEND O_CREAT
-                         O_TRUNC O_EXCL O_SHLOCK O_EXLOCK O_NOFOLLOW O_SYMLINK
-                         O_EVTONLY O_CLOEXEC);
+sub _generate_flag_list {
+    map { my $val = eval "$_";
+          $val ? ( $_ => $val ) : ()
+    } @_
+}
+
+my @sysopen_flags = _generate_flag_list(
+                         qw( O_RDONLY O_WRONLY O_RDWR O_NONBLOCK O_APPEND O_CREAT
+                             O_TRUNC O_EXCL O_SHLOCK O_EXLOCK O_NOFOLLOW O_SYMLINK
+                             O_EVTONLY O_CLOEXEC));
 sub pp_sysopen {
     my $self = shift;
     my $children = $self->children;
@@ -332,6 +336,24 @@ sub pp_glob {
     'glob(' . $self->children->[1]->deparse . ')';
 }
 
+my %addr_types = map { my $val = eval "Socket::$_"; $@ ? () : ( $val => $_ ) }
+                    qw( AF_802 AF_APPLETALK AF_INET AF_INET6 AF_ISO AF_LINK
+                        AF_ROUTE AF_UNIX AF_UNSPEC AF_X25 );
+foreach my $d ( [ pp_ghbyaddr => 'gethostbyaddr' ],
+                [ pp_gnbyaddr => 'getnetbyaddr' ],
+) {
+    my($pp_name, $perl_name) = @$d;
+    my $sub = sub {
+        my $children = shift->children;
+        my $addr = $children->[1]->deparse;
+        my $type = $addr_types{ $children->[2]->deparse(skip_quotes => 1) }
+                    || $children->[2]->deparse;
+        "${perl_name}($addr, $type)";
+    };
+    no strict 'refs';
+    *$pp_name = $sub;
+}
+
 #                 OP name           Perl fcn    targmy?
 foreach my $a ( [ pp_crypt      => 'crypt',     1 ],
                 [ pp_index      => 'index',     1 ],
@@ -367,6 +389,9 @@ foreach my $a ( [ pp_crypt      => 'crypt',     1 ],
                 [ pp_symlink    => 'symlink',   1 ],
                 [ pp_unlink     => 'unlink',    1 ],
                 [ pp_utime      => 'utime',     1 ],
+                [ pp_gpbynumber => 'getprotobynumber', 0 ],
+                [ pp_gsbyname   => 'getservbyname', 0 ],
+                [ pp_gsbyport   => 'getservbyport', 0 ],
 ) {
     my($pp_name, $perl_name, $targmy) = @$a;
     my $sub = sub {

@@ -249,6 +249,13 @@ foreach my $a ( [ pp_scalar     => 'scalar',    0 ],
                 [ pp_tell       => 'tell',      0 ],
                 [ pp_telldir    => 'telldir',   0 ],
                 [ pp_enterwrite => 'write',     0 ],
+                [ pp_ghbyname   => 'gethostbyname', 0 ],
+                [ pp_gnbyname   => 'getnetbyname', 0 ],
+                [ pp_gpbyname   => 'getprotobyname', 0 ],
+                [ pp_shostent   => 'sethostent', 0 ],
+                [ pp_snetent    => 'setnetent', 0 ],
+                [ pp_sprotoent  => 'setprotoent', 0 ],
+                [ pp_sservent   => 'setservent', 0 ],
 ) {
     my($pp_name, $perl_name, $targmy) = @$a;
     my $sub = sub {
