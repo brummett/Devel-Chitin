@@ -511,6 +511,7 @@ sub _escape_for_double_quotes {
 
 sub _as_octal {
     my($self, $val) = @_;
+    no warnings 'numeric';
     $val + 0 eq $val
         ? sprintf('0%3o', $val)
         : $val;
@@ -521,9 +522,12 @@ sub _as_octal {
 sub _deparse_flags {
     my($self, $val, $flags_listref) = @_;
 
-    unless ($val + 0 eq $val) {
-        return $val;  # wasn't a number
-    }
+    do {
+        no warnings 'numeric';
+        unless ($val + 0 eq $val) {
+            return $val;  # wasn't a number
+        }
+    };
 
     my @flags;
     for (my $i = 0; $i < @$flags_listref; $i += 2) {
