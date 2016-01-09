@@ -3,7 +3,7 @@ use warnings;
 
 use Devel::Chitin::OpTree;
 use Devel::Chitin::Location;
-use Test::More tests => 15;
+use Test::More tests => 16;
 
 use Fcntl qw(:flock :DEFAULT SEEK_SET SEEK_CUR SEEK_END);
 use Socket;
@@ -729,6 +729,15 @@ subtest operators => sub {
         flip_flop => join("\n",     q(my($a, $b);),
                                     q($a = $a .. $b;),
                                     q($a = $a ... $b)),
+    );
+};
+
+subtest 'program flow' => sub {
+    _run_tests(
+        caller_fcn => join("\n",    q(my @info = caller();),
+                                    q(my $package = caller();),
+                                    q(@info = caller(1);),
+                                    q($package = caller(2))),
     );
 };
 
