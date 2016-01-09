@@ -29,6 +29,10 @@ sub pp_match {
     $var . $re;
 }
 
+sub pp_pushre {
+    shift->_match_op('', @_);
+}
+
 sub _has_bound_variable {
     my $children = shift->children;
 
@@ -64,8 +68,7 @@ sub pp_subst {
 }
 
 sub _match_op {
-    my($self, $operator) = @_;
-
+    my($self, $operator, %params) = @_;
 
     my $children = $self->children;
 
@@ -80,7 +83,9 @@ sub _match_op {
 
     my $flags = _match_flags($self);
 
-    "${operator}/${re}/${flags}";
+    my $delimiter = exists($params{delimiter}) ? $params{delimiter} : '/';
+
+    join($delimiter, $operator, $re, $flags);
 }
 
 sub _match_flags {

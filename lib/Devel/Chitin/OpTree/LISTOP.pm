@@ -336,6 +336,30 @@ sub pp_glob {
     'glob(' . $self->children->[1]->deparse . ')';
 }
 
+sub pp_split {
+    my $self = shift;
+
+    my $children = $self->children;
+
+    my $regex_op = $children->[0];
+    my $regex = ( $regex_op->op->flags & B::OPf_SPECIAL
+                  and
+                  ! @{$regex_op->children}
+                )
+                    ? $regex_op->deparse(delimiter => "'") # regex was given as a string
+                    : $regex_op->deparse;
+
+    my @params = (
+            $regex,
+            $children->[1]->deparse,
+        );
+    if (my $n_fields = $children->[2]->deparse) {
+        push(@params, $n_fields) if $n_fields > 0;
+    }
+
+    'split(' . join(', ', @params) . ')';
+}
+
 my %addr_types = map { my $val = eval "Socket::$_"; $@ ? () : ( $val => $_ ) }
                     qw( AF_802 AF_APPLETALK AF_INET AF_INET6 AF_ISO AF_LINK
                         AF_ROUTE AF_UNIX AF_UNSPEC AF_X25 );
@@ -381,7 +405,6 @@ foreach my $a ( [ pp_crypt      => 'crypt',     1 ],
                 [ pp_chown      => 'chown',     1 ],
                 [ pp_fcntl      => 'fcntl',     1 ],
                 [ pp_ioctl      => 'ioctl',     1 ],
-                [ pp_link       => 'link',      1 ],
                 [ pp_open       => 'open',      0 ],
                 [ pp_open_dir   => 'opendir',   0 ],
                 [ pp_rename     => 'rename',    0 ],

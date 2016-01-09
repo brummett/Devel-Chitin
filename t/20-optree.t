@@ -214,6 +214,15 @@ subtest regex => sub {
                                     q(my $rx = qr/def/;),
                                     q(s/abd $rx/def/x;),
                                     q($a =~ s/abd $rx/def/x)),
+        split_fcn => join("\n",     q(my $a;),
+                                    q(my $size = split(/abc/, $a);),
+                                    q(my $rx;),
+                                    q(my @strings = split(/$rx/, $a, 1);),
+                                    q(@strings = split(/a/, $a);),
+                                    q(@strings = split('', $a);),
+                                    q(@strings = split(//, $a);),
+                                    q(@strings = split(' ', $a);),
+                                    q(my($v1, $v2) = split(/$rx/, $a, 3))),  # the 3 is implicit
     );
 };
 
