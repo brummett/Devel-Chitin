@@ -280,8 +280,12 @@ sub print_as_tree {
                     }
                     qw(WANT_VOID WANT_SCALAR WANT_LIST KIDS PARENS REF MOD STACKED SPECIAL);
 
-        printf("%s%s %s (%s)\n", '  'x$level, $op->class, $name,
-                                 join(', ', @flags));
+        my $file_and_line = $op->class eq 'COP'
+                            ? join(':', $op->op->file, $op->op->line)
+                            : '';
+        printf("%s%s %s (%s) %s\n", '  'x$level, $op->class, $name,
+                                 join(', ', @flags),
+                                 $file_and_line);
     });
 }
 
