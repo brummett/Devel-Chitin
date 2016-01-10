@@ -315,6 +315,35 @@ sub nearest_cop {
     return;
 }
 
+sub _cop_stack {
+    my $self = shift;
+    $self->root_op->{cop_stack} ||= [];
+}
+sub _enter_scope {
+    my $cop_stack = shift->_cop_stack;
+    if (@$cop_stack) {
+        unshift @$cop_stack, $cop_stack->[0];
+    } else {
+        $cop_stack->[0] = undef;
+    }
+}
+sub _leave_scope {
+    my $cop_stack = shift->_cop_stack;
+    shift(@$cop_stack);
+}
+sub _cur_cop { shift->_cop_stack->[0] }
+sub _set_cur_cop {
+    my $self = shift;
+    $self->_cop_stack->[0] = $self;
+};
+sub _should_insert_semicolon {
+    my $cop_stack = shift->_cop_stack;
+    no warnings 'uninitialized';
+    $cop_stack->[0]
+    and
+    $cop_stack->[0] ne $cop_stack->[1];
+}
+
 sub pp_const {
     q('constant optimized away');
 }

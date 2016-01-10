@@ -18,23 +18,28 @@ sub pp_lineseq {
 
     my $start = $params{skip} || 0;
     for (my $i = $start; $i < @$children; $i++) {
-        if ($children->[$i]->isa('Devel::Chitin::OpTree::COP')) {
-            if ($i) {
-                $deparsed .= ";\n";
-            }
-            next;
-        }
         $deparsed .= $children->[$i]->deparse;
     }
     $deparsed;
 }
 sub pp_scope {
-    my $deparsed = pp_lineseq(@_, skip => 1) || ';';
+    my $self = shift;
+    $self->_enter_scope;
+    my $deparsed = $self->pp_lineseq(@_, skip => 1) || ';';
+    $self->_leave_scope;
     "{ $deparsed }";
 }
 sub pp_leave {
-    my $deparsed = pp_lineseq(@_, skip => 2) || ';';
-    "{ $deparsed }";
+    my $self = shift;
+    $self->_enter_scope;
+    my $deparsed = $self->pp_lineseq(@_, skip => 2) || ';';
+    $self->_leave_scope;
+
+    my $parent = $self->parent;
+    my $do = ($parent->is_null and $parent->op->flags & B::OPf_SPECIAL)
+                ? 'do '
+                : '';
+    $do . "{ $deparsed }";
 }
 
 sub pp_anonhash {
@@ -110,7 +115,10 @@ sub _aslice_hslice_builder {
 sub pp_leavetry {
     my $self = shift;
 
-    (my $inner = pp_lineseq($self, skip => 2)) =~ s/^/    /gm;
+    $self->_enter_scope;
+    (my $inner = pp_lineseq($self, skip => 1)) =~ s/^\n//;  # skip entertry, remove initial blank line
+    $inner =~ s/^/    /gm;  # indent
+    $self->_leave_scope;
     "eval {\n$inner\n}";
 }
 
