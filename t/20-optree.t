@@ -738,6 +738,9 @@ subtest 'program flow' => sub {
                                     q(my $package = caller();),
                                     q(@info = caller(1);),
                                     q($package = caller(2))),
+        exit_fcn => join("\n",      q(exit(123);),
+                                    q(exit($a);),
+                                    q(exit())),
     );
 };
 

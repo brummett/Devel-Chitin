@@ -422,6 +422,13 @@ sub pp_caller {
     "caller($param)";
 }
 
+# exit is a base-op with no args and UNOP with one
+sub pp_exit {
+    my $children = shift->children;
+    my $param = @$children ? $children->[0]->deparse : '';
+    "exit($param)";
+}
+
 # file test operators
 # These actually show up as UNOPs (usually) and SVOPs (-X _) but it's
 # convienent to put them here in the base class
