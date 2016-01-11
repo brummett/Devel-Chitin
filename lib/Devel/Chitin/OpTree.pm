@@ -6,7 +6,7 @@ use warnings;
 use Devel::Chitin::Version;
 
 use Carp;
-use Scalar::Util qw(blessed);
+use Scalar::Util qw(blessed reftype);
 use B qw(ppname);
 
 use Devel::Chitin::OpTree::UNOP;
@@ -64,8 +64,13 @@ sub build_from_location {
 sub _determine_start_of {
     my $start = shift;
 
+    if (reftype($start) eq 'CODE') {
+        my $cv = B::svref_2object($start);
+        return ($cv->ROOT, $cv);
+    }
+
     unless (blessed($start) and $start->isa('Devel::Chitin::Location')) {
-        Carp::croak('build_from_location() requires a Devel::Chitin::Location as an argument');
+        Carp::croak('build_from_location() requires a coderef or Devel::Chitin::Location as an argument');
     }
 
     if ($start->package eq 'main' and $start->subroutine eq 'MAIN') {
