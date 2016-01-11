@@ -729,6 +729,14 @@ subtest operators => sub {
         flip_flop => join("\n",     q(my($a, $b);),
                                     q($a = $a .. $b;),
                                     q($a = $a ... $b)),
+        references => join("\n",    q(my($scalar, @list, %hash);),
+                                    q(my $a = \$scalar;),
+                                    q($a = \\@list;),
+                                    q($a = \\(@list, 1, 2);),
+                                    q($a = \\%hash;),
+                                    q($a = \\*scalar_assignment;),
+                                    q($a = \\&scalar_assignment;),
+                                    q($a = sub { my $inner = 1 })),
     );
 };
 

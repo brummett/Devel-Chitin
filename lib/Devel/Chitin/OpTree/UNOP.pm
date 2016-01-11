@@ -23,10 +23,25 @@ sub pp_list {
     $self->first->deparse;
 }
 
-sub pp_srefgen {
+sub pp_refgen {
     my $self = shift;
-    '\\' . $self->first->deparse;
+    my $first = $self->first;
+    if ($first->is_null
+        and
+        $first->_ex_name eq 'pp_list'
+        and
+        $first->children->[1]
+        and
+        $first->children->[1]->op->name eq 'anoncode'  # skip pushmark
+    ) {
+        my $subref = $self->_padval_sv($first->children->[1]->op->targ);
+        my $deparser = Devel::Chitin::OpTree->build_from_location($subref->object_2svref);
+        'sub { ' . $deparser->deparse . ' }';
+    } else {
+        '\\' . $self->first->deparse;
+    }
 }
+*pp_srefgen = \&pp_refgen;
 
 sub pp_rv2sv { '$' . shift->first->deparse }
 sub pp_rv2av { '@' . shift->first->deparse }
