@@ -14,6 +14,7 @@ use Devel::Chitin::Stack;
 use Devel::Chitin::Location;
 use Devel::Chitin::SubroutineLocation;
 use Devel::Chitin::Exception;
+use Devel::Chitin::OpTree;
 
 use base 'Exporter';
 our @EXPORT_OK = qw( $VERSION );
@@ -291,6 +292,40 @@ sub file_source {
     my $glob = $main::{'_<' . $file};
     return unless $glob;
     return *{$glob}{ARRAY};
+}
+
+my %optrees;
+sub next_statement {
+    my($class, $scopes) = @_;
+
+    my $loc = $class->current_location();
+    my $package_and_sub = join('::', $loc->package, $loc->subroutine);
+    my $optree = $optrees{$package_and_sub} ||= Devel::Chitin::OpTree->build_from_location($loc);
+
+    my $callsite = $optree->callsite;
+    my $current_op;
+    BREAKOUT:
+    for(1) {
+        $optree->walk_inorder(sub {
+            my $op = shift;
+            if ($$op == $callsite) {
+                $current_op = $op;
+                no warnings 'exiting';
+                last BREAKOUT;
+            }
+        });
+    }
+
+    while($current_op && $scopes--) {
+        $current_op = $current_op->parent;
+    }
+
+    if ($current_op) {
+        return $current_op->deparse;
+    } else {
+        Carp::carp("Cannot find current opcode at $callsite in $package_and_sub");
+        return '';
+    }
 }
 
 ## Methods called by the DB core - override in clients
