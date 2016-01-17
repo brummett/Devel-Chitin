@@ -766,6 +766,7 @@ Devel::Chitin - Programmatic interface to the Perl debugging API
   CLIENT->is_breakable($file, $line);   # Return true if the line is executable
   CLIENT->stack();              # Return Devel::Chitin::Stack
   CLIENT->current_location();   # Where is the program stopped at?
+  CLIENT->next_statement([$scopes]);    # Return the next statement to execute
   CLIENT->add_watchexpr($expr); # Add a new watch expression
   CLIENT->remove_watchexpr($expr);  # Remove a watch expression
 
@@ -946,6 +947,16 @@ Return an instance of L<Devel::Chitin::Location> representing the currently
 stopped location in the debugged program.  This method returns undef if
 called when the debugged program is actively running.
 
+=item CLIENT->next_statement([$scope])
+
+Returns a string representing the next Perl statement to execute when control
+returns to the debugged program.  This involves inspecting the OpTree of the
+currently executing subroutine and deparsing it at the stopped location.
+Since the returned string is a reconstruction based on the OpTree, it may not
+match the original source code exactly.
+
+Requires the L<Devel::Callsite> module to be installed.
+
 =item CLIENT->file_source($filename)
 
 Return a list of strings containing the source code for a loaded file.
@@ -1093,7 +1104,7 @@ reports so we can converge on a usable API quickly.
 
 L<Devel::Chitin::Location>, L<Devel::Chitin::Exception>,
 L<Devel::Chitin::Stack>, L<Devel::Chitin::Actionable>,
-L<Devel::Chitin::GetVarAtLevel>
+L<Devel::Chitin::GetVarAtLevel>, L<Devel::Callsite>
 
 The API for this module was inspired by L<DB>
 
