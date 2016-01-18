@@ -6,6 +6,9 @@ use Devel::Chitin::Version;
 use strict;
 use warnings;
 
+# probably an ex-lineseq with 2 kids
+*pp_lineseq = \&Devel::Chitin::OpTree::LISTOP::pp_lineseq;
+
 sub last {
     shift->{children}->[1];
 }
