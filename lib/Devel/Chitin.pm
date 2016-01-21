@@ -299,16 +299,16 @@ sub next_statement {
     my($class, $scopes) = @_;
 
     my $loc = $class->current_location();
-    my $package_and_sub = join('::', $loc->package, $loc->subroutine);
-    my $optree = $optrees{$package_and_sub} ||= Devel::Chitin::OpTree->build_from_location($loc);
+    $loc = $class->_fixup_location_inside_eval($loc);
+    my $optree = $optrees{$loc->subroutine} ||= Devel::Chitin::OpTree->build_from_location($loc);
 
-    my $callsite = $optree->callsite;
+    my $callsite = $loc->callsite;
     my $current_op;
     BREAKOUT:
     for(1) {
         $optree->walk_inorder(sub {
             my $op = shift;
-            if ($$op == $callsite) {
+            if (${$op->op} == $callsite) {
                 $current_op = $op;
                 no warnings 'exiting';
                 last BREAKOUT;
@@ -323,9 +323,28 @@ sub next_statement {
     if ($current_op) {
         return $current_op->deparse;
     } else {
-        Carp::carp("Cannot find current opcode at $callsite in $package_and_sub");
+        Carp::carp("Cannot find current opcode at $callsite in ".$loc->subroutine);
         return '';
     }
+}
+
+sub _fixup_location_inside_eval {
+    my($class, $loc) = @_;
+
+    if ($loc->subroutine eq '(eval)') {
+        my $stack = $class->stack->iterator;
+        my $frame;
+        for($frame = $stack->(); $frame; $frame = $stack->()) {
+            last if $frame->subroutine ne '(eval)';
+        }
+        if ($frame) {
+            return Devel::Chitin::Location->new(
+                        (map { $_ => $frame->$_ } qw(package filename line subroutine)),
+                        callsite => $loc->callsite
+                    );
+        }
+    }
+    return $loc;
 }
 
 ## Methods called by the DB core - override in clients
