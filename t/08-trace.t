@@ -23,7 +23,7 @@ sub foo {
 
 BEGIN {
     if (is_in_test_program) {
-        eval "use Test::More tests => 10;";
+        eval "use Test::More tests => 20;";
     }
 }
 
@@ -51,6 +51,7 @@ BEGIN {
     );
 }
 
+my $last_trace_loc;
 sub notify_trace {
     my($class, $loc) = @_;
 
@@ -62,5 +63,11 @@ sub notify_trace {
     }
     delete $loc->{callsite}; # Can't test for any particular value
     Test::More::is_deeply($loc, $next_test, 'Trace for line '.$next_test->{line});
+    $last_trace_loc = $loc;
+}
+
+sub notify_trace_resumed {
+    my($class, $loc) = @_;
+    Test::More::is_deeply($loc, $last_trace_loc, 'notify_trace_resumed for line '.$last_trace_loc->line);
 }
 
