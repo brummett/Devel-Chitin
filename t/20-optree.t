@@ -749,6 +749,9 @@ subtest 'program flow' => sub {
         exit_fcn => join("\n",      q(exit(123);),
                                     q(exit($a);),
                                     q(exit())),
+        do_file =>  join("\n",      q(my $val = do 'some_file.pl';),  # like require
+                                    q($val = do $val)),
+        do_sub =>   q(my $val = do some_sub_name(1, 2)), # deprecated sub call
     );
 };
 

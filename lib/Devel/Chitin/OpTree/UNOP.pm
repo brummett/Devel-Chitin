@@ -313,6 +313,10 @@ sub pp_flop {
     "$start $op $end";
 }
 
+sub pp_dofile {
+    'do ' . shift->first->deparse;
+}
+
 # Operators
 #               OP name         perl op   pre?  targmy?
 foreach my $a ( [ pp_preinc     => '++',    1,  0 ],
