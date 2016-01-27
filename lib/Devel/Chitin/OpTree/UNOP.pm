@@ -98,7 +98,13 @@ sub pp_entersub {
     }
     my $sub_name_op = pop @params_ops;
 
-    return _deparse_sub_invocation($sub_name_op)
+    my $prefix = '';
+    if ($self->op->flags & B::OPf_SPECIAL) {
+        $prefix = 'do ';
+    }
+
+    return $prefix
+            . _deparse_sub_invocation($sub_name_op)
             . '('
                 . join(', ', map { $_->deparse } @params_ops)
             . ')';
