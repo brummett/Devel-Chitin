@@ -210,6 +210,7 @@ sub pp_aelemfast_lex {
     my $list_name = substr($self->pp_padav, 1); # remove the sigil
     "\$${list_name}[" . $self->op->private . ']';
 }
+*pp_aelemfast = \&pp_aelemfast_lex;
 
 sub pp_padrange {
     my $self = shift;

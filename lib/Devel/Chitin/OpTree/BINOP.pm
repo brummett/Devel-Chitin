@@ -189,7 +189,7 @@ sub pp_aelem {
     my($array, $elt) = ($first->deparse, $self->last->deparse);
     if ($self->is_null
         and
-        $first->op->name eq 'aelemfast_lex'
+        ($first->op->name eq 'aelemfast_lex' or $first->op->name eq 'aelemfast')
         and
         $self->last->is_null
     ) {
