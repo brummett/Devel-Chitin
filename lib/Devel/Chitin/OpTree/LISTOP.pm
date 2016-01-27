@@ -27,7 +27,13 @@ sub pp_scope {
     $self->_enter_scope;
     my $deparsed = $self->pp_lineseq(@_, skip => 1) || ';';
     $self->_leave_scope;
-    "{ $deparsed }";
+
+    my $parent = $self->parent;
+    my $do = ($parent->is_null and $parent->op->flags & B::OPf_SPECIAL)
+                ? 'do '
+                : '';
+
+    $do . "{ $deparsed }";
 }
 sub pp_leave {
     my $self = shift;
