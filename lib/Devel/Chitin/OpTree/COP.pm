@@ -14,9 +14,16 @@ sub pp_nextstate {
         $deparsed .= ';';
     }
 
-    my $vertical_ws = $self->_get_cur_cop
-                        ? $self->op->line - $self->_get_cur_cop->op->line
+    my $cur_cop = $self->_get_cur_cop;
+    my $vertical_ws = $cur_cop
+                        ? $self->op->line - $cur_cop->op->line
                         : 0;
+
+    if ($cur_cop and $self->op->stashpv ne $cur_cop->op->stashpv) {
+        $deparsed .= "\npackage " . $self->op->stashpv . ";";
+        $vertical_ws--;
+    }
+
     $deparsed .= "\n" x $vertical_ws;
 
     $self->_set_cur_cop;

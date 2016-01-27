@@ -761,6 +761,11 @@ subtest 'program flow' => sub {
                                    qq[\tsecond_thing(1);],
                                    qq[\tthird_thing(1, 2, 3)],
                                     q]}]),
+        package_declaration => join("\n",   q(my $a = 1;),
+                                            q(package Foo;),
+                                            q(my $b = 2;),
+                                            q(package Bar;),
+                                            q(my $c = 3)),
     );
 };
 
