@@ -755,6 +755,12 @@ subtest 'program flow' => sub {
         do_file =>  join("\n",      q(my $val = do 'some_file.pl';),  # like require
                                     q($val = do $val)),
         do_sub =>   q(my $val = do some_sub_name(1, 2)), # deprecated sub call
+        do_block => join("\n",      q[my $val = do { sub_name() };],
+                                    q[$val = do {],
+                                   qq[\tfirst_thing();],
+                                   qq[\tsecond_thing(1);],
+                                   qq[\tthird_thing(1, 2, 3)],
+                                    q]}]),
     );
 };
 

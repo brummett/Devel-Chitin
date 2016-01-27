@@ -321,33 +321,28 @@ sub nearest_cop {
     return;
 }
 
-sub _cop_stack {
-    my $self = shift;
-    $self->root_op->{cop_stack} ||= [];
-}
+# The current COP op is stored on scope-like OPs, and on the root op
 sub _enter_scope {
-    my $cop_stack = shift->_cop_stack;
-    if (@$cop_stack) {
-        unshift @$cop_stack, $cop_stack->[0];
-    } else {
-        $cop_stack->[0] = undef;
-    }
+    shift->{cur_cop} = undef;
 }
 sub _leave_scope {
-    my $cop_stack = shift->_cop_stack;
-    shift(@$cop_stack);
+    shift->{cur_cop} = undef;
 }
-sub _cur_cop { shift->_cop_stack->[0] }
+sub _get_cur_cop {
+    shift->root_op->{cur_cop};
+}
+sub _get_cur_cop_in_scope {
+    shift->_encompassing_scope_op->{cur_cop};
+}
 sub _set_cur_cop {
     my $self = shift;
-    $self->_cop_stack->[0] = $self;
+    $self->_encompassing_scope_op->{cur_cop} = $self;
+    $self->root_op->{cur_cop} = $self;
 };
-sub _should_insert_semicolon {
-    my $cop_stack = shift->_cop_stack;
-    no warnings 'uninitialized';
-    $cop_stack->[0]
-    and
-    $cop_stack->[0] ne $cop_stack->[1];
+sub _encompassing_scope_op {
+    my $self = my $op = shift;
+    for(; $op && !$op->is_scopelike; $op = $op->parent) { }
+    $op || $self->root_op;
 }
 
 sub pp_const {
@@ -544,6 +539,10 @@ sub is_scopelike {
         pp_scope => 1,
         leave => 1,
         pp_leave => 1,
+        leavetry => 1,
+        pp_leavetry => 1,
+        leavesub => 1,
+        pp_leavesub => 1,
     }->{$op_name};
 }
 

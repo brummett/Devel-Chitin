@@ -14,8 +14,8 @@ sub pp_nextstate {
         $deparsed .= ';';
     }
 
-    my $vertical_ws = $self->_cur_cop
-                        ? $self->op->line - $self->_cur_cop->op->line
+    my $vertical_ws = $self->_get_cur_cop
+                        ? $self->op->line - $self->_get_cur_cop->op->line
                         : 0;
     $deparsed .= "\n" x $vertical_ws;
 
@@ -25,5 +25,9 @@ sub pp_nextstate {
 }
 *pp_dbstate = \&pp_nextstate;
 *pp_setstate = \&pp_nextstate;
+
+sub _should_insert_semicolon {
+    shift->_get_cur_cop_in_scope;
+}
 
 1;

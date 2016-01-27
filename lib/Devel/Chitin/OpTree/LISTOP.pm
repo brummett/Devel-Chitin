@@ -38,14 +38,22 @@ sub pp_scope {
 sub pp_leave {
     my $self = shift;
     $self->_enter_scope;
-    my $deparsed = $self->pp_lineseq(@_, skip => 2) || ';';
+    my $deparsed = $self->pp_lineseq(@_, skip => 1) || ';';
     $self->_leave_scope;
 
     my $parent = $self->parent;
     my $do = ($parent->is_null and $parent->op->flags & B::OPf_SPECIAL)
                 ? 'do '
                 : '';
-    $do . "{ $deparsed }";
+
+    my $lines = $deparsed =~ s/\n/\n\t/g;
+    if ($lines > 1) {
+        $deparsed .= "\n";
+    } else {
+        $deparsed = " $deparsed ";
+    }
+
+    $do . "{$deparsed}";
 }
 
 sub pp_anonhash {
