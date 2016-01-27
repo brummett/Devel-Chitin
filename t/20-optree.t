@@ -129,6 +129,9 @@ subtest 'subroutine call' => sub {
                                                         q($obj->$method(1, 2, 3))),
         'call_class_variable_method' => join("\n",  q(my $method;),
                                                     q(Some::Other::Package->$method(1, 2, 3))),
+        'call_with_amp' => join("\n",   q(&foo(1, 2, 3);),
+                                        q(&foo();),
+                                        q(&foo)),
     );
 };
 

@@ -101,13 +101,20 @@ sub pp_entersub {
     my $prefix = '';
     if ($self->op->flags & B::OPf_SPECIAL) {
         $prefix = 'do ';
+    } elsif ($self->op->private & B::OPpENTERSUB_AMPER) {
+        $prefix = '&';
+    }
+
+    my $function_args = '';
+    if ($self->op->flags & B::OPf_STACKED) {
+        $function_args = '('
+                        . join(', ', map { $_->deparse } @params_ops)
+                        . ')';
     }
 
     return $prefix
             . _deparse_sub_invocation($sub_name_op)
-            . '('
-                . join(', ', map { $_->deparse } @params_ops)
-            . ')';
+            . $function_args;
 }
 
 sub _deparse_sub_invocation {
