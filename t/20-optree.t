@@ -143,8 +143,8 @@ subtest 'eval' => sub {
                                         q(eval($a))),
         'block_eval' => join("\n",  q(my $a;),
                                     q(eval {),
-                                    q(    $a = 1;),
-                                    q(    $a),
+                                   qq(\tdo_something();),
+                                   qq(\t\$a),
                                     q(})),
     );
 };

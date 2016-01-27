@@ -22,19 +22,7 @@ sub pp_lineseq {
     }
     $deparsed;
 }
-sub pp_scope {
-    my $self = shift;
-    $self->_enter_scope;
-    my $deparsed = $self->pp_lineseq(@_, skip => 1) || ';';
-    $self->_leave_scope;
 
-    my $parent = $self->parent;
-    my $do = ($parent->is_null and $parent->op->flags & B::OPf_SPECIAL)
-                ? 'do '
-                : '';
-
-    $do . "{ $deparsed }";
-}
 sub pp_leave {
     my $self = shift;
     $self->_enter_scope;
@@ -46,6 +34,13 @@ sub pp_leave {
                 ? 'do '
                 : '';
 
+    my $block_declaration = '';
+    if ($parent->is_null and $parent->op->flags & B::OPf_SPECIAL) {
+        $block_declaration = 'do ';
+    } elsif ($self->op->name eq 'leavetry') {
+        $block_declaration = 'eval ';
+    }
+
     my $lines = $deparsed =~ s/\n/\n\t/g;
     if ($lines > 1) {
         $deparsed .= "\n";
@@ -53,8 +48,10 @@ sub pp_leave {
         $deparsed = " $deparsed ";
     }
 
-    $do . "{$deparsed}";
+    $block_declaration . "{$deparsed}";
 }
+*pp_scope = \&pp_leave;
+*pp_leavetry = \&pp_leave;
 
 sub pp_anonhash {
     my $self = shift;
@@ -124,16 +121,6 @@ sub _aslice_hslice_builder {
 
     my $array_name = substr($self->children->[2]->deparse, 1); # remove the sigil
     "\@${array_name}" . $open_paren . $children->[1]->deparse(skip_parens => 1) . $close_paren;
-}
-
-sub pp_leavetry {
-    my $self = shift;
-
-    $self->_enter_scope;
-    (my $inner = pp_lineseq($self, skip => 1)) =~ s/^\n//;  # skip entertry, remove initial blank line
-    $inner =~ s/^/    /gm;  # indent
-    $self->_leave_scope;
-    "eval {\n$inner\n}";
 }
 
 sub pp_unpack {
