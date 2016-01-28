@@ -766,6 +766,10 @@ subtest 'program flow' => sub {
                                             q(my $b = 2;),
                                             q(package Bar;),
                                             q(my $c = 3)),
+        require_file => join("\n",      q(require 'file.pl';),
+                                        q(my $file;),
+                                        q(require $file)),
+        require_module =>   q(require Some::Module),
     );
 };
 

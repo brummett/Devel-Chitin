@@ -17,7 +17,9 @@ sub pp_const {
     if ($sv->isa('B::PV')) {
         my $string = $sv->PV;
 
-        my $quote = $params{skip_quotes} ? '' : q(');
+        my $quote = ($params{skip_quotes} or $self->op->private & B::OPpCONST_BARE)
+                    ? ''
+                    : q(');
         if ($string =~ m/[\000-\037]/ and !$params{regex_x_flag}) {
             $quote = '"' unless $params{skip_quotes};
             $string = $self->_escape_for_double_quotes($string, %params);

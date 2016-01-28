@@ -330,6 +330,22 @@ sub pp_dofile {
     'do ' . shift->first->deparse;
 }
 
+sub pp_require {
+    my $self = shift;
+
+    my $first = $self->first;
+    my $name = $first->deparse;
+    if ($first->op->name eq 'const'
+        and
+        $first->op->private & B::OPpCONST_BARE
+    ) {
+        $name =~ s#/#::#g;
+        $name =~ s/\.pm$//;
+    }
+
+    'require ' . $name;
+}
+
 # Operators
 #               OP name         perl op   pre?  targmy?
 foreach my $a ( [ pp_preinc     => '++',    1,  0 ],
