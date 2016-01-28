@@ -14,7 +14,13 @@ sub pp_const {
 
     $sv = $self->_padval_sv($self->op->targ) unless $$sv;  # happens in thread-enabled perls
 
-    if ($sv->isa('B::PV')) {
+    if ($sv->FLAGS & B::SVs_RMG) {
+        # It's a version object
+        for (my $mg = $sv->MAGIC; $mg; $mg = $mg->MOREMAGIC) {
+            return $mg->PTR if $mg->TYPE eq 'V';
+        }
+
+    } elsif ($sv->isa('B::PV')) {
         my $string = $sv->PV;
 
         my $quote = ($params{skip_quotes} or $self->op->private & B::OPpCONST_BARE)

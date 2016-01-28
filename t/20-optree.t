@@ -770,6 +770,7 @@ subtest 'program flow' => sub {
                                         q(my $file;),
                                         q(require $file)),
         require_module =>   q(require Some::Module),
+        require_version =>  q(require v5.8.7),
     );
 };
 
