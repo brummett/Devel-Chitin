@@ -173,6 +173,11 @@ sub pp_exists {
     "exists($arg)";
 }
 
+# goto expr
+sub pp_goto {
+    'goto ' . shift->first->deparse;
+}
+
 sub pp_readline {
     my $self = shift;
     my $arg = $self->first->deparse;

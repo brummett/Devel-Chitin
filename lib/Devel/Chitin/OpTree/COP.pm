@@ -24,6 +24,12 @@ sub pp_nextstate {
         $vertical_ws--;
     }
 
+    if ($self->op->label) {
+        $deparsed .= "\n" if $self->_should_insert_semicolon;
+        $deparsed .= $self->op->label . ': ';
+        $vertical_ws--;
+    }
+
     $deparsed .= "\n" x $vertical_ws;
 
     $self->_set_cur_cop;

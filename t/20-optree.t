@@ -775,6 +775,11 @@ subtest 'program flow' => sub {
         return_keyword =>               q(return(1, 2, 3)),
         dump_keyword => join("\n",      q(dump;),
                                         q(dump DUMP_LABEL)),
+        goto_label => join("\n",        q(LABEL1:),
+                                        q(LABEL2:),
+                                        q(goto LABEL1;),
+                                        q(my $expr;),
+                                        q(goto $expr)),
     );
 };
 

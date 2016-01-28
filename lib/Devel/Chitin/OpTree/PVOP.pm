@@ -10,6 +10,10 @@ sub pp_dump {
     'dump ' . shift->op->pv;
 }
 
+sub pp_goto {
+    'goto ' . shift->op->pv;
+}
+
 sub pp_trans {
     my $self = shift;
 
