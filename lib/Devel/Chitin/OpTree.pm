@@ -396,6 +396,8 @@ sub pp_gnetent { 'getnetent()' }
 sub pp_gprotoent { 'getprotoent()' }
 sub pp_gservent { 'getservent()' }
 sub pp_undef { 'undef' }
+sub pp_wantarray { 'wantarray' }
+sub pp_dump { 'dump' }
 
 sub pp_eof {
     shift->op->flags & B::OPf_SPECIAL

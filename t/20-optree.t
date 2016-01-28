@@ -771,6 +771,10 @@ subtest 'program flow' => sub {
                                         q(require $file)),
         require_module =>   q(require Some::Module),
         require_version =>  q(require v5.8.7),
+        wantarray_keyword =>            q(my $wa = wantarray),
+        return_keyword =>               q(return(1, 2, 3)),
+        dump_keyword => join("\n",      q(dump;),
+                                        q(dump DUMP_LABEL)),
     );
 };
 

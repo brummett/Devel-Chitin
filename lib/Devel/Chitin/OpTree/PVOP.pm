@@ -6,6 +6,10 @@ use Devel::Chitin::Version;
 use strict;
 use warnings;
 
+sub pp_dump {
+    'dump ' . shift->op->pv;
+}
+
 sub pp_trans {
     my $self = shift;
 
