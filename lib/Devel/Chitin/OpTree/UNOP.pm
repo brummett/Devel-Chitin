@@ -210,7 +210,6 @@ sub pp_undef {
     my $self = shift;
     my $arg = $self->first->deparse;
     if ($arg =~ m/::/) {
-        $DB::single=1 if $arg =~ m/::/;
         $arg = $self->first->deparse;
     }
     "undef($arg)";
