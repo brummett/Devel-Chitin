@@ -201,6 +201,9 @@ sub _deparse_sortlike {
             $block = ' { $b cmp $a } ';  # There's no $a cmp $b because it's the default sort
         }
 
+    } elsif (@$children == 2) {
+        # a basic print "string\n":
+        $block = ' ' ;
     }
 
     my @values = map { $_->deparse }

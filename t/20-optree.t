@@ -443,6 +443,8 @@ subtest 'I/O' => sub {
         print_fcn => join("\n",     q(my $a = print();),
                                     q(print('foo bar', 'baz', "\n");),
                                     q(print F ('foo bar', 'baz', "\n");),
+                                    q(print "Hello\n";),
+                                    q(print F "Hello\n";),
                                     q(my $f;),
                                     q(print { $f } ('foo bar', 'baz', "\n");),
                                     q(print { *$f } ('foo bar', 'baz', "\n"))),
