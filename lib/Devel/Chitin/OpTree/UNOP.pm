@@ -175,7 +175,10 @@ sub pp_exists {
 
 # goto expr
 sub pp_goto {
-    'goto ' . shift->first->deparse;
+    my $target = shift->first->deparse;
+    # goto &sub will deparse to goto \&sub
+    $target =~ s/^\\&/&/;
+    'goto ' . $target;
 }
 
 sub pp_readline {

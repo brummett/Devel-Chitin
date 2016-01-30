@@ -782,6 +782,8 @@ subtest 'program flow' => sub {
                                         q(goto LABEL1;),
                                         q(my $expr;),
                                         q(goto $expr)),
+        goto_sub => join("\n",      q(goto &Some::sub;),
+                                    q(goto sub { 1 })),
     );
 };
 
