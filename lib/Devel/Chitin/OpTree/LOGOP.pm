@@ -80,10 +80,20 @@ sub pp_and {
     my $left = $self->first->deparse;
     my $right = $self->other->deparse;
     if ($self->other->is_scopelike) {
+        $left = _format_if_conditional($left);
         $right = _format_if_block($right);
         "if ($left) $right";
     } else {
         "$left && $right";
+    }
+}
+
+sub _format_if_conditional {
+    my $code = shift;
+    if (index($code, ';') == 0) {
+        substr($code, 1);
+    } else {
+        $code;
     }
 }
 
@@ -124,13 +134,16 @@ sub pp_cond_expr {
     if ($true->is_scopelike and $false->is_scopelike) {
         $true_code = _format_if_block($true_code);
         $false_code = _format_if_block($false_code);
-        $cond_code =~ s/^;//;
+        $cond_code = _format_if_conditional($cond_code);
         "if ($cond_code) $true_code else $false_code";
 
-    } elsif ($true->is_scopelike and $false->is_null and $false->first->op->name eq 'cond_expr') {
+    } elsif ($true->is_scopelike
+            and $false->is_null
+            and ( $false->first->op->name eq 'cond_expr' or $false->first->op->name eq 'and' )
+    ) {
         $true_code = _format_if_block($true_code);
         $false_code = _format_if_block($false_code);
-        $cond_code =~ s/^;//;
+        $cond_code = _format_if_conditional($cond_code);
         "if ($cond_code) $true_code els$false_code";
 
     } else {
