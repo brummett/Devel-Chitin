@@ -256,6 +256,27 @@ sub _ex_name {
     }
 }
 
+sub _sibling_helper {
+    my($self, $cb) = @_;
+    my $parent = $self->parent;
+    return unless $parent;
+    my $children = $parent->children;
+    return unless ($children and @$children);
+
+    for (my $i = 0; $i < @$children; $i++) {
+        if ($children->[$i] eq $self) {
+            return $cb->($i, $children);
+        }
+    }
+}
+sub pre_siblings {
+    my $self = shift;
+    $self->_sibling_helper(sub {
+        my($i, $children) = @_;
+        @$children[0 .. ($i-1)];
+    });
+}
+
 my %flag_values = (
     WANT_VOID => B::OPf_WANT_VOID,
     WANT_SCALAR => B::OPf_WANT_SCALAR,

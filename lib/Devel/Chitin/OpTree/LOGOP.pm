@@ -77,7 +77,20 @@ sub _deparse_map_grep {
 
 sub pp_and {
     my $self = shift;
-    $self->first->deparse . ' && ' . $self->other->deparse;
+    my $left = $self->first->deparse;
+    my $right = $self->other->deparse;
+    if ($self->other->is_scopelike) {
+        unless (index($right,"\n") >=0 ) {
+            # make even one-liner blocks indented
+            $right =~ s/^{ /{\n\t/;
+            $right =~ s/ }$/\n}/;
+        }
+        $right =~ s/^{ /{\n\t/;
+
+        "if ($left) $right";
+    } else {
+        "$left && $right";
+    }
 }
 
 sub pp_or {

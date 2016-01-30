@@ -777,13 +777,20 @@ subtest 'program flow' => sub {
         return_keyword =>               q(return(1, 2, 3)),
         dump_keyword => join("\n",      q(dump;),
                                         q(dump DUMP_LABEL)),
-        goto_label => join("\n",        q(LABEL1:),
-                                        q(LABEL2:),
-                                        q(goto LABEL1;),
+        goto_label => join("\n",        q(LABEL:),
+                                        q(goto LABEL;),
                                         q(my $expr;),
                                         q(goto $expr)),
         goto_sub => join("\n",      q(goto &Some::sub;),
                                     q(goto sub { 1 })),
+        if_statement => join("\n",  q(my $a;),
+                                    q(if ($a) {),
+                                   qq(\tprint 'hi'),
+                                    q(}),
+                                    q(if ($a) {),
+                                   qq(\tprint 'hello';),
+                                   qq(\tworld()),
+                                    q(})),
     );
 };
 
