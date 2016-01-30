@@ -15,17 +15,17 @@ sub pp_nextstate {
     }
 
     my $cur_cop = $self->_get_cur_cop;
-    my $vertical_ws = $cur_cop
+    my $vertical_ws = ($cur_cop and !$self->is_null)
                         ? $self->op->line - $cur_cop->op->line
                         : 0;
     $vertical_ws = 1 if ($vertical_ws > 1);
 
-    if ($cur_cop and $self->op->stashpv ne $cur_cop->op->stashpv) {
+    if ($cur_cop and !$self->is_null and $self->op->stashpv ne $cur_cop->op->stashpv) {
         $deparsed .= "\npackage " . $self->op->stashpv . ";\n";
         $vertical_ws--;
     }
 
-    if ($self->op->label) {
+    if (!$self->is_null and $self->op->label) {
         $deparsed .= "\n" if $self->_should_insert_semicolon;
         $deparsed .= $self->op->label . ":\n";
         $vertical_ws--;
@@ -33,7 +33,7 @@ sub pp_nextstate {
 
     $deparsed .= "\n" x $vertical_ws;
 
-    $self->_set_cur_cop;
+    $self->_set_cur_cop unless $self->is_null;
 
     $deparsed;
 }

@@ -89,12 +89,14 @@ sub pp_and {
 
 sub _format_if_block {
     my $code = shift;
-    unless (index($code,"\n") >=0 ) {
+    if (index($code,"\n") >=0 ) {
+        $code =~ s/^{ \n/{\n/;
+        $code =~ s/ }$/\n}/;
+    } else {
         # make even one-liner blocks indented
         $code =~ s/^{ /{\n\t/;
         $code =~ s/ }$/\n}/;
     }
-    $code =~ s/^{ /{\n\t/;
     $code;
 }
 
@@ -122,7 +124,14 @@ sub pp_cond_expr {
     if ($true->is_scopelike and $false->is_scopelike) {
         $true_code = _format_if_block($true_code);
         $false_code = _format_if_block($false_code);
+        $cond_code =~ s/^;//;
         "if ($cond_code) $true_code else $false_code";
+
+    } elsif ($true->is_scopelike and $false->is_null and $false->first->op->name eq 'cond_expr') {
+        $true_code = _format_if_block($true_code);
+        $false_code = _format_if_block($false_code);
+        $cond_code =~ s/^;//;
+        "if ($cond_code) $true_code els$false_code";
 
     } else {
         $cond->deparse . ' ? ' . $true->deparse . ' : ' . $false->deparse;

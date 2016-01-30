@@ -798,6 +798,16 @@ subtest 'program flow' => sub {
                                    qq(\tprint 'hello';),
                                    qq(\tworld()),
                                     q(})),
+        elsif_else_chain => join("\n",  q(my $a;),
+                                        q(if ($a < 1) {),
+                                       qq(\tprint 'less'),
+                                        q(} elsif ($a > 1) {),
+                                       qq(\tprint 'more'),
+                                        q(} elsif (defined($a)) {),
+                                           qq(\tprint 'zero'),
+                                        q(} else {),
+                                       qq(\tprint 'undef'),
+                                        q(})),
     );
 };
 
