@@ -88,6 +88,24 @@ sub pp_and {
     }
 }
 
+sub pp_or {
+    my $self = shift;
+    my $right = $self->other->deparse;
+    if ($self->other->is_scopelike
+        and
+        $self->first->is_null
+        and
+        $self->first->_ex_name eq 'pp_not'
+    ) {
+        my $left = _format_if_conditional($self->first->first->deparse);
+        $right = _format_if_block($self->other->deparse);
+        "unless ($left) $right";
+
+    } else {
+        $self->first->deparse . ' || ' . $self->other->deparse;
+    }
+}
+
 sub _format_if_conditional {
     my $code = shift;
     if (index($code, ';') == 0) {
@@ -108,11 +126,6 @@ sub _format_if_block {
         $code =~ s/ }$/\n}/;
     }
     $code;
-}
-
-sub pp_or {
-    my $self = shift;
-    $self->first->deparse . ' || ' . $self->other->deparse;
 }
 
 sub pp_andassign { _and_or_assign(shift, '&&=') }

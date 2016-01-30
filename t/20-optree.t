@@ -816,6 +816,10 @@ subtest 'program flow' => sub {
                                     q(} elsif (defined($a)) {),
                                        qq(\tprint 'zero'),
                                     q(})),
+        unless_statement => join("\n",  q(my $a;),
+                                        q(unless ($a) {),
+                                       qq(\tprint 'hi'),
+                                        q(})),
     );
 };
 
