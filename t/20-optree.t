@@ -791,6 +791,13 @@ subtest 'program flow' => sub {
                                    qq(\tprint 'hello';),
                                    qq(\tworld()),
                                     q(})),
+        if_else => join("\n",       q(my $a;),
+                                    q(if ($a) {),
+                                   qq(\tprint 'hi'),
+                                    q(} else {),
+                                   qq(\tprint 'hello';),
+                                   qq(\tworld()),
+                                    q(})),
     );
 };
 

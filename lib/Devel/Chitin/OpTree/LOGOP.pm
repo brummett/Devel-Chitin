@@ -80,17 +80,22 @@ sub pp_and {
     my $left = $self->first->deparse;
     my $right = $self->other->deparse;
     if ($self->other->is_scopelike) {
-        unless (index($right,"\n") >=0 ) {
-            # make even one-liner blocks indented
-            $right =~ s/^{ /{\n\t/;
-            $right =~ s/ }$/\n}/;
-        }
-        $right =~ s/^{ /{\n\t/;
-
+        $right = _format_if_block($right);
         "if ($left) $right";
     } else {
         "$left && $right";
     }
+}
+
+sub _format_if_block {
+    my $code = shift;
+    unless (index($code,"\n") >=0 ) {
+        # make even one-liner blocks indented
+        $code =~ s/^{ /{\n\t/;
+        $code =~ s/ }$/\n}/;
+    }
+    $code =~ s/^{ /{\n\t/;
+    $code;
 }
 
 sub pp_or {
@@ -108,8 +113,20 @@ sub _and_or_assign {
 }
 
 sub pp_cond_expr {
-    my $children = shift->children;
-    $children->[0]->deparse . ' ? ' . $children->[1]->deparse . ' : ' . $children->[2]->deparse;
+    my $self = shift;
+    my $children = $self->children;
+
+    my($cond, $true, $false) = @$children;
+    my($cond_code, $true_code, $false_code) = map { $_->deparse } ($cond, $true, $false);
+
+    if ($true->is_scopelike and $false->is_scopelike) {
+        $true_code = _format_if_block($true_code);
+        $false_code = _format_if_block($false_code);
+        "if ($cond_code) $true_code else $false_code";
+
+    } else {
+        $cond->deparse . ' ? ' . $true->deparse . ' : ' . $false->deparse;
+    }
 }
 
 1;
