@@ -400,6 +400,7 @@ sub pp_chdir {
 
 sub pp_enter { '' }
 sub pp_stub { ';' }
+sub pp_unstack { '' }
 
 sub pp_ggrent { 'getgrent()' }
 sub pp_eggrent { 'endgrent()' }
@@ -566,6 +567,8 @@ my %scopelike_ops = (
     pp_leavetry => 1,
     leavesub => 1,
     pp_leavesub => 1,
+    leaveloop => 1,
+    pp_leaveloop => 1,
 );
 sub is_scopelike {
     my $self = shift;
@@ -629,6 +632,17 @@ sub _deparse_flags {
         push @flags, $val;
     }
     join(' | ', @flags);
+}
+
+sub _indent_block_text {
+    my($self, $text) = @_;
+
+    my $lines = $text =~ s/\n/\n\t/g;
+    if ($lines > 1) {
+        $text .= "\n";
+    } else {
+        $text = " $text ";
+    }
 }
 
 1;

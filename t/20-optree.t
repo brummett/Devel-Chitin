@@ -820,6 +820,11 @@ subtest 'program flow' => sub {
                                         q(unless ($a) {),
                                        qq(\tprint 'hi'),
                                         q(})),
+        while_loop => join("\n",    q(my($a, $b);),
+                                    q(while ($a && $b) {),
+                                   qq(\tprint 'hi';),
+                                   qq(\tprint 'there'),
+                                    q(})),
     );
 };
 

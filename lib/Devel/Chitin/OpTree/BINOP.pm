@@ -144,6 +144,24 @@ sub pp_reverse {
     'reverse(' . shift->last->deparse . ')';
 }
 
+sub pp_leaveloop {
+    my $self = shift;
+
+    # while loops are structured like this:
+    # leaveloop
+    #   enterloop
+    #   null
+    #     and/or
+    #       null
+    #         condition
+    #       lineseq
+    #         loop contents
+    my $condition_op = $self->last->first->first;
+    my $loop_content = $self->_indent_block_text( $self->last->first->other->deparse );
+
+    'while (' . $condition_op->deparse . ") {$loop_content}";
+}
+
 # leave is normally a LISTOP, but this happens when this is run
 # in the debugger
 # sort { ; } @list

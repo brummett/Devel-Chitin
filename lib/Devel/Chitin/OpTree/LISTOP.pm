@@ -41,12 +41,7 @@ sub pp_leave {
         $block_declaration = 'eval ';
     }
 
-    my $lines = $deparsed =~ s/\n/\n\t/g;
-    if ($lines > 1) {
-        $deparsed .= "\n";
-    } else {
-        $deparsed = " $deparsed ";
-    }
+    $deparsed = $self->_indent_block_text($deparsed);
 
     $block_declaration . "{$deparsed}";
 }
