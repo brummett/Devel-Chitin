@@ -156,10 +156,10 @@ sub pp_leaveloop {
     #         condition
     #       lineseq
     #         loop contents
-    my $condition_op = $self->last->first->first;
-    my $loop_content = $self->_indent_block_text( $self->last->first->other->deparse );
+    my $condition_op = $self->last->first;  # the and/or
+    my $loop_content = $self->_indent_block_text( $condition_op->other->deparse );
 
-    'while (' . $condition_op->deparse . ") {$loop_content}";
+    'while (' . $condition_op->first->deparse . ") {$loop_content}";
 }
 
 # leave is normally a LISTOP, but this happens when this is run
