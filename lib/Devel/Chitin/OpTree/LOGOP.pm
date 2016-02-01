@@ -83,6 +83,13 @@ sub pp_and {
         $left = _format_if_conditional($left);
         $right = _format_if_block($right);
         "if ($left) $right";
+
+    } elsif ($self->parent->is_null
+            and $self->parent->pre_siblings
+            and ($self->parent->pre_siblings)[-1]->class eq 'COP'
+    ) {
+        "$right if $left";
+
     } else {
         "$left && $right";
     }
@@ -100,6 +107,12 @@ sub pp_or {
         my $left = _format_if_conditional($self->first->first->deparse);
         $right = _format_if_block($self->other->deparse);
         "unless ($left) $right";
+
+    } elsif ($self->parent->is_null
+            and $self->parent->pre_siblings
+            and ($self->parent->pre_siblings)[0]->class eq 'COP'
+    ) {
+        $self->other->deparse . ' unless ' . $self->first->deparse;
 
     } else {
         $self->first->deparse . ' || ' . $self->other->deparse;
