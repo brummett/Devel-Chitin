@@ -6,7 +6,7 @@ use warnings;
 use Devel::Chitin::Version;
 
 use Carp;
-use Scalar::Util qw(blessed reftype);
+use Scalar::Util qw(blessed reftype weaken);
 use B qw(ppname);
 
 use Devel::Chitin::OpTree::UNOP;
@@ -22,6 +22,11 @@ use Devel::Chitin::OpTree::LISTOP;
 use Devel::Chitin::OpTree::LOOP;
 use Devel::Chitin::OpTree::PMOP;
 
+my %objs_for_op;
+sub _obj_for_op {
+    my($self, $op) = @_;
+    $objs_for_op{$$op};
+}
 sub build_from_location {
     my($class, $start) = @_;
 
@@ -34,6 +39,8 @@ sub build_from_location {
         my $op = shift;
 
         my $self = $class->new(op => $op, cv => $cv);
+        $objs_for_op{$$op} = $self;
+        weaken $objs_for_op{$$op};
 
         my @children;
         if ($$op && ($op->flags & B::OPf_KIDS)) {
@@ -136,6 +143,16 @@ sub root_op {
     my $obj = shift;
     $obj = $obj->parent while ($obj->parent);
     $obj;
+}
+
+sub next {
+    my $self = shift;
+    $self->_obj_for_op($self->op->next);
+}
+
+sub sibling {
+    my $self = shift;
+    $self->_obj_for_op($self->op->sibling);
 }
 
 sub walk_preorder {
