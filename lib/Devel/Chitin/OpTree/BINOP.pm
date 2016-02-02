@@ -157,9 +157,21 @@ sub pp_leaveloop {
     #       lineseq
     #         loop contents
     my $condition_op = $self->last->first;  # the and/or
-    my $loop_content = $self->_indent_block_text( $condition_op->other->deparse );
+    my $enterloop = $self->first;
 
-    'while (' . $condition_op->first->deparse . ") {$loop_content}";
+    my($loop_content, $continue_content);
+    if ($enterloop->nextop->op->name eq 'unstack') {
+        # no continue
+        $loop_content = '{' . $self->_indent_block_text( $condition_op->other->deparse ) . '}';
+        $continue_content = '';
+    } else {
+        # has continue
+        my $children = $condition_op->other->children;
+        $loop_content = $children->[0]->deparse;
+        $continue_content = ' continue ' . $children->[1]->deparse;
+    }
+
+    'while (' . $condition_op->first->deparse . ') ' . $loop_content . $continue_content;
 }
 
 # leave is normally a LISTOP, but this happens when this is run

@@ -829,6 +829,14 @@ subtest 'program flow' => sub {
                                    qq(\tprint 'hi';),
                                    qq(\tprint 'there'),
                                     q(})),
+        while_continue => join("\n",q(my $a;),
+                                    q(while ($a) {),
+                                   qq(\tprint 'hi';),
+                                   qq(\tprint 'there'),
+                                    q(} continue {),
+                                   qq(\tprint 'continued';),
+                                   qq(\tprint 'here'),
+                                    q(})),
     );
 };
 
