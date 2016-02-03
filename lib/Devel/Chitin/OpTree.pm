@@ -402,6 +402,7 @@ sub pp_close { 'close()' }
 sub pp_getc { 'getc()' }
 sub pp_tell { 'tell()' }
 sub pp_enterwrite { 'write()' }
+sub pp_fork { 'fork()' }
 
 # Chdir can be either a UNOP or base-OP
 sub pp_chdir {

@@ -245,6 +245,7 @@ foreach my $a ( [ pp_entereval  => 'eval',      0 ],
                 [ pp_rmdir      => 'rmdir',     1 ],
                 [ pp_defined    => 'defined',   0 ],
                 [ pp_pos        => 'pos',       0 ],
+                [ pp_alarm      => 'alarm',     0 ],
 ) {
     my($pp_name, $perl_name, $targmy) = @$a;
     my $sub = sub {
@@ -293,6 +294,7 @@ foreach my $a ( [ pp_scalar     => 'scalar',    0 ],
                 [ pp_snetent    => 'setnetent', 0 ],
                 [ pp_sprotoent  => 'setprotoent', 0 ],
                 [ pp_sservent   => 'setservent', 0 ],
+                [ pp_getpgrp    => 'getpgrp',   1 ],
 ) {
     my($pp_name, $perl_name, $targmy) = @$a;
     my $sub = sub {

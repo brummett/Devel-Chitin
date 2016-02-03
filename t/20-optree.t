@@ -3,7 +3,7 @@ use warnings;
 
 use Devel::Chitin::OpTree;
 use Devel::Chitin::Location;
-use Test::More tests => 16;
+use Test::More tests => 17;
 
 use Fcntl qw(:flock :DEFAULT SEEK_SET SEEK_CUR SEEK_END);
 use Socket;
@@ -837,6 +837,16 @@ subtest 'program flow' => sub {
                                    qq(\tprint 'continued';),
                                    qq(\tprint 'here'),
                                     q(})),
+    );
+};
+
+subtest process => sub {
+    _run_tests(
+        alarm_fcn => q(alarm(4)),
+        fork_fcn => join("\n",  q(fork();),
+                                q(my $a = fork())),
+        getpgrp_fcn => join("\n",   q(my $a = getpgrp(0);),
+                                    q($a = getpgrp(1234))),
     );
 };
 
