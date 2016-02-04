@@ -388,14 +388,20 @@ sub pp_const {
 }
 
 # Usually, rand/srand/pop/shift is an UNOP, but with no args, it's a base-OP
-sub pp_rand {
-    my $target = shift->_maybe_targmy;
-    "${target}rand()";
+foreach my $d ( [ pp_rand       => 'rand' ],
+                [ pp_srand      => 'srand' ],
+                [ pp_getppid    => 'getppid' ],
+                [ pp_wait       => 'wait' ],
+) {
+    my($pp_name, $perl_name) = @$d;
+    my $sub = sub {
+        my $target = shift->_maybe_targmy;
+        "${target}${perl_name}()";
+    };
+    no strict 'refs';
+    *$pp_name = $sub;
 }
-sub pp_srand {
-    my $target = shift->_maybe_targmy;
-    "${target}srand()";
-}
+
 sub pp_pop { 'pop()' }
 sub pp_shift { 'shift()' }
 sub pp_close { 'close()' }
@@ -403,17 +409,25 @@ sub pp_getc { 'getc()' }
 sub pp_tell { 'tell()' }
 sub pp_enterwrite { 'write()' }
 sub pp_fork { 'fork()' }
+sub pp_tms { 'times()' }
 
-# Chdir can be either a UNOP or base-OP
-sub pp_chdir {
-    my $self = shift;
-    my $children = $self->children;
-    my $target = $self->_maybe_targmy;
-    if (@$children) {
-        "${target}chdir(" . $children->[0]->deparse . ')';
-    } else {
-        "${target}chdir()";
-    }
+# Chdir and sleep can be either a UNOP or base-OP
+foreach my $d ( [ pp_chdir => 'chdir' ],
+                [ pp_sleep => 'sleep' ],
+) {
+    my($pp_name, $perl_name) = @$d;
+    my $sub = sub {
+        my $self = shift;
+        my $children = $self->children;
+        my $target = $self->_maybe_targmy;
+        if (@$children) {
+            "${target}${perl_name}(" . $children->[0]->deparse . ')';
+        } else {
+            "${target}${perl_name}()";
+        }
+    };
+    no strict 'refs';
+    *$pp_name = $sub;
 }
 
 sub pp_enter { '' }

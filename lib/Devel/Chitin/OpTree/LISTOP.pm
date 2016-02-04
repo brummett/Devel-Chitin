@@ -424,6 +424,8 @@ foreach my $a ( [ pp_crypt      => 'crypt',     1 ],
                 [ pp_gsbyname   => 'getservbyname', 0 ],
                 [ pp_gsbyport   => 'getservbyport', 0 ],
                 [ pp_return     => 'return', 0 ],
+                [ pp_kill       => 'kill',      1 ],
+                [ pp_pipe_op    => 'pipe',      0 ],
 ) {
     my($pp_name, $perl_name, $targmy) = @$a;
     my $sub = sub {

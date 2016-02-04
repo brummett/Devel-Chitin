@@ -847,6 +847,20 @@ subtest process => sub {
                                 q(my $a = fork())),
         getpgrp_fcn => join("\n",   q(my $a = getpgrp(0);),
                                     q($a = getpgrp(1234))),
+        getppid_fcn => join("\n",   q(my $a = getppid();),
+                                    q(getppid())),
+        kill_fcn => join("\n",  q(my $rv = kill(0);),
+                                q($rv = kill('HUP', $$);),
+                                q($rv = kill(-9, 1, 2, 3);),
+                                q($rv = kill('TERM', -1, -2, -3))),
+        pipe_fcn => join("\n",  q(my($a, $b);),
+                                q(pipe($a, $b))),
+        sleep_fcn => join("\n",     q(my $a = sleep();),
+                                    q($a = sleep(10))),
+        times_fcn => join("\n",     q(my @a = times();),
+                                    q(my $a = times())),
+        wait_fcn => join("\n",      q(my $a = wait();),
+                                    q(wait())),
     );
 };
 
