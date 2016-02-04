@@ -367,6 +367,30 @@ sub pp_split {
     'split(' . join(', ', @params) . ')';
 }
 
+foreach my $d ( [ pp_exec => 'exec' ],
+                [ pp_system => 'system' ],
+) {
+    my($pp_name, $function) = @$d;
+    my $sub = sub {
+        my $self = shift;
+
+        my @children = @{ $self->children };
+        shift @children; # skip pushmark
+
+        my $exec = $function;
+        if ($self->op->flags & B::OPf_STACKED) {
+            # has initial non-list agument
+            my $program = shift(@children)->first;
+            $exec .= ' ' . $program->deparse . ' ';
+        }
+        my $target = $self->_maybe_targmy;
+        $target . $exec . '(' . join(', ', map { $_->deparse } @children) . ')'
+    };
+
+    no strict 'refs';
+    *$pp_name = $sub;
+}
+
 my %addr_types = map { my $val = eval "Socket::$_"; $@ ? () : ( $val => $_ ) }
                     qw( AF_802 AF_APPLETALK AF_INET AF_INET6 AF_ISO AF_LINK
                         AF_ROUTE AF_UNIX AF_UNSPEC AF_X25 );

@@ -837,12 +837,36 @@ subtest 'program flow' => sub {
                                    qq(\tprint 'continued';),
                                    qq(\tprint 'here'),
                                     q(})),
+#        until_loop => join("\n",    q(my $a;),
+#                                    q(until ($a && $b) {),
+#                                   qq(\tprint 'hi'),
+#                                    q(})),
+        #while_postfix => join("\n", q(my $a;),
+        #                            q($a++ while $a < 5)),
     );
+        # continue last next redo
+        # local for foreach while until LABELs
+        # ...
+        # lots of info in "perldoc perlsyn"
 };
+
+#subtest 'misc stuff' => sub {
+#    _run_tests(
+#        # lock prototype reset
+#    );
+#};
 
 subtest process => sub {
     _run_tests(
         alarm_fcn => q(alarm(4)),
+        exec_fcn => join("\n",  q(my $rv = exec('/bin/echo', 'hi', 'there');),
+                                q($rv = exec('/bin/echo | cat');),
+                                q($rv = exec { '/bin/echo' } ('hi', 'there');),
+                                q(my $a = exec $rv ('hi', 'there'))),
+        system_fcn => join("\n",q(my $rv = system('/bin/echo', 'hi', 'there');),
+                                q($rv = system('/bin/echo | cat');),
+                                q($rv = system { '/bin/echo' } ('hi', 'there');),
+                                q(my $a = system $rv ('hi', 'there'))),
         fork_fcn => join("\n",  q(fork();),
                                 q(my $a = fork())),
         getpgrp_fcn => join("\n",   q(my $a = getpgrp(0);),
