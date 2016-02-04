@@ -218,6 +218,19 @@ sub pp_undef {
     "undef($arg)";
 }
 
+# backtick is strange... It's an UNOP, but can have 2 children
+# seems that if it has one child, it was originally readpipe
+# if it has 2 (an ex-pushmark, then the real child), it was baskticks or qx//
+# since UNOPs don't have a last() method, we have to use $self->first->sibling
+sub pp_backtick {
+    my $self = shift;
+    if (my $content_op = $self->first->sibling) {
+        '`' . $content_op->deparse(skip_quotes => 1) . '`';
+    } else {
+        'readpipe(' . $self->first->deparse .')';
+    }
+}
+
 # Functions that can operate on $_
 #                   OP name        Perl fcn    targmy?
 foreach my $a ( [ pp_entereval  => 'eval',      0 ],
