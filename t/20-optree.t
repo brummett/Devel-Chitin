@@ -6,6 +6,7 @@ use Devel::Chitin::Location;
 use Test::More tests => 17;
 
 use Fcntl qw(:flock :DEFAULT SEEK_SET SEEK_CUR SEEK_END);
+use POSIX qw(:sys_wait_h);
 use Socket;
 
 subtest construction => sub {
@@ -885,6 +886,8 @@ subtest process => sub {
                                     q(my $a = times())),
         wait_fcn => join("\n",      q(my $a = wait();),
                                     q(wait())),
+        waitpid_fcn => join("\n",   q(my $a = waitpid(123, WNOHANG | WUNTRACED);),
+                                    q($a = waitpid($a, 0))),
     );
 };
 

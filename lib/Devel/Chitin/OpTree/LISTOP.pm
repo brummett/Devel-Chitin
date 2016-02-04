@@ -4,6 +4,7 @@ use base Devel::Chitin::OpTree::BINOP;
 use Devel::Chitin::Version;
 
 use Fcntl qw(:DEFAULT :flock SEEK_SET SEEK_CUR SEEK_END);
+use POSIX qw(:sys_wait_h);
 use Socket ();
 
 use strict;
@@ -290,6 +291,20 @@ sub pp_sysopen {
         push @params, $self->_as_octal($children->[4]->deparse(skip_quotes => 1));
     }
     'sysopen(' . join(', ', @params) . ')';
+}
+
+my @waitpid_flags = _generate_flag_list(qw(
+                        WEXITSTATUS WIFEXITED WIFSIGNALED WIFSTOPPED
+                        WNOHANG WSTOPSIG WTERMSIG WUNTRACED ));
+sub pp_waitpid {
+    my $self = shift;
+    my $children = $self->children;
+    my $flags = $self->_deparse_flags($children->[2]->deparse(skip_quotes=> 1),
+                                      \@waitpid_flags);
+    $flags ||= '0';
+    my $target = $self->_maybe_targmy;
+    "${target}waitpid(" . join(', ', $children->[1]->deparse, # PID
+                            $flags) . ')';
 }
 
 sub pp_truncate {
