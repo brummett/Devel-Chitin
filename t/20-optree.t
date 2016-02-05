@@ -945,6 +945,13 @@ subtest sockets => sub {
                                 q(my $rv = recv($sock, $buf, 123, 456))),
         shutdown_fcn => join("\n",  q(my $sock;),
                                     q(my $rv = shutdown($sock, 2))),
+        socket_fcn => join("\n",    q(my $sock;),
+                                    q(my $rv = socket(SOCK, PF_INET, SOCK_STREAM, 3);),
+                                    q($rv = socket(*SOCK, PF_UNIX, SOCK_DGRAM, 2);),
+                                    q($rv = socket($sock, PF_INET, SOCK_RAW, 1))),
+        socketpair_fcn => join("\n",q(my($a, $b);),
+                                    q(my $rv = socketpair(SOCK, $a, AF_UNIX, SOCK_STREAM, PF_UNSPEC);),
+                                    q($rv = socketpair($b, *SOCK, AF_INET6, SOCK_DGRAM, 1234))),
     );
 };
 

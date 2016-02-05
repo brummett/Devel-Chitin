@@ -424,6 +424,36 @@ foreach my $d ( [ pp_ghbyaddr => 'gethostbyaddr' ],
     *$pp_name = $sub;
 }
 
+my %sock_domains = map { my $val = eval "Socket::$_"; $@ ? () : ( $val => $_ ) }
+                    qw( PF_802 PF_APPLETALK PF_INET PF_INET6 PF_ISO PF_LINK
+                        PF_ROUTE PF_UNIX PF_UNSPEC PF_X25 );
+my %sock_types = map { my $val = eval "Socket::$_"; $@ ? () : ( $val => $_ ) }
+                    qw( SOCK_DGRAM SOCK_RAW SOCK_RDM SOCK_SEQPACKET SOCK_STREAM );
+sub pp_socket {
+    my $children = shift->children;
+    my $domain = $sock_domains{ $children->[2]->deparse(skip_quotes => 1) }
+                    || $children->[2]->deparse;
+    my $type = $sock_types{ $children->[3]->deparse(skip_quotes => 1) }
+                    || $children->[3]->deparse;
+    'socket(' . join(', ',  $children->[1]->deparse,
+                            $domain, $type,
+                            $children->[4]->deparse) . ')';
+}
+
+sub pp_sockpair {
+    my $children = shift->children;
+    my $domain = $addr_types{ $children->[3]->deparse(skip_quotes => 1) }
+                    || $children->[3]->deparse;
+    my $type = $sock_types{ $children->[4]->deparse(skip_quotes => 1) }
+                    || $children->[4]->deparse;
+    my $proto = $sock_domains{ $children->[5]->deparse(skip_quotes => 1) }
+                    || $children->[5]->deparse;
+
+    'socketpair(' . join(', ',  $children->[1]->deparse,
+                                $children->[2]->deparse,
+                                $domain, $type, $proto) . ')';
+}
+
 #                 OP name           Perl fcn    targmy?
 foreach my $a ( [ pp_crypt      => 'crypt',     1 ],
                 [ pp_index      => 'index',     1 ],
