@@ -468,6 +468,8 @@ foreach my $a ( [ pp_crypt      => 'crypt',     1 ],
                 [ pp_getpriority=> 'getpriority',   1 ],
                 [ pp_setpriority=> 'setpriority',   1 ],
                 [ pp_setpgrp    => 'setpgrp',   1 ],
+                [ pp_bless      => 'bless',     0 ],
+                [ pp_tie        => 'tie',       0 ],
 ) {
     my($pp_name, $perl_name, $targmy) = @$a;
     my $sub = sub {

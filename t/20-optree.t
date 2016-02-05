@@ -3,7 +3,7 @@ use warnings;
 
 use Devel::Chitin::OpTree;
 use Devel::Chitin::Location;
-use Test::More tests => 17;
+use Test::More tests => 18;
 
 use Fcntl qw(:flock :DEFAULT SEEK_SET SEEK_CUR SEEK_END);
 use POSIX qw(:sys_wait_h);
@@ -900,6 +900,23 @@ subtest process => sub {
         setpgrp_fcn => join("\n",   q(my $a = setpgrp();),
                                     q($a = setpgrp(0, 0);),
                                     q($a = setpgrp(9, 10))),
+    );
+};
+
+subtest classes => sub {
+    _run_tests(
+        bless_fcn => join("\n", q(my $obj = bless({}, 'Some::Package');),
+                                q($obj = bless([]))),
+        ref_fcn => join("\n",   q(my $r = ref(1);),
+                                q($r = ref($r);),
+                                q($r = ref())),
+        tie_fcn => join("\n",   q(my $a;),
+                                q(my $r = tie($a, 'Some::Package', 1, 2, 3);),
+                                q($r = tie($r, 'Other::Package', $a))),
+        tied_fcn => join("\n",  q(my $a;),
+                                q(my $r = tied($a))),
+        untie_fcn => join("\n", q(my $a;),
+                                q(untie($a))),
     );
 };
 
