@@ -893,6 +893,13 @@ subtest process => sub {
                                     q(wait())),
         waitpid_fcn => join("\n",   q(my $a = waitpid(123, WNOHANG | WUNTRACED);),
                                     q($a = waitpid($a, 0))),
+        getpriority_fcn => join("\n",   q(my $a = getpriority(1, 2);),
+                                        q($a = getpriority(0, 0))),
+        setpriority_fcn => join("\n",   q($a = setpriority(1, 2, 3);),
+                                        q($a = setpriority(0, 0, -2))),
+        setpgrp_fcn => join("\n",   q(my $a = setpgrp();),
+                                    q($a = setpgrp(0, 0);),
+                                    q($a = setpgrp(9, 10))),
     );
 };
 
