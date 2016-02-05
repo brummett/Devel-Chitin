@@ -311,6 +311,8 @@ foreach my $a ( [ pp_scalar     => 'scalar',    0 ],
                 [ pp_getpgrp    => 'getpgrp',   1 ],
                 [ pp_tied       => 'tied',      0 ],
                 [ pp_untie      => 'untie',     0 ],
+                [ pp_getpeername=> 'getpeername',   0 ],
+                [ pp_getsockname=> 'getsockname',   0 ],
 ) {
     my($pp_name, $perl_name, $targmy) = @$a;
     my $sub = sub {

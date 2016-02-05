@@ -470,6 +470,15 @@ foreach my $a ( [ pp_crypt      => 'crypt',     1 ],
                 [ pp_setpgrp    => 'setpgrp',   1 ],
                 [ pp_bless      => 'bless',     0 ],
                 [ pp_tie        => 'tie',       0 ],
+                [ pp_accept     => 'accept',    0 ],
+                [ pp_bind       => 'bind',      0 ],
+                [ pp_connect    => 'connect',   0 ],
+                [ pp_listen     => 'listen',    0 ],
+                [ pp_gsockopt   => 'getsockopt',0 ],
+                [ pp_ssockopt   => 'setsockopt',0 ],
+                [ pp_send       => 'send',      0 ],
+                [ pp_recv       => 'recv',      0 ],
+                [ pp_shutdown   => 'shutdown',  0 ],
 ) {
     my($pp_name, $perl_name, $targmy) = @$a;
     my $sub = sub {

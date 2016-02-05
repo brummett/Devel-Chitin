@@ -3,7 +3,7 @@ use warnings;
 
 use Devel::Chitin::OpTree;
 use Devel::Chitin::Location;
-use Test::More tests => 18;
+use Test::More tests => 19;
 
 use Fcntl qw(:flock :DEFAULT SEEK_SET SEEK_CUR SEEK_END);
 use POSIX qw(:sys_wait_h);
@@ -917,6 +917,34 @@ subtest classes => sub {
                                 q(my $r = tied($a))),
         untie_fcn => join("\n", q(my $a;),
                                 q(untie($a))),
+    );
+};
+
+subtest sockets => sub {
+    _run_tests(
+        accept_fcn => join("\n",q(my($a, $b);),
+                                q(my $rv = accept($a, $b))),
+        bind_fcn => join("\n",  q(my($sock, $name);),
+                                q(my $rv = bind($sock, $name))),
+        connect_fcn => join("\n",   q(my($sock, $name);),
+                                    q(my $rv = connect($sock, $name))),
+        listen_fcn => join("\n",    q(my $sock;),
+                                    q(my $rv = listen($sock, 5))),
+        getpeername_fcn => join("\n",   q(my $sock;),
+                                        q(my $rv = getpeername($sock))),
+        getsockname_fcn => join("\n",   q(my $sock;),
+                                        q(my $rv = getsockname($sock))),
+        getsockopt_fcn => join("\n",    q(my $sock;),
+                                        q(my $rv = getsockopt($sock, 1, 2))),
+        setsockopt_fcn => join("\n",    q(my $sock;),
+                                        q(my $rv = setsockopt($sock, 1, 2, 3))),
+        send_fcn => join("\n",  q(my($sock, $dest);),
+                                q(my $rv = send($sock, 'themessage', 1);),
+                                q($rv = send($sock, $rv, 1, $dest))),
+        recv_fcn => join("\n",  q(my($sock, $buf);),
+                                q(my $rv = recv($sock, $buf, 123, 456))),
+        shutdown_fcn => join("\n",  q(my $sock;),
+                                    q(my $rv = shutdown($sock, 2))),
     );
 };
 
