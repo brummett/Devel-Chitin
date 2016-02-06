@@ -3,7 +3,7 @@ use warnings;
 
 use Devel::Chitin::OpTree;
 use Devel::Chitin::Location;
-use Test::More tests => 19;
+use Test::More tests => 20;
 
 use Fcntl qw(:flock :DEFAULT SEEK_SET SEEK_CUR SEEK_END);
 use POSIX qw(:sys_wait_h);
@@ -952,6 +952,33 @@ subtest sockets => sub {
         socketpair_fcn => join("\n",q(my($a, $b);),
                                     q(my $rv = socketpair(SOCK, $a, AF_UNIX, SOCK_STREAM, PF_UNSPEC);),
                                     q($rv = socketpair($b, *SOCK, AF_INET6, SOCK_DGRAM, 1234))),
+    );
+};
+
+subtest 'sysV ipc' => sub {
+    _run_tests(
+        msgctl_fcn => join("\n",    q(my $a;),
+                                    q(my $rv = msgctl(1, 2, $a))),
+        msgget_fcn => join("\n",    q(my $a;),
+                                    q(my $rv = msgget($a, 0))),
+        msgsnd_fcn => join("\n",    q(my $a;),
+                                    q(my $rv = msgsnd(1, $a, 0))),
+        msgrecv_fcn => join("\n",   q(my $a;),
+                                    q(my $rv = msgrecv(1, $a, 1, 2, 3))),
+        semctl_fcn => join("\n",    q(my $a;),
+                                    q(my $rv = semctl(1, $a, 2, 3))),
+        semget_fcn => join("\n",    q(my $a;),
+                                    q(my $rv = semget(1, $a, 2))),
+        semop_fcn => join("\n",     q(my $a;),
+                                    q(my $rv = semop(1, $a))),
+        shmctl_fcn => join("\n",    q(my $a;),
+                                    q(my $rv = shmctl(1, $a, 2))),
+        shmget_fcn => join("\n",    q(my $a;),
+                                    q(my $rv = shmget(1, $a, 2))),
+        shmread_fcn => join("\n",   q(my $a;),
+                                    q(my $rv = shmread(1, $a, 2, 3))),
+        shmwrite_fcn => join("\n",  q(my $a;),
+                                    q(my $rv = shmwrite(1, $a, 2, 3))),
     );
 };
 

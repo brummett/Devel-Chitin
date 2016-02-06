@@ -509,6 +509,17 @@ foreach my $a ( [ pp_crypt      => 'crypt',     1 ],
                 [ pp_send       => 'send',      0 ],
                 [ pp_recv       => 'recv',      0 ],
                 [ pp_shutdown   => 'shutdown',  0 ],
+                [ pp_msgctl     => 'msgctl',    0 ],
+                [ pp_msgget     => 'msgget',    0 ],
+                [ pp_msgsnd     => 'msgsnd',    0 ],
+                [ pp_msgrcv     => 'msgrcv',    0 ],
+                [ pp_semctl     => 'semctl',    0 ],
+                [ pp_semget     => 'semget',    0 ],
+                [ pp_semop      => 'semop',     0 ],
+                [ pp_shmctl     => 'shmctl',    0 ],
+                [ pp_shmget     => 'shmget',    0 ],
+                [ pp_shmread    => 'shmread',   0 ],
+                [ pp_shmwrite   => 'shmwrite',  0 ],
 ) {
     my($pp_name, $perl_name, $targmy) = @$a;
     my $sub = sub {
