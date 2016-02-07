@@ -3,7 +3,7 @@ use warnings;
 
 use Devel::Chitin::OpTree;
 use Devel::Chitin::Location;
-use Test::More tests => 20;
+use Test::More tests => 21;
 
 use Fcntl qw(:flock :DEFAULT SEEK_SET SEEK_CUR SEEK_END);
 use POSIX qw(:sys_wait_h);
@@ -979,6 +979,17 @@ subtest 'sysV ipc' => sub {
                                     q(my $rv = shmread(1, $a, 2, 3))),
         shmwrite_fcn => join("\n",  q(my $a;),
                                     q(my $rv = shmwrite(1, $a, 2, 3))),
+    );
+};
+
+subtest time => sub {
+    _run_tests(
+        localtime_fcn => join("\n", q(my $a = localtime();),
+                                    q(my @a = localtime(12345))),
+        gmtime_fcn => join("\n",    q(my $a = gmtime();),
+                                    q(my @a = gmtime(12345))),
+        time_fcn => join("\n",      q(my $a = time();),
+                                    q(time())),
     );
 };
 

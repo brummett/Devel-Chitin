@@ -392,6 +392,7 @@ foreach my $d ( [ pp_rand       => 'rand' ],
                 [ pp_srand      => 'srand' ],
                 [ pp_getppid    => 'getppid' ],
                 [ pp_wait       => 'wait' ],
+                [ pp_time       => 'time' ],
 ) {
     my($pp_name, $perl_name) = @$d;
     my $sub = sub {
@@ -414,6 +415,8 @@ sub pp_tms { 'times()' }
 # Chdir and sleep can be either a UNOP or base-OP
 foreach my $d ( [ pp_chdir => 'chdir' ],
                 [ pp_sleep => 'sleep' ],
+                [ pp_localtime => 'localtime' ],
+                [ pp_gmtime => 'gmtime' ],
 ) {
     my($pp_name, $perl_name) = @$d;
     my $sub = sub {
