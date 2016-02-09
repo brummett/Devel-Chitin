@@ -8,6 +8,7 @@ use Test::More tests => 21;
 use Fcntl qw(:flock :DEFAULT SEEK_SET SEEK_CUR SEEK_END);
 use POSIX qw(:sys_wait_h);
 use Socket;
+use Scalar::Util qw(isvstring);
 
 subtest construction => sub {
     plan tests => 5;
@@ -1009,12 +1010,23 @@ subtest time => sub {
 # each() assigns to $_ in a lone while test
 
 sub _run_tests {
+    my $use_version = '';
+    if (isvstring $_[0]) {
+        my $required_version = shift;
+        my $required_version_string = sprintf('%vd', $required_version);
+        if ($^V lt $required_version) {
+            plan skip_all => "needs version $required_version_string";
+            return;
+        }
+        $use_version = "use $required_version_string;";
+    }
+
     my %tests = @_;
     plan tests => scalar keys %tests;
 
     foreach my $test_name ( keys %tests ) {
         my $code = $tests{$test_name};
-        eval "sub $test_name { $code }";
+        eval "${use_version}sub $test_name { $code }";
         (my $expected = $code) =~ s/my(?: )?|our(?: )? //g;
         if ($@) {
             die "Couldn't compile code for $test_name: $@";
