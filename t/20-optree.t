@@ -1009,6 +1009,15 @@ subtest 'perl-5.10.1' => sub {
         defined_or => join("\n",q(my $a;),
                                 q(my $rv = $a // 1;),
                                 q($a //= 4)),
+        given_when => join("\n",q(my $a;),
+                                q(given ($a) {),
+                               qq(\twhen (1) { print 'one' }),
+                               qq(\twhen (2) {),
+                               qq(\t\tprint 'two';),
+                               qq(\t\tprint 'more'),
+                               qq(\t}),
+                               qq(\tdefault { print 'something else' }),
+                                q(})),
     );
 };
 

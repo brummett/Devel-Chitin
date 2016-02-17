@@ -236,6 +236,13 @@ sub pp_aelem {
     }
 }
 
+sub pp_smartmatch {
+    my $self = shift;
+    if ($self->op->flags & B::OPf_SPECIAL) {
+        $self->last->deparse;
+    }
+}
+
 # Operators
 #               OP name         operator    targmy?
 foreach my $a ( [ pp_add        => '+',     1 ],

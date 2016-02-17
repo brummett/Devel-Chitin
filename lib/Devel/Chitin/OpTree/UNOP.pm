@@ -15,6 +15,27 @@ sub pp_leavesub {
     $self->first->deparse;
 }
 
+foreach my $d ( [ pp_leavegiven => 'given' ],
+                [ pp_leavewhen => 'when' ],
+) {
+    my($pp_name, $perl_name) = @$d;
+    my $sub = sub {
+        my $self = shift;
+        my $enter = $self->first;  # entergiven/enterwhen
+        if ($enter->other) {
+            my $term = $enter->first->deparse;
+            $self->_enter_scope;
+            my $block = $enter->other->deparse;
+            $self->_leave_scope;
+            "$perl_name ($term) $block";
+        } else {
+            'default ' . $enter->first->deparse;
+        }
+    };
+    no strict 'refs';
+    *$pp_name = $sub;
+}
+
 
 # Normally, pp_list is a LISTOP, but this happens when a pp_list is turned
 # into a pp_null by the optimizer, and it has one child
