@@ -164,7 +164,7 @@ sub _deparse_sortlike {
         and
         $children->[1]->deparse eq '$_'
     ) {
-        return 'print()';
+        return "$function()";
     }
 
     # Note the space:

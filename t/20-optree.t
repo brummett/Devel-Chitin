@@ -3,7 +3,7 @@ use warnings;
 
 use Devel::Chitin::OpTree;
 use Devel::Chitin::Location;
-use Test::More tests => 21;
+use Test::More tests => 22;
 
 use Fcntl qw(:flock :DEFAULT SEEK_SET SEEK_CUR SEEK_END);
 use POSIX qw(:sys_wait_h);
@@ -994,11 +994,26 @@ subtest time => sub {
     );
 };
 
+subtest 'perl-5.10.1' => sub {
+    _run_tests(
+        v5.10.1,
+        say_fcn => join("\n",   q(my $a = say();),
+                                q(say('foo bar', 'baz', "\n");),
+                                q(say F ('foo bar', 'baz', "\n");),
+                                q(say "Hello\n";),
+                                q(say F "Hello\n";),
+                                q(my $f;),
+                                q(say { $f } ('foo bar', 'baz', "\n");),
+                                q(say { *$f } ('foo bar', 'baz', "\n"))),
+        stacked_file_tests =>   q(-r -x -d '/tmp'),
+        defined_or => join("\n",q(my $a;),
+                                q(my $rv = $a // 1;),
+                                q($a //= 4)),
+    );
+};
+
 # test different dereferences
 # @{$a->{key}->[1]}
-
-# Tests for 5.10
-# say
 
 # Tests for 5.12
 # keys/values/each work on arrays

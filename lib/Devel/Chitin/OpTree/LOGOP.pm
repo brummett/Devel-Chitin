@@ -119,6 +119,11 @@ sub pp_or {
     }
 }
 
+sub pp_dor {
+    my $self = shift;
+    $self->first->deparse . ' // ' . $self->other->deparse;
+}
+
 sub _format_if_conditional {
     my $code = shift;
     if (index($code, ';') == 0) {
@@ -143,6 +148,7 @@ sub _format_if_block {
 
 sub pp_andassign { _and_or_assign(shift, '&&=') }
 sub pp_orassign { _and_or_assign(shift, '||=') }
+sub pp_dorassign { _and_or_assign(shift, '//=') }
 sub _and_or_assign {
     my($self, $op) = @_;
     my $var = $self->first->deparse;
