@@ -604,6 +604,10 @@ my %scopelike_ops = (
     pp_leavesub => 1,
     leaveloop => 1,
     pp_leaveloop => 1,
+    entergiven => 1,
+    pp_entergiven => 1,
+    enterwhile => 1,
+    pp_enterwhile => 1,
 );
 sub is_scopelike {
     my $self = shift;

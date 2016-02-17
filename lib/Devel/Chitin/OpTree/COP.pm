@@ -47,9 +47,9 @@ sub _should_insert_semicolon {
 
     my $prev = ($self->pre_siblings)[-1];
     if ($prev
-        and $prev->is_null
-        and $prev->first->class eq 'LOGOP'
-        and $prev->first->other->is_scopelike
+        and $prev->children->[0]
+        and $prev->children->[0]->children->[1]
+        and $prev->children->[0]->children->[1]->is_scopelike
     ) {
         return ''; # don't put a semi after a block-like construct
     }
