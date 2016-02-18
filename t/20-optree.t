@@ -3,7 +3,7 @@ use warnings;
 
 use Devel::Chitin::OpTree;
 use Devel::Chitin::Location;
-use Test::More tests => 22;
+use Test::More tests => 23;
 
 use Fcntl qw(:flock :DEFAULT SEEK_SET SEEK_CUR SEEK_END);
 use POSIX qw(:sys_wait_h);
@@ -1021,11 +1021,20 @@ subtest 'perl-5.10.1' => sub {
     );
 };
 
+subtest 'perl-5.12' => sub {
+    _run_tests(
+        v5.12.0,
+        keys_array => join("\n",    q(my @a = (1, 2, 3, 4);),
+                                    q(keys(@a))),
+        values_array => join("\n",  q(my @a = (1, 2, 3, 4);),
+                                    q(values(@a))),
+        each_array => join("\n",    q(my @a = (1, 2, 3, 4);),
+                                    q(each(@a))),
+    );
+};
+
 # test different dereferences
 # @{$a->{key}->[1]}
-
-# Tests for 5.12
-# keys/values/each work on arrays
 
 # Tests for 5.14
 # keys/values/each/pop/push/shift/unshift/splice work on array/hash-refs
