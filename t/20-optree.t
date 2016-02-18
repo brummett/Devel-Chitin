@@ -3,7 +3,7 @@ use warnings;
 
 use Devel::Chitin::OpTree;
 use Devel::Chitin::Location;
-use Test::More tests => 23;
+use Test::More tests => 24;
 
 use Fcntl qw(:flock :DEFAULT SEEK_SET SEEK_CUR SEEK_END);
 use POSIX qw(:sys_wait_h);
@@ -1033,11 +1033,36 @@ subtest 'perl-5.12' => sub {
     );
 };
 
+subtest 'perl-5.14' => sub {
+    _run_tests(
+        v5.14.0,
+        keys_ref => join("\n",  q(my $h = {1 => 2, 3 => 4};),
+                                q(keys($h);),
+                                q(my $a = [1, 2, 3];),
+                                q(keys($a))),
+        each_ref => join("\n",  q(my $h = {1 => 2, 3 => 4};),
+                                q(my $v = each($h);),
+                                q(my $a = [1, 2, 3];),
+                                q(each($a))),
+        values_ref => join("\n",q(my $h = {1 => 2, 3 => 4};),
+                                q(values($h);),
+                                q(my $a = [1, 2, 3];),
+                                q(values($a))),
+        pop_ref => join("\n",   q(my $a = [1, 2, 3];),
+                                q(pop($a))),
+        push_ref => join("\n",  q(my $a = [1, 2, 3];),
+                                q(push($a, 1))),
+        shift_ref => join("\n", q(my $a = [1, 2, 3];),
+                                q(shift($a))),
+        unshift_ref => join("\n",   q(my $a = [1, 2, 3];),
+                                    q(unshift($a, 1))),
+        splice_ref => join("\n",    q(my $a = [1, 2, 3];),
+                                    q(splice($a, 2, 3, 4))),
+    );
+};
+
 # test different dereferences
 # @{$a->{key}->[1]}
-
-# Tests for 5.14
-# keys/values/each/pop/push/shift/unshift/splice work on array/hash-refs
 
 # Tests for 5.18
 # each() assigns to $_ in a lone while test
