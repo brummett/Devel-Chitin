@@ -6,7 +6,7 @@ use warnings;
 use Devel::Chitin::Version;
 
 use Carp;
-use Scalar::Util qw(blessed reftype weaken);
+use Scalar::Util qw(blessed reftype weaken refaddr);
 use B qw(ppname);
 
 use Devel::Chitin::OpTree::UNOP;
@@ -327,9 +327,10 @@ sub print_as_tree {
         my $file_and_line = $op->class eq 'COP'
                             ? join(':', $op->op->file, $op->op->line)
                             : '';
-        printf("%s%s %s (%s) %s\n", '  'x$level, $op->class, $name,
+        printf("%s%s %s (%s) %s 0x%x\n", '  'x$level, $op->class, $name,
                                  join(', ', @flags),
-                                 $file_and_line);
+                                 $file_and_line,
+                                 refaddr($op));
     });
 }
 
