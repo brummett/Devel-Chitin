@@ -159,19 +159,34 @@ sub pp_leaveloop {
     my $condition_op = $self->last->first;  # the and/or
     my $enterloop = $self->first;
 
+    my $loop_invocation = $condition_op->op->name eq 'and'
+                            ? 'while'
+                            : 'until';
     my($loop_content, $continue_content);
     if ($enterloop->nextop->op->name eq 'unstack') {
         # no continue
+        # loop contents are wrapped in a lineseq
         $loop_content = '{' . $self->_indent_block_text( $condition_op->other->deparse ) . '}';
         $continue_content = '';
     } else {
         # has continue
+        # loop and continue contents are wrapped in scopes
         my $children = $condition_op->other->children;
         $loop_content = $children->[0]->deparse;
         $continue_content = ' continue ' . $children->[1]->deparse;
     }
 
-    'while (' . $condition_op->first->deparse . ') ' . $loop_content . $continue_content;
+    my $loop_invocation;
+    my $loop_condition = $condition_op->first->deparse;
+    if ($condition_op->op->name eq 'and') {
+        $loop_invocation = 'while';
+
+    } else {
+        $loop_invocation = 'until';
+        $loop_condition =~ s/^!//;
+    }
+
+    "$loop_invocation ($loop_condition) ${loop_content}${continue_content}";
 }
 
 # leave is normally a LISTOP, but this happens when this is run
