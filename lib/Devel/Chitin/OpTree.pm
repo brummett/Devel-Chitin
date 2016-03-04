@@ -679,6 +679,8 @@ sub _indent_block_text {
     my $lines = $text =~ s/\n/\n\t/g;
     if ($lines > 1) {
         $text .= "\n";
+    } elsif ($lines == 1 and index($text, "\n") == 0) {
+        $text .= "\n";
     } else {
         $text = " $text ";
     }

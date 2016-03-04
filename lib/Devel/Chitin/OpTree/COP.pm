@@ -46,10 +46,19 @@ sub _should_insert_semicolon {
     return '' unless $is_subsequent_cop;
 
     my $prev = ($self->pre_siblings)[-1];
+    my $prev_parent; $prev_parent = $prev->parent if $prev;
+
     if ($prev
-        and $prev->children->[0]
-        and $prev->children->[0]->children->[1]
-        and $prev->children->[0]->children->[1]->is_scopelike
+        and (
+              # $prev was some kind of block
+              $prev->is_scopelike
+              or
+              # $prev was the end of an if-block
+              ( $prev->children->[0]
+                and $prev->children->[0]->children->[1]
+                and $prev->children->[0]->children->[1]->is_scopelike
+              )
+        )
     ) {
         return ''; # don't put a semi after a block-like construct
     }
