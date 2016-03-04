@@ -1093,8 +1093,10 @@ sub _run_tests {
             die "Couldn't compile code for $test_name: $@";
         }
         my $ops = _get_optree_for_sub_named($test_name);
-        is(eval { $ops->deparse }, $expected, "code for $test_name")
+        my $got = eval { $ops->deparse };
+        is($got, $expected, "code for $test_name")
             || do {
+                diag("showing whitespace:\n>>".join("<<\n>>", split("\n", $got))."<<");
                 diag("\$\@: $@\nTree:\n");
                 $ops->print_as_tree
             };
