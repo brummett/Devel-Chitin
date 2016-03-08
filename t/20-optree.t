@@ -846,8 +846,14 @@ subtest 'program flow' => sub {
                                     q(until ($a && $b) {),
                                    qq(\tprint 'hi'),
                                     q(})),
-        #while_postfix => join("\n", q(my $a;),
-        #                            q($a++ while $a < 5)),
+        postfix_while => join("\n", q(my $a;),
+                                    q(++$a while ($a < 5);),
+                                    q(print 'hi' while ($a < 5);),
+                                    q(do { ++$a;print 'hi' } while ($a < 5))),
+        postfix_until => join("\n", q(my $a;),
+                                    q(++$a until ($a < 5);),
+                                    q(print 'hi' until ($a < 5);),
+                                    q(do { ++$a;print 'hi' } until ($a < 5))),
     );
         # continue last next redo
         # local for foreach while until LABELs

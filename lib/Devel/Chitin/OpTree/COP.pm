@@ -51,7 +51,10 @@ sub _should_insert_semicolon {
     if ($prev
         and (
               # $prev was some kind of block
-              $prev->is_scopelike
+              ( $prev->is_scopelike
+                and
+                ! $prev->_deparse_postfix_while
+              )
               or
               # $prev was the end of an if-block
               ( $prev->children->[0]

@@ -26,6 +26,11 @@ sub pp_lineseq {
 
 sub pp_leave {
     my $self = shift;
+
+    if (my $deparsed = $self->_deparse_postfix_while) {
+        return $deparsed;
+    }
+
     $self->_enter_scope;
     my $deparsed = $self->pp_lineseq(@_, skip => 1) || ';';
     $self->_leave_scope;

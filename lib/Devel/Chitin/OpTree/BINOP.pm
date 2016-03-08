@@ -147,6 +147,10 @@ sub pp_reverse {
 sub pp_leaveloop {
     my $self = shift;
 
+    if (my $deparsed = $self->_deparse_postfix_while) {
+        return $deparsed;
+    }
+
     # while loops are structured like this:
     # leaveloop
     #   enterloop
@@ -187,6 +191,40 @@ sub pp_leaveloop {
     }
 
     "$loop_invocation ($loop_condition) ${loop_content}${continue_content}";
+}
+
+# Based on B::Deparse::is_miniwhile()
+sub _deparse_postfix_while {
+    my $self = shift;
+
+    my $top = $self->children->[1];
+    my $condition_op;
+    if ($self->op->name eq 'leave'
+        and $top
+        and $top->is_null
+        and $top->class eq 'UNOP'
+        and ($condition_op = $top->first)
+        and ($condition_op->op->name eq 'and' or $condition_op->op->name eq 'or')
+        and (
+            $top->first->children->[1]->op->name eq 'lineseq'
+            or
+            ( $top->first->op->name eq 'lineseq'
+              and ! $top->first->children->[1]->is_null
+              and $top->first->children->[1]->op->name eq 'unstack'
+            )
+        )
+    ) {
+        my $type;
+        my $condition = $condition_op->first->deparse;
+        if ($condition_op->op->name eq 'and') {
+            $type = 'while';
+        } else {
+            $type = 'until';
+            $condition =~ s/^!//;
+        }
+        return $condition_op->children->[1]->deparse . " $type ($condition)";
+    }
+    return '';
 }
 
 # leave is normally a LISTOP, but this happens when this is run
