@@ -854,6 +854,10 @@ subtest 'program flow' => sub {
                                     q(++$a until ($a < 5);),
                                     q(print 'hi' until ($a < 5);),
                                     q(do { ++$a;print 'hi' } until ($a < 5))),
+        for_loop => join("\n",      q(for (my $a = 0; $a < 10; ++$a) {),
+                                   qq(\tprint 'hi';),
+                                   qq(\tprint 'there'),
+                                    q(})),
     );
         # continue last next redo
         # local for foreach while until LABELs

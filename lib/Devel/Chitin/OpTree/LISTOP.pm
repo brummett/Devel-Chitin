@@ -19,7 +19,12 @@ sub pp_lineseq {
 
     my $start = $params{skip} || 0;
     for (my $i = $start; $i < @$children; $i++) {
-        $deparsed .= $children->[$i]->deparse;
+        if ($children->[$i]->is_for_loop) {
+            $deparsed .= $children->[$i]->_deparse_for_loop;
+            $i += $children->[$i]->_num_ops_in_for_loop;
+        } else {
+            $deparsed .= $children->[$i]->deparse;
+        }
     }
     $deparsed;
 }

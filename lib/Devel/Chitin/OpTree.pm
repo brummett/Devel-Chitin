@@ -618,6 +618,66 @@ sub is_scopelike {
     $scopelike_ops{$op_name};
 }
 
+sub is_for_loop {
+    my $self = shift;
+    # $self, here, is the initialization part of the for-loop, usually an sassign.
+    # The sibling is either:
+    # 1) a lineseq whose first child is a nextstate and second child is a leaveloop
+    # 2) an unstack whose sibling is a leaveloop
+    my $sib = $self->sibling;
+    return '' if !$sib or $self->isa('Devel::Chitin::OpTree::COP') or $self->is_null;
+
+    my $name = $sib->op->name;
+    if ($name eq 'lineseq') {
+        my($first ,$second) = @{$sib->children};
+        if ($first && ! $first->is_null && $first->isa('Devel::Chitin::OpTree::COP')
+            && $second && ! $second->is_null && $second->op->name eq 'leaveloop'
+        ) {
+            return 1;
+        }
+
+    } elsif ($name eq 'unstack' && ($sib->op->flags & B::OPf_SPECIAL)) {
+        my $sibsib = $sib->sibling;
+        return $sibsib && ! $sibsib->is_null && $sibsib->op->name eq 'leaveloop'
+    }
+    return ''
+}
+
+sub _num_ops_in_for_loop {
+    my $self = shift;
+    $self->sibling->op->name eq 'unstack' ? 2 : 1;
+}
+
+sub _deparse_for_loop {
+    my $self = shift;
+    # A for-loop is structured like this:
+    # nextstate
+    # sassign  ( initialization)
+    #   ...
+    # unstack
+    # leaveloop
+    #   enterloop
+    #   null
+    #       and
+    #           loop-test
+    #               ...
+    #           lineseq
+    #               leave
+    #                   ... (loop body)
+    #               loop-continue
+    my $init = $self->deparse;
+    my $sib = $self->sibling;
+    my $leaveloop = $sib->op->name eq 'unstack' ? $sib->sibling : $sib->children->[1];
+    my $and_op = $leaveloop->children->[1]->children->[0];
+    my $test_op = $and_op->children->[0];
+    my $test = $test_op->deparse;
+    my $body_op = $and_op->children->[1]->first;
+    my $cont_op = $body_op->sibling;
+    my $cont = $cont_op->deparse;
+
+    "for ($init; $test; $cont) " . $body_op->deparse;
+}
+
 my %control_chars = ((map { chr($_) => '\c'.chr($_ + 64) } (1 .. 26)),  # \cA .. \cZ
                      "\c@" => '\c@', "\c[" => '\c[');
 my $control_char_rx = join('|', sort keys %control_chars);
