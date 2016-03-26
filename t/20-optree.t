@@ -863,7 +863,7 @@ subtest 'program flow' => sub {
                                    qq(\tprint 'hi';),
                                    qq(\tprint 'there'),
                                     q(}),
-                                    q(foreach our $a (1, 2, @a) {),
+                                    q(foreach our $a (@a) {),
                                    qq(\tprint 'hi';),
                                    qq(\tprint 'there'),
                                     q(}),

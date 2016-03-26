@@ -221,11 +221,16 @@ sub _deparse_foreach {
 
     my $list_op = $enteriter->children->[1];
     my $iter_list;
-    if ($list_op->is_null and $enteriter->op->private & B::OPpITER_REVERSED) {
-        $iter_list = $list_op->Devel::Chitin::OpTree::LISTOP::pp_list;
-
-    } elsif ($enteriter->op->flags & B::OPf_STACKED) {
+    if ($enteriter->op->flags & B::OPf_STACKED
+             and
+             $list_op->children->[2]
+    ) {
+        # range
         $iter_list = '(' . join(' .. ', map { $_->deparse } @{$list_op->children}[1,2]) . ')';
+
+    } elsif ($list_op->is_null) {# and $enteriter->op->private & B::OPpITER_REVERSED) {
+        # either foreach(reverse @list) or foreach (@list)
+        $iter_list = $list_op->Devel::Chitin::OpTree::LISTOP::pp_list;
 
     } else {
         $iter_list = $list_op->deparse;
