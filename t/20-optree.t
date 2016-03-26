@@ -858,6 +858,15 @@ subtest 'program flow' => sub {
                                    qq(\tprint 'hi';),
                                    qq(\tprint 'there'),
                                     q(})),
+        foreach_loop => join("\n",  q(my @a;),
+                                    q(foreach my $a (1, 2, @a) {),
+                                   qq(\tprint 'hi';),
+                                   qq(\tprint 'there'),
+                                    q(}),
+                                    q(foreach our $a (1, 2, @a) {),
+                                   qq(\tprint 'hi';),
+                                   qq(\tprint 'there'),
+                                    q(})),
     );
         # continue last next redo
         # local for foreach while until LABELs

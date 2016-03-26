@@ -151,6 +151,18 @@ sub pp_leaveloop {
         return $deparsed;
     }
 
+    my $enterloop = $self->first;
+    if ($enterloop->op->name eq 'enteriter') {
+        return $self->_deparse_foreach;
+
+    } else {
+        return $self->_deparse_while_until;
+    }
+}
+
+sub _deparse_while_until {
+    my $self = shift;
+
     # while loops are structured like this:
     # leaveloop
     #   enterloop
@@ -162,16 +174,15 @@ sub pp_leaveloop {
     #         loop contents
     my $condition_op = $self->last->first;  # the and/or
     my $enterloop = $self->first;
-
     my $loop_invocation = $condition_op->op->name eq 'and'
                             ? 'while'
                             : 'until';
-    my($loop_content, $continue_content);
+    my $continue_content = '';
+    my $loop_content;
     if ($enterloop->nextop->op->name eq 'unstack') {
         # no continue
         # loop contents are wrapped in a lineseq
         $loop_content = '{' . $self->_indent_block_text( $condition_op->other->deparse ) . '}';
-        $continue_content = '';
     } else {
         # has continue
         # loop and continue contents are wrapped in scopes
@@ -180,7 +191,6 @@ sub pp_leaveloop {
         $continue_content = ' continue ' . $children->[1]->deparse;
     }
 
-    my $loop_invocation;
     my $loop_condition = $condition_op->first->deparse;
     if ($condition_op->op->name eq 'and') {
         $loop_invocation = 'while';
@@ -191,6 +201,38 @@ sub pp_leaveloop {
     }
 
     "$loop_invocation ($loop_condition) ${loop_content}${continue_content}";
+}
+
+sub _deparse_foreach {
+    my $self = shift;
+    my $enteriter = $self->first;
+
+    # foreach loops look like this:
+    # leaveloop
+    #   enteriter
+    #       pushmark
+    #       list
+    #           ... (iterate-over list)
+    #       iteration variable
+    #   null
+    #       and
+    #           iter
+    #           lineseq
+    #               loop contents
+    my $enteriter = $self->first;
+    my $list_op = $enteriter->children->[1];
+    my $iter_list = $list_op->deparse;
+    if ($list_op->is_null and $enteriter->op->private & B::OPpITER_REVERSED) {
+        $iter_list = "reverse $iter_list";
+    }
+
+    my $var_op = $enteriter->children->[2];
+    my $var = $var_op
+                ? '$' . $var_op->deparse(skip_sigil => 1)
+                : $enteriter->pp_padsv;
+
+    my $loop_content = $self->_indent_block_text( $enteriter->sibling->first->first->sibling->deparse );
+    "foreach $var $iter_list {$loop_content}";
 }
 
 # Based on B::Deparse::is_miniwhile()
