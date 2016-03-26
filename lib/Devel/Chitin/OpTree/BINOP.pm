@@ -220,10 +220,16 @@ sub _deparse_foreach {
     #           lineseq
     #               loop contents
     my $enteriter = $self->first;
+
     my $list_op = $enteriter->children->[1];
-    my $iter_list = $list_op->deparse;
+    my $iter_list;
     if ($list_op->is_null and $enteriter->op->private & B::OPpITER_REVERSED) {
         $iter_list = "reverse $iter_list";
+
+    } elsif ($enteriter->op->flags & B::OPf_STACKED) {
+        $iter_list = '(' . join(' .. ', map { $_->deparse } @{$list_op->children}[1,2]) . ')';
+    } else {
+        $iter_list = $list_op->deparse;
     }
 
     my $var_op = $enteriter->children->[2];

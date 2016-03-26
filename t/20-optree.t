@@ -866,6 +866,10 @@ subtest 'program flow' => sub {
                                     q(foreach our $a (1, 2, @a) {),
                                    qq(\tprint 'hi';),
                                    qq(\tprint 'there'),
+                                    q(}),
+        foreach_range => join("\n", q(foreach my $a (1 .. 10) {),
+                                   qq(\tprint 'hi';),
+                                   qq(\tprint 'there'),
                                     q(})),
     );
         # continue last next redo
