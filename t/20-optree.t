@@ -875,6 +875,8 @@ subtest 'program flow' => sub {
                                    qq(\tprint 'hi';),
                                    qq(\tprint 'there'),
                                     q(})),
+        postfix_foreach => join("\n",   q(my @a;),
+                                        q(print() foreach (@a))),
     );
         # continue last next redo
         # local for foreach while until LABELs

@@ -6,6 +6,8 @@ use Devel::Chitin::Version;
 use strict;
 use warnings;
 
+use Carp;
+
 # probably an ex-lineseq with 2 kids
 *pp_lineseq = \&Devel::Chitin::OpTree::LISTOP::pp_lineseq;
 
@@ -241,8 +243,16 @@ sub _deparse_foreach {
                 ? '$' . $var_op->deparse(skip_sigil => 1)
                 : $enteriter->pp_padsv;
 
-    my $loop_content = $self->_indent_block_text( $enteriter->sibling->first->first->sibling->deparse );
-    "foreach $var $iter_list {$loop_content}";
+    my $loop_content_op = $enteriter->sibling->first->first->sibling; # should be a lineseq
+    my $loop_content = $loop_content_op->deparse;
+
+    if ($loop_content_op->first->isa('Devel::Chitin::OpTree::COP')) {
+        $loop_content = $self->_indent_block_text( $loop_content );
+        "foreach $var $iter_list {$loop_content}";
+    } else {
+        Carp::croak("In postfix foreach, expected loop var '\$_', but got '$var'") unless $var eq '$_';
+        "$loop_content foreach $iter_list"
+    }
 }
 
 # Based on B::Deparse::is_miniwhile()
