@@ -358,6 +358,14 @@ sub pp_smartmatch {
     }
 }
 
+sub pp_lslice {
+    my $self = shift;
+
+    my $list = $self->last->deparse(skip_parens => 1);
+    my $idx = $self->first->deparse(skip_parens => 1);
+    "($list)[$idx]";
+}
+
 # Operators
 #               OP name         operator    targmy?
 foreach my $a ( [ pp_add        => '+',     1 ],

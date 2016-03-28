@@ -75,6 +75,8 @@ subtest 'assignment' => sub {
         hasf_ref_slice_assignment => join("\n", q(my $hash = {};),
                                                 q(my @list;),
                                                 q(@$hash{'one', @list, 'last'} = @list)),
+        list_slice => join("\n",    q(my $a = (1, 2, 3)[1];),
+                                    q($a = (caller(1))[2, 3])),
     );
 };
 
@@ -1110,6 +1112,7 @@ subtest 'perl-5.20 incompatibilities' => sub {
     );
 };
 
+# There doesn't seem to be any way to disinguish between @{ $a->[1] } and $a->[1]->@* :(
 subtest 'perl-5.20' => sub {
     _run_tests(
         requires_version(v5.20.0),
