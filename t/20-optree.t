@@ -1138,7 +1138,7 @@ sub excludes_version {
 
 sub _run_tests {
     my $use_version = '';
-    if (reftype($_[0]) eq 'CODE') {
+    if (ref($_[0]) and reftype($_[0]) eq 'CODE') {
         $use_version = shift->();
         return unless defined $use_version;
     }
