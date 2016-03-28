@@ -45,13 +45,11 @@ subtest 'assignment' => sub {
                                       q(my($a, $b) = (@a, @b);),
                                       q(@a = (@b, @a)),
             ),
-        list_index_assignment => join("\n", q(my @the_list;),
-                                            q(my $idx;),
+        list_index_assignment => join("\n", q(my(@the_list, $idx);),
                                             q($the_list[2] = 'foo';),
                                             q($the_list[$idx] = 'bar')),
 
-        list_slice_assignment => join("\n", q(my @the_list;),
-                                            q(my $idx;),
+        list_slice_assignment => join("\n", q(my(@the_list, $idx);),
                                             q(my @other_list;),
                                             q(@the_list[1, $idx, 3, @other_list] = @other_list[1, 2, 3])),
         # These hash assigments are done with aassign, so there's no way to
@@ -60,8 +58,7 @@ subtest 'assignment' => sub {
                                         q(our %b = ('three', 3, 'four', 4);),
                                         q(%a = %b;),
                                         q(%a = (%b, %a))),
-        hash_slice_assignment => join("\n", q(my %the_hash;),
-                                            q(my @indexes;),
+        hash_slice_assignment => join("\n", q(my(%the_hash, @indexes);),
                                             q(@the_hash{'1', 'key', @indexes} = (1, 2, 3))),
 
         scalar_ref_assignment => join("\n", q(my $a = 1;),
@@ -70,8 +67,7 @@ subtest 'assignment' => sub {
 
         array_ref_assignment => join("\n",  q(my $a = [1, 2];),
                                             q(@$a = (1, 2))),
-        array_ref_slice_assignment => join("\n",    q(my $list;),
-                                                    q(my $other_list;),
+        array_ref_slice_assignment => join("\n",    q(my($list, $other_list);),
                                                     q(@$list[1, @$other_list] = (1, 2, 3))),
 
         hash_ref_assignment => join("\n",   q(my $a = {1 => 1, two => 2};),
@@ -126,8 +122,7 @@ subtest 'subroutine call' => sub {
         'call_class_method_from_package' => q(Some::Other::Package->foo(1, 2, 3)),
         'call_instance_method' => join("\n",    q(my $obj;),
                                                 q($obj->foo(1, 2, 3))),
-        'call_instance_variable_method' => join("\n",   q(my $obj;),
-                                                        q(my $method;),
+        'call_instance_variable_method' => join("\n",   q(my($obj, $method);),
                                                         q($obj->$method(1, 2, 3))),
         'call_class_variable_method' => join("\n",  q(my $method;),
                                                     q(Some::Other::Package->$method(1, 2, 3))),
