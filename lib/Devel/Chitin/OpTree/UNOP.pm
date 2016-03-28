@@ -340,6 +340,8 @@ foreach my $a ( [ pp_scalar     => 'scalar',    0 ],
                 [ pp_untie      => 'untie',     0 ],
                 [ pp_getpeername=> 'getpeername',   0 ],
                 [ pp_getsockname=> 'getsockname',   0 ],
+                [ pp_caller     => 'caller',    0 ],
+                [ pp_exit       => 'exit',      0 ],
 ) {
     my($pp_name, $perl_name, $targmy) = @$a;
     my $sub = sub {
@@ -351,6 +353,11 @@ foreach my $a ( [ pp_scalar     => 'scalar',    0 ],
     };
     no strict 'refs';
     *$pp_name = $sub;
+}
+
+sub pp_umask {
+    my $self = shift;
+    'umask(' . $self->_as_octal( $self->first->deparse(skip_quotes => 1) ) . ')';
 }
 
 # Note that there's no way to tell the difference between "!" and "not"

@@ -432,7 +432,6 @@ sub pp_last { 'last' }
 sub pp_redo { 'redo' }
 sub pp_const { q('constant optimized away') }
 
-
 sub pp_pop { 'pop()' }
 sub pp_shift { 'shift()' }
 sub pp_close { 'close()' }
@@ -456,38 +455,14 @@ sub pp_ghostent { 'gethostent()' }
 sub pp_gnetent { 'getnetent()' }
 sub pp_gprotoent { 'getprotoent()' }
 sub pp_gservent { 'getservent()' }
+sub pp_caller { 'caller()' }
+sub pp_exit { 'exit()' }
+sub pp_umask { 'umask()' }
 
 sub pp_eof {
     shift->op->flags & B::OPf_SPECIAL
         ? 'eof()'
         : 'eof';
-}
-
-# umask is a base-op with no args and a UNOP with one.
-# we'll just handle both cases here
-sub pp_umask {
-    my $self = shift;
-    my $children = $self->children;
-    if (@$children) {
-        'umask(' . $self->_as_octal($children->[0]->deparse(skip_quotes => 1)) . ')';
-    } else {
-        'umask()';
-    }
-}
-
-# caller is a base-op with no args and UNOP with one
-sub pp_caller {
-    my $children = shift->children;
-    my $param = @$children ? $children->[0]->deparse
-                           : '';
-    "caller($param)";
-}
-
-# exit is a base-op with no args and UNOP with one
-sub pp_exit {
-    my $children = shift->children;
-    my $param = @$children ? $children->[0]->deparse : '';
-    "exit($param)";
 }
 
 # file test operators
