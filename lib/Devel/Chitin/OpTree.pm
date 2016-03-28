@@ -10,6 +10,7 @@ use Scalar::Util qw(blessed reftype weaken refaddr);
 use B qw(ppname);
 
 use Devel::Chitin::OpTree::UNOP;
+use Devel::Chitin::OpTree::UNOP_AUX;
 use Devel::Chitin::OpTree::SVOP;
 use Devel::Chitin::OpTree::PADOP;
 use Devel::Chitin::OpTree::COP;
