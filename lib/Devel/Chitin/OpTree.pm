@@ -384,10 +384,6 @@ sub _encompassing_scope_op {
     $op || $self->root_op;
 }
 
-sub pp_const {
-    q('constant optimized away');
-}
-
 # Usually, rand/srand/pop/shift is an UNOP, but with no args, it's a base-OP
 foreach my $d ( [ pp_rand       => 'rand' ],
                 [ pp_srand      => 'srand' ],
@@ -403,15 +399,6 @@ foreach my $d ( [ pp_rand       => 'rand' ],
     no strict 'refs';
     *$pp_name = $sub;
 }
-
-sub pp_pop { 'pop()' }
-sub pp_shift { 'shift()' }
-sub pp_close { 'close()' }
-sub pp_getc { 'getc()' }
-sub pp_tell { 'tell()' }
-sub pp_enterwrite { 'write()' }
-sub pp_fork { 'fork()' }
-sub pp_tms { 'times()' }
 
 # Chdir and sleep can be either a UNOP or base-OP
 foreach my $d ( [ pp_chdir => 'chdir' ],
@@ -437,7 +424,23 @@ foreach my $d ( [ pp_chdir => 'chdir' ],
 sub pp_enter { '' }
 sub pp_stub { ';' }
 sub pp_unstack { '' }
+sub pp_undef { 'undef' }
+sub pp_wantarray { 'wantarray' }
+sub pp_dump { 'dump' }
+sub pp_next { 'next' }
+sub pp_last { 'last' }
+sub pp_redo { 'redo' }
+sub pp_const { q('constant optimized away') }
 
+
+sub pp_pop { 'pop()' }
+sub pp_shift { 'shift()' }
+sub pp_close { 'close()' }
+sub pp_getc { 'getc()' }
+sub pp_tell { 'tell()' }
+sub pp_enterwrite { 'write()' }
+sub pp_fork { 'fork()' }
+sub pp_tms { 'times()' }
 sub pp_ggrent { 'getgrent()' }
 sub pp_eggrent { 'endgrent()' }
 sub pp_ehostent { 'endhostent()' }
@@ -453,12 +456,6 @@ sub pp_ghostent { 'gethostent()' }
 sub pp_gnetent { 'getnetent()' }
 sub pp_gprotoent { 'getprotoent()' }
 sub pp_gservent { 'getservent()' }
-sub pp_undef { 'undef' }
-sub pp_wantarray { 'wantarray' }
-sub pp_dump { 'dump' }
-sub pp_next { 'next' }
-sub pp_last { 'last' }
-sub pp_redo { 'redo' }
 
 sub pp_eof {
     shift->op->flags & B::OPf_SPECIAL
