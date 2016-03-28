@@ -98,11 +98,13 @@ sub pp_aslice {
     push(@_, '[', ']'),
     goto &_aslice_hslice_builder;
 }
+*pp_kvaslice = \&pp_aslice;
 
 sub pp_hslice {
     push(@_, '{', '}');
     goto &_aslice_hslice_builder;
 }
+*pp_kvhslice = \&pp_hslice;
 
 my %aslice_hslice_allowed_ops = map { $_ => 1 } qw( padav padhv rv2av rv2hv );
 sub _aslice_hslice_builder {
@@ -111,22 +113,26 @@ sub _aslice_hslice_builder {
     # first child is no-op pushmark, followed by slice elements, last is the array to slice
     my $children = $self->children;
 
+    my($child1, $child2, $child3) = @$children;
     unless (@$children == 3
             and
-            $children->[0]->op->name eq 'pushmark'
+            $child1->op->name eq 'pushmark'
             and
-            ( $children->[1]->op->name eq 'list'
-                or
-              $children->[1]->op->name eq 'padav'
+            ( $child2->op->name eq 'list'
+                or $child2->_ex_name eq 'pp_list'
+                or $child2->op->name eq 'padav'
             )
             and
-            $aslice_hslice_allowed_ops{ $children->[2]->op->name }
+            $aslice_hslice_allowed_ops{ $child3->op->name }
     ) {
         die "unexpected aslice/hslice for $open_paren $close_paren";
     }
 
+    my $sigil = ($self->op->name eq 'kvhslice'
+                 or $self->op->name eq 'kvaslice') ? '%' : '@';
+
     my $array_name = substr($self->children->[2]->deparse, 1); # remove the sigil
-    "\@${array_name}" . $open_paren . $children->[1]->deparse(skip_parens => 1) . $close_paren;
+    "${sigil}${array_name}" . $open_paren . $children->[1]->deparse(skip_parens => 1) . $close_paren;
 }
 
 sub pp_unpack {

@@ -3,7 +3,7 @@ use warnings;
 
 use Devel::Chitin::OpTree;
 use Devel::Chitin::Location;
-use Test::More tests => 26;
+use Test::More tests => 27;
 
 use Fcntl qw(:flock :DEFAULT SEEK_SET SEEK_CUR SEEK_END);
 use POSIX qw(:sys_wait_h);
@@ -1110,7 +1110,17 @@ subtest 'perl-5.20 incompatibilities' => sub {
     );
 };
 
-
+subtest 'perl-5.20' => sub {
+    _run_tests(
+        requires_version(v5.20.0),
+        hash_slice_hash => join("\n",   q(my(%h, $h);),
+                                        q(my %slice = %h{'key1', 'key2'};),
+                                        q(%slice = %$h{'key1', 'key2'})),
+        hash_slice_array=> join("\n",   q(my(@a, $a);),
+                                        q(my %slice = %a[1, 2];),
+                                        q(%slice = %$a[1, 2])),
+    );
+};
 
 sub requires_version {
     my $required_version = shift;
