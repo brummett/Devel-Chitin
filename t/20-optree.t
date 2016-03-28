@@ -8,7 +8,7 @@ use Test::More tests => 25;
 use Fcntl qw(:flock :DEFAULT SEEK_SET SEEK_CUR SEEK_END);
 use POSIX qw(:sys_wait_h);
 use Socket;
-use Scalar::Util qw(isvstring);
+use Scalar::Util qw(reftype);
 
 subtest construction => sub {
     plan tests => 5;
@@ -1030,7 +1030,7 @@ subtest time => sub {
 
 subtest 'perl-5.10.1' => sub {
     _run_tests(
-        v5.10.1,
+        requires_version(v5.10.1),
         say_fcn => join("\n",   q(my $a = say();),
                                 q(say('foo bar', 'baz', "\n");),
                                 q(say F ('foo bar', 'baz', "\n");),
@@ -1057,7 +1057,7 @@ subtest 'perl-5.10.1' => sub {
 
 subtest 'perl-5.12' => sub {
     _run_tests(
-        v5.12.0,
+        requires_version(v5.12.0),
         keys_array => join("\n",    q(my @a = (1, 2, 3, 4);),
                                     q(keys(@a))),
         values_array => join("\n",  q(my @a = (1, 2, 3, 4);),
@@ -1069,7 +1069,7 @@ subtest 'perl-5.12' => sub {
 
 subtest 'perl-5.14' => sub {
     _run_tests(
-        v5.14.0,
+        requires_version(v5.14.0),
         keys_ref => join("\n",  q(my $h = {1 => 2, 3 => 4};),
                                 q(keys($h);),
                                 q(my $a = [1, 2, 3];),
@@ -1097,7 +1097,7 @@ subtest 'perl-5.14' => sub {
 
 subtest 'perl-5.18' => sub {
     _run_tests(
-        v5.18.0,
+        requires_version(v5.18.0),
         dump_expr => join("\n", q(my $expr;),
                                 q(dump $expr;),
                                 q(dump 'foo' . $expr)),
@@ -1113,16 +1113,35 @@ subtest 'perl-5.18' => sub {
 # Tests for 5.18
 # each() assigns to $_ in a lone while test
 
-sub _run_tests {
-    my $use_version = '';
-    if (isvstring $_[0]) {
-        my $required_version = shift;
+sub requires_version {
+    my $required_version = shift;
+    return sub {
         my $required_version_string = sprintf('%vd', $required_version);
         if ($^V lt $required_version) {
             plan skip_all => "needs version $required_version_string";
             return;
         }
-        $use_version = "use $required_version_string;";
+        return "use $required_version_string;";
+    };
+}
+
+sub excludes_version {
+    my $required_version = shift;
+    return sub {
+        my $required_version_string = sprintf('%vd', $required_version);
+        if ($^V gt $required_version) {
+            plan skip_all => "doesn't work starting with version $required_version_string";
+            return;
+        }
+        return '';
+    };
+}
+
+sub _run_tests {
+    my $use_version = '';
+    if (reftype($_[0]) eq 'CODE') {
+        $use_version = shift->();
+        return unless defined $use_version;
     }
 
     my %tests = @_;
