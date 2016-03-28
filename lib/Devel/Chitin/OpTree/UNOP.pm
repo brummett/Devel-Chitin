@@ -355,6 +355,19 @@ foreach my $a ( [ pp_scalar     => 'scalar',    0 ],
     *$pp_name = $sub;
 }
 
+# These look like keywords but take an argument
+foreach my $a ( [ pp_dump       => 'dump' ],
+) {
+    my($pp_name, $perl_name) = @$a;
+    my $sub = sub {
+        my $self = shift;
+        my $arg = $self->first->deparse;
+        "${perl_name} $arg";
+    };
+    no strict 'refs';
+    *$pp_name = $sub;
+}
+
 sub pp_umask {
     my $self = shift;
     'umask(' . $self->_as_octal( $self->first->deparse(skip_quotes => 1) ) . ')';

@@ -3,7 +3,7 @@ use warnings;
 
 use Devel::Chitin::OpTree;
 use Devel::Chitin::Location;
-use Test::More tests => 24;
+use Test::More tests => 25;
 
 use Fcntl qw(:flock :DEFAULT SEEK_SET SEEK_CUR SEEK_END);
 use POSIX qw(:sys_wait_h);
@@ -1095,8 +1095,15 @@ subtest 'perl-5.14' => sub {
     );
 };
 
-# test different dereferences
-# @{$a->{key}->[1]}
+subtest 'perl-5.18' => sub {
+    _run_tests(
+        v5.18.0,
+        dump_expr => join("\n", q(my $expr;),
+                                q(dump $expr;),
+                                q(dump 'foo' . $expr)),
+    );
+};
+
 
 # Tests for 5.18
 # each() assigns to $_ in a lone while test
