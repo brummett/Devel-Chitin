@@ -1101,6 +1101,11 @@ subtest 'perl-5.18' => sub {
         dump_expr => join("\n", q(my $expr;),
                                 q(dump $expr;),
                                 q(dump 'foo' . $expr)),
+        next_last_redo_expr => join("\n",   q(foreach my $a (1, 2) {),
+                                           qq(\tnext \$a;),
+                                           qq(\tlast 'foo' . \$a;),
+                                           qq(\tredo \$a + \$a),
+                                            q(})),
     );
 };
 

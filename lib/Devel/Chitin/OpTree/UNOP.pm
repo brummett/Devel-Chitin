@@ -357,6 +357,9 @@ foreach my $a ( [ pp_scalar     => 'scalar',    0 ],
 
 # These look like keywords but take an argument
 foreach my $a ( [ pp_dump       => 'dump' ],
+                [ pp_next       => 'next' ],
+                [ pp_last       => 'last' ],
+                [ pp_redo       => 'redo' ],
 ) {
     my($pp_name, $perl_name) = @$a;
     my $sub = sub {
