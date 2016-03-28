@@ -14,6 +14,18 @@ sub pp_goto {
     'goto ' . shift->op->pv;
 }
 
+sub pp_next {
+    'next ' . shift->op->pv;
+}
+
+sub pp_last {
+    'last ' . shift->op->pv;
+}
+
+sub pp_redo {
+    'redo ' . shift->op->pv;
+}
+
 sub pp_trans {
     my $self = shift;
 

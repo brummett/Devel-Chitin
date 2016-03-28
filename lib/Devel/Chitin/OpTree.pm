@@ -456,6 +456,9 @@ sub pp_gservent { 'getservent()' }
 sub pp_undef { 'undef' }
 sub pp_wantarray { 'wantarray' }
 sub pp_dump { 'dump' }
+sub pp_next { 'next' }
+sub pp_last { 'last' }
+sub pp_redo { 'redo' }
 
 sub pp_eof {
     shift->op->flags & B::OPf_SPECIAL

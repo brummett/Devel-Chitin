@@ -877,11 +877,13 @@ subtest 'program flow' => sub {
                                     q(})),
         postfix_foreach => join("\n",   q(my @a;),
                                         q(print() foreach (@a))),
+        next_last_redo => join("\n",q(THE_LABEL:),
+                                    q(foreach $_ (1, 2, 3) {),
+                                   qq(\tnext;),
+                                   qq(\tlast THE_LABEL;),
+                                   qq(\tredo),
+                                    q(})),
     );
-        # continue last next redo
-        # local for foreach while until LABELs
-        # ...
-        # lots of info in "perldoc perlsyn"
 };
 
 #subtest 'misc stuff' => sub {
