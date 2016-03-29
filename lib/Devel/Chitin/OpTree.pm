@@ -10,7 +10,6 @@ use Scalar::Util qw(blessed reftype weaken refaddr);
 use B qw(ppname);
 
 use Devel::Chitin::OpTree::UNOP;
-use Devel::Chitin::OpTree::UNOP_AUX;
 use Devel::Chitin::OpTree::SVOP;
 use Devel::Chitin::OpTree::PADOP;
 use Devel::Chitin::OpTree::COP;
@@ -22,6 +21,11 @@ use Devel::Chitin::OpTree::LOGOP_AUX;
 use Devel::Chitin::OpTree::LISTOP;
 use Devel::Chitin::OpTree::LOOP;
 use Devel::Chitin::OpTree::PMOP;
+BEGIN {
+    if ($^V >= v5.22.0) {
+        require Devel::Chitin::OpTree::UNOP_AUX;
+    }
+}
 
 my %objs_for_op;
 sub _obj_for_op {
