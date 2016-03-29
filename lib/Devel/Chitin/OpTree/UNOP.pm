@@ -423,6 +423,13 @@ sub pp_require {
     'require ' . $name;
 }
 
+sub pp_aelem {
+    my $self = shift;
+    # This is likely an optimized-out op where ->first is a pp_multideref
+    # that'll do all the work for us
+    $self->first->deparse;
+}
+
 # Operators
 #               OP name         perl op   pre?  targmy?
 foreach my $a ( [ pp_preinc     => '++',    1,  0 ],

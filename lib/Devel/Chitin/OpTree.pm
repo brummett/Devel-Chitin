@@ -245,10 +245,11 @@ sub pp_pushmark {
 
 sub _padname_sv {
     my $self = shift;
+    my $targ = shift || $self->op->targ;
 #    print "in padname_sv\n";
 #    print "PADLIST: ",$self->cv->PADLIST,"\n";
 #    print "ARRAYelt(0): ",$self->cv->PADLIST->ARRAYelt(0),"\n";
-    return $self->cv->PADLIST->ARRAYelt(0)->ARRAYelt( $self->op->targ );
+    return $self->cv->PADLIST->ARRAYelt(0)->ARRAYelt( $targ );
 }
 
 sub _padval_sv {
