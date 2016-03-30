@@ -160,7 +160,8 @@ subtest 'string functions' => sub {
                                     q(index($a, 'foo', 1))),
         substr_fcn  => join("\n",   q(my $a;),
                                     q($a = substr($a, 1, 2, 'foo');),
-                                    q(substr($a, 2, 3) = 'bar')),
+                                    q(substr($a, 2, 3) = 'bar';),  # doubled because the first one triggers an optimized-out
+                                    q(substr($a, 2, 3) = 'bar')),  # sassign with a single child
         sprintf_fcn => join("\n",   q(my $a;),
                                     q($a = sprintf($a, 1, 2, 3))),
         quote_qq    => join("\n",   q(my $a = 'hi there';),

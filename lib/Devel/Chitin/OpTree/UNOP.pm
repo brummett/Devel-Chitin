@@ -430,6 +430,14 @@ sub pp_aelem {
     $self->first->deparse;
 }
 
+sub pp_sassign {
+    my $self = shift;
+    # This is likely an optimized-out assignment where substr is being
+    # used as an lvalue.  pp_substr will be our only child and take care of
+    # deparsing the assignment for us
+    $self->first->deparse;
+}
+
 # Operators
 #               OP name         perl op   pre?  targmy?
 foreach my $a ( [ pp_preinc     => '++',    1,  0 ],

@@ -470,13 +470,29 @@ sub pp_sockpair {
                                 $domain, $type, $proto) . ')';
 }
 
+sub pp_substr {
+    my $self = shift;
+    my $children = $self->children;
+    if ($self->op->private & B::OPpSUBSTR_REPL_FIRST) {
+        # using subtr as an lvalue
+        my @substr_params = @{$children}[2..4];
+        'substr('
+            . join(', ', map { $_->deparse } @substr_params)
+            . ') = '
+            . $children->[1]->deparse;
+    } else {
+        'substr('
+            . join(', ', map { $_->deparse } @$children[1 .. $#$children]) # [0] is pushmark
+            . ')';
+    }
+}
+
 #                 OP name           Perl fcn    targmy?
 foreach my $a ( [ pp_crypt      => 'crypt',     1 ],
                 [ pp_index      => 'index',     1 ],
                 [ pp_rindex     => 'rindex',    1 ],
                 [ pp_pack       => 'pack',      0 ],
                 [ pp_reverse    => 'reverse',   0 ],
-                [ pp_substr     => 'substr',    0 ],
                 [ pp_sprintf    => 'sprintf',   0 ],
                 [ pp_atan2      => 'atan2',     1 ],
                 [ pp_push       => 'push',      1 ],
