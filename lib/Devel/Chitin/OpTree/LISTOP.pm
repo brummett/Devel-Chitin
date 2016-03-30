@@ -407,8 +407,14 @@ sub _resolve_split_target {
     my $pmreplroot = $children->[0]->op->pmreplroot;
     my $target = '';
 
-    if (my $targ = $children->[0]->op->targ) {
-    
+    if (ref($pmreplroot) eq 'B::GV') {
+        $target = '@' . $self->_gv_name($pmreplroot) . ' = ';
+
+    } elsif (!ref($pmreplroot) and $pmreplroot > 0) {
+        my $gv = $self->_padval_sv($pmreplroot);
+        $target = '@' . $self->_gv_name($gv) . ' = ';
+
+    } elsif (my $targ = $children->[0]->op->targ) {
         $target = $children->[0]->_padname_sv($targ)->PV . ' = ';
 
     } elsif ($self->op->flags & B::OPf_STACKED) {

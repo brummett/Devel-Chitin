@@ -231,7 +231,7 @@ subtest regex => sub {
                                     q(my $rx;),
                                     q(my @strings = split(/$rx/, $a, 1);),
                                     q(@strings = split(/a/, $a);),
-                                    q(@strings = split('', $a);),
+                                    q(our @s = split('', $a);),
                                     q(@strings = split(//, $a);),
                                     q(@strings = split(' ', $a);),
                                     q(my($v1, $v2) = split(/$rx/, $a, 3))),  # the 3 is implicit
