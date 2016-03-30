@@ -405,13 +405,15 @@ sub _resolve_split_target {
     my $children = $self->children;
 
     my $pmreplroot = $children->[0]->op->pmreplroot;
-    my $target = '';
-
+    my $gv;
     if (ref($pmreplroot) eq 'B::GV') {
-        $target = '@' . $self->_gv_name($pmreplroot) . ' = ';
-
+        $gv = $pmreplroot;
     } elsif (!ref($pmreplroot) and $pmreplroot > 0) {
-        my $gv = $self->_padval_sv($pmreplroot);
+        $gv = $self->_padval_sv($pmreplroot);
+    }
+
+    my $target = '';
+    if ($gv) {
         $target = '@' . $self->_gv_name($gv) . ' = ';
 
     } elsif (my $targ = $children->[0]->op->targ) {
