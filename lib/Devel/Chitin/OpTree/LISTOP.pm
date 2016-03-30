@@ -395,7 +395,27 @@ sub pp_split {
         push(@params, $n_fields) if $n_fields > 0;
     }
 
-    'split(' . join(', ', @params) . ')';
+    my $target = _resolve_split_target($self);
+
+    "${target}split(" . join(', ', @params) . ')';
+}
+
+sub _resolve_split_target {
+    my $self = shift;
+    my $children = $self->children;
+
+    my $pmreplroot = $children->[0]->op->pmreplroot;
+    my $target = '';
+
+    if (my $targ = $children->[0]->op->targ) {
+    
+        $target = $children->[0]->_padname_sv($targ)->PV . ' = ';
+
+    } elsif ($self->op->flags & B::OPf_STACKED) {
+        $target = $children->[-1]->deparse . ' = ';
+    }
+
+    $target;
 }
 
 foreach my $d ( [ pp_exec => 'exec' ],
