@@ -414,16 +414,16 @@ sub _resolve_split_target {
 
     my $target = '';
     if ($gv) {
-        $target = '@' . $self->_gv_name($gv) . ' = ';
+        $target = '@' . $self->_gv_name($gv);
 
     } elsif (my $targ = $children->[0]->op->targ) {
-        $target = $children->[0]->_padname_sv($targ)->PV . ' = ';
+        $target = $children->[0]->_padname_sv($targ)->PV;
 
     } elsif ($self->op->flags & B::OPf_STACKED) {
-        $target = $children->[-1]->deparse . ' = ';
+        $target = $children->[-1]->deparse;
     }
 
-    $target;
+    $target .= ' = ' if $target;
 }
 
 foreach my $d ( [ pp_exec => 'exec' ],
