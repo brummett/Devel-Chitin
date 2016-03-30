@@ -278,8 +278,8 @@ subtest 'array functions' => sub {
                                 q($a = $#$listref;),
                                 q($a = scalar(@list))),
         join_fcn => join("\n",  q(my($a, @list);),
-                                q($a = join(',', 2, 3, 4);),
-                                q($a = join("\n", 2, 3, 4);),
+                                q($a = join(',', 2, $a, 4);),
+                                q($a = join("\n", 2, $a, 4);),
                                 q($a = join(1, @list);),
                                 q(join(@list))),
     );
