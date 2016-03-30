@@ -49,7 +49,10 @@ sub pp_subst {
     # children always come in this order, though they're not
     # always present: bound-variable, replacement, regex
     my $var = '';
-    if ($children[0]->is_scalar_container) {
+    if (my $targ = $self->op->targ) {
+        $var = $self->_padname_sv($targ)->PV . ' =~ ';
+
+    } elsif ($children[0]->is_scalar_container) {
         $var = shift(@children)->deparse . ' =~ ';
     }
 
