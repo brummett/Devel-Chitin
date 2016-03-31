@@ -33,7 +33,7 @@ sub pp_nextstate {
 
     $deparsed .= "\n" x $vertical_ws;
 
-    $self->_set_cur_cop unless $self->is_null;
+    $self->_set_cur_cop if (!$cur_cop or !$self->is_null);
 
     $deparsed;
 }
