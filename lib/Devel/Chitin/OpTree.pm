@@ -659,6 +659,21 @@ sub _deparse_for_loop {
     "for ($init; $test; $cont) " . $body_op->deparse;
 }
 
+sub _quote_sv {
+    my($self, $sv, %params) = @_;
+    my $string = $sv->PV;
+
+    my $quote = ($params{skip_quotes} or $self->op->private & B::OPpCONST_BARE)
+                    ? ''
+                    : q(');
+    if ($string =~ m/[\000-\037]/ and !$params{regex_x_flag}) {
+        $quote = '"' unless $params{skip_quotes};
+        $string = $self->_escape_for_double_quotes($string, %params);
+    }
+
+    "${quote}${string}${quote}";
+}
+
 my %control_chars = ((map { chr($_) => '\c'.chr($_ + 64) } (1 .. 26)),  # \cA .. \cZ
                      "\c@" => '\c@', "\c[" => '\c[');
 my $control_char_rx = join('|', sort keys %control_chars);
