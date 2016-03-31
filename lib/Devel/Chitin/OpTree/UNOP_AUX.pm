@@ -21,7 +21,7 @@ sub pp_multideref {
     my $deparsed = '';
     while(@aux_list) {
         my $aux = shift @aux_list;
-        next if ($aux & B::MDEREF_ACTION_MASK == B::MDEREF_reload);
+        next if (($aux & B::MDEREF_ACTION_MASK) == B::MDEREF_reload);
 
         my $action = $aux & B::MDEREF_ACTION_MASK;
         my $is_hash = $hash_actions{$action};
