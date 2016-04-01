@@ -26,7 +26,9 @@ sub pp_multideref {
         my $action = $aux & B::MDEREF_ACTION_MASK;
         my $is_hash = $hash_actions{$action};
 
-        if ($action == B::MDEREF_AV_padav_aelem) {
+        if ($action == B::MDEREF_AV_padav_aelem
+            or $action == B::MDEREF_HV_padhv_helem
+        ) {
             $deparsed .= '$' . substr( $self->_padname_sv( shift @aux_list )->PVX, 1);
 
         } elsif ($action == B::MDEREF_HV_gvhv_helem
@@ -43,7 +45,9 @@ sub pp_multideref {
 
         } elsif ($index == B::MDEREF_INDEX_const) {
             my $sv = shift(@aux_list);
-            $deparsed .= $self->_quote_sv($sv);
+            $deparsed .= $is_hash
+                            ? $self->_quote_sv($sv)
+                            : $sv;
         }
 
         $deparsed .= $close_bracket[$is_hash];
