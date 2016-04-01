@@ -1163,7 +1163,7 @@ sub _run_tests {
     foreach my $test_name ( keys %tests ) {
         my $code = $tests{$test_name};
         eval "${use_version}sub $test_name { $code }";
-        (my $expected = $code) =~ s/my(?: )?|our(?: )? //g;
+        (my $expected = $code) =~ s/\b(?:my|our)\b\s*//mg;
         if ($@) {
             die "Couldn't compile code for $test_name: $@";
         }
