@@ -474,10 +474,8 @@ subtest 'I/O' => sub {
                                     q($line = readline(*F);),
                                     q($line = <F>;),
                                     q(my $fh;),
-                                    q($line = <$fh>;),
                                     q(my @lines = readline($fh);),
-                                    q(@lines = readline(*$fh);),
-                                    q(@lines = <$fh>)),
+                                    q(@lines = readline(*$fh))),
         rewinddir_fcn =>    q(rewinddir(D)),
         seekdir_fcn =>      q(seekdir(D, 10)),
         seek_fcn => join("\n",      q(my $a = seek(F, 10, SEEK_CUR);),
@@ -1125,6 +1123,15 @@ subtest 'perl-5.20' => sub {
         hash_slice_array=> join("\n",   q(my(@a, $a);),
                                         q(my %slice = %a[1, 2];),
                                         q(%slice = %$a[1, 2])),
+    );
+};
+
+subtest 'perl-5.22 differences' => sub {
+    _run_tests(
+        excludes_version(v5.22.0),
+        readline_with_brackets => join("\n",    q(my $fh;),
+                                                q(my $line = <$fh>;),
+                                                q(my @lines = <$fh>)),
     );
 };
 
