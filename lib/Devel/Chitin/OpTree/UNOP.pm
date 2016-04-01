@@ -47,19 +47,24 @@ sub pp_list {
 sub pp_refgen {
     my $self = shift;
     my $first = $self->first;
-    if ($first->is_null
-        and
-        $first->_ex_name eq 'pp_list'
-        and
-        $first->children->[1]
-        and
-        $first->children->[1]->op->name eq 'anoncode'  # skip pushmark
-    ) {
-        my $subref = $self->_padval_sv($first->children->[1]->op->targ);
+    my $anoncode;
+    if ($first->is_null and $first->_ex_name eq 'pp_list') {
+        # Perl 5.22 puts the anoncode OP first, older Perls have a pushmark
+        # then the anoncode
+        foreach my $op ( @{ $first->children } ) {
+            if ($op->op->name eq 'anoncode') {
+                $anoncode = $op;
+                last;
+            }
+        }
+    }
+
+    if ($anoncode) {
+        my $subref = $self->_padval_sv($anoncode->op->targ);
         my $deparser = Devel::Chitin::OpTree->build_from_location($subref->object_2svref);
         'sub { ' . $deparser->deparse . ' }';
     } else {
-        '\\' . $self->first->deparse;
+        '\\' . $first->deparse;
     }
 }
 *pp_srefgen = \&pp_refgen;
