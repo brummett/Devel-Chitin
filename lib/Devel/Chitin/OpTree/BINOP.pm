@@ -12,7 +12,7 @@ use Carp;
 *pp_lineseq = \&Devel::Chitin::OpTree::LISTOP::pp_lineseq;
 
 sub last {
-    shift->{children}->[1];
+    shift->{children}->[-1];
 }
 
 sub pp_sassign {
