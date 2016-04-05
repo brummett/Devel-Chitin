@@ -386,7 +386,9 @@ foreach my $a ( [ pp_add        => '+',     1 ],
                 [ pp_bit_or     => '|',     0 ],
                 [ pp_bit_xor    => '^',     0 ],
                 [ pp_xor        => 'xor',   0 ],
-                
+                [ pp_sbit_and   => '&.',    0 ],
+                [ pp_sbit_or    => '|.',    0 ],
+                [ pp_sbit_xor   => '^.',    0 ],
 ) {
     my($pp_name, $perl_name, $targmy) = @$a;
     my $sub = sub {

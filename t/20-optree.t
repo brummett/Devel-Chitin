@@ -3,7 +3,7 @@ use warnings;
 
 use Devel::Chitin::OpTree;
 use Devel::Chitin::Location;
-use Test::More tests => 27;
+use Test::More tests => 29;
 
 use Fcntl qw(:flock :DEFAULT SEEK_SET SEEK_CUR SEEK_END);
 use POSIX qw(:sys_wait_h);
@@ -1132,6 +1132,20 @@ subtest 'perl-5.22 differences' => sub {
         readline_with_brackets => join("\n",    q(my $fh;),
                                                 q(my $line = <$fh>;),
                                                 q(my @lines = <$fh>)),
+    );
+};
+
+subtest 'perl-5.22' => sub {
+    _run_tests(
+        requires_version(v5.22.0, experimental => 'bitwise'),
+        string_bitwise  => join("\n",   q(my($a, $b);),
+                                        q($a = $a &. $b;),
+                                        q($a &.= $b;),
+                                        q($a = $a |. 'str';),
+                                        q($a |.= 'str';),
+                                        q($a = $a ^. 1;),
+                                        q($a ^.= $b;),
+                                        q($a = ~.$a)),
     );
 };
 
