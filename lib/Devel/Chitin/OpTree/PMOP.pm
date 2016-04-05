@@ -86,21 +86,31 @@ sub _match_op {
     join($delimiter, $operator, $re, $flags);
 }
 
+my @MATCH_FLAGS;
+BEGIN {
+    @MATCH_FLAGS = ( PMf_CONTINUE,      'c',
+                     PMf_ONCE,          'o',
+                     PMf_GLOBAL,        'g',
+                     PMf_FOLD,          'i',
+                     PMf_MULTILINE,     'm',
+                     PMf_KEEP,          'o',
+                     PMf_SINGLELINE,    's',
+                     PMf_EXTENDED,      'x',
+                     RXf_PMf_KEEPCOPY,  'p');
+    if ($^V >= v5.22.0) {
+        push @MATCH_FLAGS, B::RXf_PMf_NOCAPTURE(), 'n';
+    }
+}
+
 sub _match_flags {
     my $self = shift;
 
     my $match_flags = $self->op->pmflags;
-    join('', map { $match_flags & $_->[0] ? $_->[1] : '' }
-                (   [ PMf_CONTINUE,     'c' ],
-                    [ PMf_ONCE,         'o' ],
-                    [ PMf_GLOBAL,       'g' ],
-                    [ PMf_FOLD,         'i' ],
-                    [ PMf_MULTILINE,    'm' ],
-                    [ PMf_KEEP,         'o' ],
-                    [ PMf_SINGLELINE,   's' ],
-                    [ PMf_EXTENDED,     'x' ],
-                    [ RXf_PMf_KEEPCOPY, 'p' ],
-                ));
+    my $flags = '';
+    for (my $i = 0; $i < @MATCH_FLAGS; $i += 2) {
+        $flags .= $MATCH_FLAGS[$i+1] if ($match_flags & $MATCH_FLAGS[$i]);
+    }
+    $flags;
 }
 
 1;
