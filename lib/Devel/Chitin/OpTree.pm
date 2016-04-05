@@ -203,7 +203,7 @@ sub pp_null {
             $self->Devel::Chitin::OpTree::BINOP::pp_sassign(is_swapped => 1);
 
         } elsif (@$children == 1) {
-            $children->[0]->deparse;
+            $children->[0]->deparse(@_);
 
         } else {
             ";\n"   # maybe a COP that got optimized away?
