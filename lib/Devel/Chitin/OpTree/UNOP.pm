@@ -388,7 +388,7 @@ sub pp_not {
 
     if ($first->op->name eq 'match'
         and
-        $first->_has_bound_variable
+        $first->_get_bound_variable_for_match
     ) {
         $first_deparsed;  # The match op will turn it into $var !~ m/.../
     } else {

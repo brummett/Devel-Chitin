@@ -15,30 +15,29 @@ sub pp_qr {
 sub pp_match {
     my $self = shift;
 
-    my($var, $re) = ('', '');
-    my $children = $self->children;
-    if ($self->_has_bound_variable) {
-        $var = $children->[0]->deparse
-                    . ( $self->parent->op->name eq 'not'
-                          ? ' !~ '
-                          : ' =~ ' );
-    }
-
-    $re = $self->_match_op('m');
-
-    $var . $re;
+    $self->_get_bound_variable_for_match
+        . $self->_match_op('m');
 }
 
 sub pp_pushre {
     shift->_match_op('', @_);
 }
 
-sub _has_bound_variable {
-    my $children = shift->children;
+sub _get_bound_variable_for_match {
+    my $self = shift;
 
-    @$children == 2
-    or
-    (@$children == 1 and $children->[0]->is_scalar_container)
+    my($var, $op) = ('', '');
+    if ($self->op->flags & B::OPf_STACKED) {
+        $var = $self->first->deparse;
+        $op = $self->parent->op->name eq 'not'
+                    ? ' !~ '
+                    : ' =~ ';
+    } elsif (my $targ = $self->op->targ) {
+        $var = $self->_padname_sv($targ)->PV;
+        $op = ' =~ ';
+
+    }
+    $var . $op;
 }
 
 sub pp_subst {
@@ -48,13 +47,9 @@ sub pp_subst {
 
     # children always come in this order, though they're not
     # always present: bound-variable, replacement, regex
-    my $var = '';
-    if (my $targ = $self->op->targ) {
-        $var = $self->_padname_sv($targ)->PV . ' =~ ';
+    my $var = $self->_get_bound_variable_for_match;
 
-    } elsif ($children[0]->is_scalar_container) {
-        $var = shift(@children)->deparse . ' =~ ';
-    }
+    shift @children if $self->op->flags & B::OPf_STACKED; # bound var was the first child
 
     my $re;
     if ($children[1] and $children[1]->op->name eq 'regcomp') {
