@@ -1137,14 +1137,37 @@ subtest 'perl-5.22 differences' => sub {
 
 sub requires_version {
     my $required_version = shift;
+    my($features, $experimental) = _extract_features_and_experimental(@_);
+
     return sub {
         my $required_version_string = sprintf('%vd', $required_version);
         if ($^V lt $required_version) {
             plan skip_all => "needs version $required_version_string";
             return;
         }
-        return "use $required_version_string;";
+        return "use $required_version_string;${features}${experimental}";
     };
+}
+
+sub _extract_features_and_experimental {
+    my(@features, @experimental);
+    for (my $i = 0; $i < @_; $i+=2) {
+        if ($_[$i] eq 'feature') {
+            push @features, $_[++$i];
+        } elsif ($_[$i] eq 'experimental') {
+            push @experimental, $_[++$i];
+        } else {
+            die "expected 'feature' or 'experimental', but got $_[$i]";
+        }
+    }
+
+    my $features = @features
+                        ? "use feature ('" . join("','", @features) . "');"
+                        : '';
+    my $experimental = @experimental
+                        ? "use experimental ('" . join("','", @experimental) . "');"
+                        : '';
+    return ($features, $experimental);
 }
 
 sub excludes_version {
