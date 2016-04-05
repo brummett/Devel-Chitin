@@ -428,12 +428,11 @@ sub pp_require {
     'require ' . $name;
 }
 
-sub pp_aelem {
-    my $self = shift;
+*pp_aelem = *pp_helem = sub {
     # This is likely an optimized-out op where ->first is a pp_multideref
     # that'll do all the work for us
-    $self->first->deparse;
-}
+    shift->first->deparse;
+};
 
 sub pp_sassign {
     my $self = shift;

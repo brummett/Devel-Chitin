@@ -35,6 +35,21 @@ sub pp_multideref {
                      or $action == B::MDEREF_AV_gvav_aelem
             ) {
                 $deparsed .= '$' . $self->_gv_name(shift @aux_list);
+
+            } elsif ($action == B::MDEREF_HV_padsv_vivify_rv2hv_helem
+                     or $action == B::MDEREF_AV_padsv_vivify_rv2av_aelem
+            ) {
+                $deparsed .= $self->_padname_sv( shift @aux_list )->PVX . '->';
+
+            } elsif ($action == B::MDEREF_HV_gvsv_vivify_rv2hv_helem
+                     or $action == B::MDEREF_AV_gvsv_vivify_rv2av_aelem
+            ) {
+                $deparsed .= '$' . $self->_gv_name(shift @aux_list) . '->';
+
+            } elsif ($action == B::MDEREF_HV_vivify_rv2hv_helem
+                     or $action == B::MDEREF_AV_vivify_rv2av_aelem
+            ) {
+                $deparsed .= '->';
             }
 
 
