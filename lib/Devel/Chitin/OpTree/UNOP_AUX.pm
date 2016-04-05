@@ -21,36 +21,41 @@ sub pp_multideref {
     my $deparsed = '';
     while(@aux_list) {
         my $aux = shift @aux_list;
-        next if (($aux & B::MDEREF_ACTION_MASK) == B::MDEREF_reload);
+        while (($aux & B::MDEREF_ACTION_MASK) != B::MDEREF_reload) {
 
-        my $action = $aux & B::MDEREF_ACTION_MASK;
-        my $is_hash = $hash_actions{$action};
+            my $action = $aux & B::MDEREF_ACTION_MASK;
+            my $is_hash = $hash_actions{$action} || 0;
 
-        if ($action == B::MDEREF_AV_padav_aelem
-            or $action == B::MDEREF_HV_padhv_helem
-        ) {
-            $deparsed .= '$' . substr( $self->_padname_sv( shift @aux_list )->PVX, 1);
+            if ($action == B::MDEREF_AV_padav_aelem
+                or $action == B::MDEREF_HV_padhv_helem
+            ) {
+                $deparsed .= '$' . substr( $self->_padname_sv( shift @aux_list )->PVX, 1);
 
-        } elsif ($action == B::MDEREF_HV_gvhv_helem
-                 or $action == B::MDEREF_AV_gvav_aelem
-        ) {
-            $deparsed .= '$' . $self->_gv_name(shift @aux_list);
+            } elsif ($action == B::MDEREF_HV_gvhv_helem
+                     or $action == B::MDEREF_AV_gvav_aelem
+            ) {
+                $deparsed .= '$' . $self->_gv_name(shift @aux_list);
+            }
+
+
+            $deparsed .= $open_bracket[$is_hash];
+
+            my $index = $aux & B::MDEREF_INDEX_MASK;
+            if ($index == B::MDEREF_INDEX_padsv) {
+                $deparsed .= $self->_padname_sv(shift @aux_list)->PV;
+
+            } elsif ($index == B::MDEREF_INDEX_const) {
+                my $sv = shift(@aux_list);
+                $deparsed .= $is_hash
+                                ? $self->_quote_sv($sv)
+                                : $sv;
+            }
+
+            $deparsed .= $close_bracket[$is_hash];
+
+        } continue {
+            $aux >>= B::MDEREF_SHIFT;
         }
-
-        $deparsed .= $open_bracket[$is_hash];
-
-        my $index = $aux & B::MDEREF_INDEX_MASK;
-        if ($index == B::MDEREF_INDEX_padsv) {
-            $deparsed .= $self->_padname_sv(shift @aux_list)->PV;
-
-        } elsif ($index == B::MDEREF_INDEX_const) {
-            my $sv = shift(@aux_list);
-            $deparsed .= $is_hash
-                            ? $self->_quote_sv($sv)
-                            : $sv;
-        }
-
-        $deparsed .= $close_bracket[$is_hash];
     }
 
     $deparsed;
