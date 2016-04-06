@@ -1151,6 +1151,7 @@ subtest 'perl-5.22' => sub {
         list_repeat => join("\n",   q(my @a = (1, 2) x 5)),
         ref_alias => join("\n",     q(my($a, $b) = (1, 2);),
                                     q(\$a = \$b;),
+                                    q[\($a) = \$b;],
                                     q(our @array = (1, 2);),
                                     q(\$array[1] = \$a;),
                                     q(my %hash = (1, 1);),
@@ -1158,8 +1159,10 @@ subtest 'perl-5.22' => sub {
         listref_alias => join("\n", q(my($a, $b, @array);),
                                     q(\@array[1, 2] = (\$a, \$b);),
                                     q[\(@array) = (\$a, \$b)]),
-        alias_whole_array => join("\n", q(my(@array, @ar2);),
-                                        q[\(@array) = \(@ar2)]),
+        alias_whole_array => join("\n", q(my @array = (1, 2);),
+                                        q(our @ar2 = (1, 2);),
+                                        q[\(@array) = \(@ar2);],
+                                        q[\(@ar2) = \(@array)]),
     );
 };
 

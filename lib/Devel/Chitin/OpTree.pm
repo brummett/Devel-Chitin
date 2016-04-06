@@ -473,10 +473,19 @@ sub pp_eof {
 
 sub pp_lvavref {
     my $self = shift;
-    '(' . $self->_padname_sv->PV . ')';
-    #$self->_padname_sv->PV;
+    my $var = ($self->op->flags & B::OPf_STACKED)
+                ? '@' . $self->children->[0]->deparse
+                : $self->_padname_sv->PV;
+    "\($var)";
 }
 
+sub pp_lvref {
+    my $self = shift;
+    my $var = ($self->op->flags & B::OPf_STACKED)
+                ? '$' . $self->children->[0]->deparse
+                : $self->_padname_sv->PV;
+    "\($var)";
+}
 
 # file test operators
 # These actually show up as UNOPs (usually) and SVOPs (-X _) but it's

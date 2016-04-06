@@ -68,7 +68,6 @@ sub pp_refgen {
     }
 }
 *pp_srefgen = \&pp_refgen;
-*pp_lvref = \&pp_refgen;
 
 sub pp_rv2sv { '$' . shift->first->deparse }
 sub pp_rv2av { '@' . shift->first->deparse }
