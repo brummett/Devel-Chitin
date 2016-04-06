@@ -53,6 +53,20 @@ sub pp_aassign {
     "$container = " . $self->first->deparse;
 }
 
+sub pp_refassign {
+    my $self = shift;
+
+    my $left;
+    if ($self->op->flags & B::OPf_STACKED) {
+        $left = $self->last->deparse;
+    } else {
+        $left = $self->_padname_sv->PV;
+    }
+
+    my $right = $self->first->deparse;
+    "\\${left} = $right";
+}
+
 sub pp_list {
     my $self = shift;
 

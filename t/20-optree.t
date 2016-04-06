@@ -1137,7 +1137,7 @@ subtest 'perl-5.22 differences' => sub {
 
 subtest 'perl-5.22' => sub {
     _run_tests(
-        requires_version(v5.22.0, experimental => 'bitwise'),
+        requires_version(v5.22.0, experimental => 'bitwise', experimental => 'refaliasing'),
         string_bitwise  => join("\n",   q(my($a, $b);),
                                         q($a = $a &. $b;),
                                         q($a &.= $b;),
@@ -1148,6 +1148,12 @@ subtest 'perl-5.22' => sub {
                                         q($a = ~.$a)),
         regex_n_flag => join("\n",  q(my $str;),
                                     q($str =~ m/(hi|hello)/n)),
+        ref_alias => join("\n",     q(my($a, $b) = (1, 2);),
+                                    q(\$a = \$b;),
+                                    q(our @array = (1, 2);),
+                                    q(\$array[1] = \$a;),
+                                    q(my %hash = (1, 1);),
+                                    q(\$hash{'1'} = \$b)),
     );
 };
 
