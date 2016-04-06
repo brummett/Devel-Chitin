@@ -1169,9 +1169,9 @@ sub _extract_features_and_experimental {
     my(@features, @experimental);
     for (my $i = 0; $i < @_; $i+=2) {
         if ($_[$i] eq 'feature') {
-            push @features, $_[++$i];
+            push @features, $_[$i+1];
         } elsif ($_[$i] eq 'experimental') {
-            push @experimental, $_[++$i];
+            push @experimental, $_[$i+1];
         } else {
             die "expected 'feature' or 'experimental', but got $_[$i]";
         }
