@@ -471,20 +471,20 @@ sub pp_eof {
         : 'eof';
 }
 
-sub pp_lvavref {
-    my $self = shift;
-    my $var = ($self->op->flags & B::OPf_STACKED)
-                ? '@' . $self->children->[0]->deparse
-                : $self->_padname_sv->PV;
-    "\($var)";
-}
-
-sub pp_lvref {
-    my $self = shift;
-    my $var = ($self->op->flags & B::OPf_STACKED)
-                ? '$' . $self->children->[0]->deparse
-                : $self->_padname_sv->PV;
-    "\($var)";
+# reference aliasing OPs
+foreach my $a ( [ pp_lvavref => '@' ],
+                [ pp_lvref   => '$' ],
+) {
+    my($pp_name, $sigil) = @$a;
+    my $sub = sub {
+        my $self = shift;
+        my $var = $self->op->flags & B::OPf_STACKED
+                    ? $sigil . $self->children->[0]->deparse  # an our var
+                    : $self->_padname_sv->PV;                 # a my var
+        "\($var)";
+    };
+    no strict 'refs';
+    *$pp_name = $sub;
 }
 
 # file test operators
