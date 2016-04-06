@@ -64,7 +64,7 @@ sub pp_refgen {
         my $deparser = Devel::Chitin::OpTree->build_from_location($subref->object_2svref);
         'sub { ' . $deparser->deparse . ' }';
     } else {
-        '\\' . $first->deparse(in_refgen => 1);
+        '\\' . $first->deparse;
     }
 }
 *pp_srefgen = \&pp_refgen;
