@@ -1163,6 +1163,9 @@ subtest 'perl-5.22' => sub {
                                         q(our @ar2 = (1, 2);),
                                         q[\(@array) = \(@ar2);],
                                         q[\(@ar2) = \(@array)]),
+        double_diamond => join("\n",    q(while (defined($_ = <<>>)) {),
+                                       qq(\tprint()),
+                                        q(})),
     );
 };
 

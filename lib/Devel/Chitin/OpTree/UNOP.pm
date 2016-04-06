@@ -214,8 +214,9 @@ sub pp_readline {
 
     my $flags = $self->op->flags;
     if ($flags & B::OPf_SPECIAL) {
-        # <$fh>
-        "<${arg}>";
+        $arg eq 'ARGV'
+            ? '<<>>'
+            : "<${arg}>";
 
     } elsif ($self->first->op->name eq 'gv') {
         # <F>
