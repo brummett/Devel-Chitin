@@ -1155,6 +1155,11 @@ subtest 'perl-5.22' => sub {
                                     q(\$array[1] = \$a;),
                                     q(my %hash = (1, 1);),
                                     q(\$hash{'1'} = \$b)),
+        listref_alias => join("\n", q(my($a, $b, @array);),
+                                    q(\@array[1, 2] = (\$a, \$b);),
+                                    q[\(@array) = (\$a, \$b)]),
+        alias_whole_array => join("\n", q(my(@array, @ar2);),
+                                        q[\(@array) = \(@ar2)]),
     );
 };
 

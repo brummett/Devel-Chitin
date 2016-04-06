@@ -106,6 +106,13 @@ sub pp_hslice {
 }
 *pp_kvhslice = \&pp_hslice;
 
+sub pp_lvrefslice {
+    my $self = shift;
+    $self->last->op->name =~ m/av$/
+        ? $self->pp_aslice
+        : $self->pp_hslice;
+}
+
 my %aslice_hslice_allowed_ops = map { $_ => 1 } qw( padav padhv rv2av rv2hv );
 sub _aslice_hslice_builder {
     my($self, $open_paren, $close_paren) = @_;

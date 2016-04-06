@@ -471,6 +471,13 @@ sub pp_eof {
         : 'eof';
 }
 
+sub pp_lvavref {
+    my $self = shift;
+    '(' . $self->_padname_sv->PV . ')';
+    #$self->_padname_sv->PV;
+}
+
+
 # file test operators
 # These actually show up as UNOPs (usually) and SVOPs (-X _) but it's
 # convienent to put them here in the base class
@@ -657,6 +664,31 @@ sub _deparse_for_loop {
     my $cont = $cont_op->deparse;
 
     "for ($init; $test; $cont) " . $body_op->deparse;
+}
+
+# Return true if this op is the inner list on the right of
+# \(@a) = \(@b)
+# The optree for this construct looks like:
+# aassign
+#   ex-list
+#     pushmark
+#     refgen
+#       ex-list <-- Return true here
+#         pushmark
+#         padav/gv
+#   ex-list
+#     pushmark
+#     ex-refgen
+#       ex-list <-- return true here
+#           pushmark
+#           lvavref
+sub is_list_reference_alias {
+    my $self = shift;
+
+    return $self->is_null
+            && $self->_ex_name eq 'pp_list'
+            && $self->parent->op->name eq 'refgen'
+            && $self->last->is_array_container;
 }
 
 sub _quote_sv {

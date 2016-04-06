@@ -79,7 +79,10 @@ sub pp_list {
 
     my $contents = $self->last->deparse;
 
-    if ($self->last->is_scalar_container) {
+    if ($self->last->is_scalar_container
+        or
+        $self->is_list_reference_alias
+    ) {
         "(${contents})";
 
     } else {

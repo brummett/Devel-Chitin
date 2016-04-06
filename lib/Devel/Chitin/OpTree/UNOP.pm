@@ -64,10 +64,11 @@ sub pp_refgen {
         my $deparser = Devel::Chitin::OpTree->build_from_location($subref->object_2svref);
         'sub { ' . $deparser->deparse . ' }';
     } else {
-        '\\' . $first->deparse;
+        '\\' . $first->deparse(in_refgen => 1);
     }
 }
 *pp_srefgen = \&pp_refgen;
+*pp_lvref = \&pp_refgen;
 
 sub pp_rv2sv { '$' . shift->first->deparse }
 sub pp_rv2av { '@' . shift->first->deparse }
