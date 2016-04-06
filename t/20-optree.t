@@ -1148,6 +1148,7 @@ subtest 'perl-5.22' => sub {
                                         q($a = ~.$a)),
         regex_n_flag => join("\n",  q(my $str;),
                                     q($str =~ m/(hi|hello)/n)),
+        list_repeat => join("\n",   q(my @a = (1, 2) x 5)),
         ref_alias => join("\n",     q(my($a, $b) = (1, 2);),
                                     q(\$a = \$b;),
                                     q(our @array = (1, 2);),
