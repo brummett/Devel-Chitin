@@ -366,6 +366,14 @@ sub nearest_cop {
     return;
 }
 
+sub check_feature {
+    return unless $^V >= v5.10.1;  # hints hash didn't exist before this
+    my($self, $feature_name) = @_;
+    my $cop = $self->nearest_cop;
+    my $hints = $cop->op->hints_hash->HASH;
+    return $hints->{"feature_${feature_name}"};
+}
+
 # The current COP op is stored on scope-like OPs, and on the root op
 sub _enter_scope {
     shift->{cur_cop} = undef;
