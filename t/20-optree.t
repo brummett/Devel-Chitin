@@ -1113,7 +1113,6 @@ subtest 'perl-5.20 incompatibilities' => sub {
     );
 };
 
-# There doesn't seem to be any way to disinguish between @{ $a->[1] } and $a->[1]->@* :(
 subtest 'perl-5.20' => sub {
     _run_tests(
         requires_version(v5.20.0),
@@ -1123,6 +1122,22 @@ subtest 'perl-5.20' => sub {
         hash_slice_array=> join("\n",   q(my(@a, $a);),
                                         q(my %slice = %a[1, 2];),
                                         q(%slice = %$a[1, 2])),
+        # although there's no way to distinguish @$a from $a->@*, it checks whether
+        # the "postderef" feature is on and uses it if it is
+        # commented out for now because it messed with the two slice tests above
+#        postderef => join("\n",         q(my $a = 1;),
+#                                        q(our $b = 2;),
+#                                        q($a->[1]->$*;),
+#                                        q($a->{'one'}->@*;),
+#                                        q($b->[1]->$#*;),
+#                                        q($b->{'one'}->%*;),
+#                                        q($a->[1]->&*;),
+#                                        q($a->[1]->**;)),
+# postfix dereferencing
+# $a->@*
+# $a->@[1,2]
+# $a->%{'one', 'two'}
+# check warning bits for "use experimental 'postderef'
     );
 };
 
