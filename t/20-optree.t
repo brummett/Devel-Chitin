@@ -182,7 +182,7 @@ subtest 'string functions' => sub {
                                     q(@a = reverse(@_);),
                                     q(@a = reverse(@a))),
         tr_operator => join("\n",   q(my $a;),
-                                    q($a = tr/$a/zyxw/cdsr)),
+                                    q($a = tr/$a/zyxw/cds)),
         quotemeta_fcn => join("\n", q(my $a;),
                                     q($a = quotemeta();),
                                     q($a = quotemeta($a);),
@@ -1089,6 +1089,8 @@ subtest 'perl-5.14' => sub {
                                     q(unshift($a, 1))),
         splice_ref => join("\n",    q(my $a = [1, 2, 3];),
                                     q(splice($a, 2, 3, 4))),
+        tr_r_flag => join("\n",     q(my $a;),
+                                    q($a = tr/$a/zyxw/cdsr)),
     );
 };
 
