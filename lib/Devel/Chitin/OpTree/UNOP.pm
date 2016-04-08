@@ -63,6 +63,17 @@ sub pp_refgen {
         my $subref = $self->_padval_sv($anoncode->op->targ);
         my $deparser = Devel::Chitin::OpTree->build_from_location($subref->object_2svref);
         'sub { ' . $deparser->deparse . ' }';
+
+    } elsif ($first->is_null
+             and $first->_ex_name eq 'pp_list'
+             and @{$first->children} == 2
+             and $first->children->[-1]->is_array_container
+             and $first->children->[-1]->op->flags & B::OPf_REF
+    ) {
+        # This catches the case of \@list.  Falling through to the default
+        # case, it'll deparse as \(@list)
+        '\\' . $first->children->[-1]->deparse;
+
     } else {
         '\\' . $first->deparse;
     }
