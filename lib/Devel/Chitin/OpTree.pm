@@ -22,7 +22,7 @@ use Devel::Chitin::OpTree::LISTOP;
 use Devel::Chitin::OpTree::LOOP;
 use Devel::Chitin::OpTree::PMOP;
 BEGIN {
-    if ($^V >= v5.22.0) {
+    if ($^V ge v5.22.0) {
         require Devel::Chitin::OpTree::UNOP_AUX;
     }
 }
@@ -367,7 +367,7 @@ sub nearest_cop {
 }
 
 sub check_feature {
-    return unless $^V >= v5.10.1;  # hints hash didn't exist before this
+    return unless $^V ge v5.10.1;  # hints hash didn't exist before this
     my($self, $feature_name) = @_;
     my $cop = $self->nearest_cop;
     my $hints = $cop->op->hints_hash->HASH;

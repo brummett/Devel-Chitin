@@ -97,7 +97,7 @@ BEGIN {
                      PMf_SINGLELINE,    's',
                      PMf_EXTENDED,      'x',
                      RXf_PMf_KEEPCOPY,  'p');
-    if ($^V >= v5.22.0) {
+    if ($^V ge v5.22.0) {
         push @MATCH_FLAGS, B::RXf_PMf_NOCAPTURE(), 'n';
     }
 }

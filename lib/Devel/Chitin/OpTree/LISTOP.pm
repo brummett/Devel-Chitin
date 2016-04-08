@@ -508,7 +508,7 @@ sub pp_sockpair {
 sub pp_substr {
     my $self = shift;
     my $children = $self->children;
-    if ($^V >= v5.16.0 and $self->op->private & B::OPpSUBSTR_REPL_FIRST()) {
+    if ($^V ge v5.16.0 and $self->op->private & B::OPpSUBSTR_REPL_FIRST()) {
         # using subtr as an lvalue
         my @substr_params = @{$children}[2..4];
         'substr('
