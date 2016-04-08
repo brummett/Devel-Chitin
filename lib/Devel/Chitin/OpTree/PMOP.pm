@@ -3,7 +3,7 @@ use base 'Devel::Chitin::OpTree::LISTOP';
 
 use Devel::Chitin::Version;
 use B qw(PMf_CONTINUE PMf_ONCE PMf_GLOBAL PMf_MULTILINE PMf_KEEP PMf_SINGLELINE
-         PMf_EXTENDED RXf_PMf_KEEPCOPY PMf_FOLD OPf_KIDS);
+         PMf_EXTENDED PMf_FOLD OPf_KIDS);
 
 use strict;
 use warnings;
@@ -96,7 +96,10 @@ BEGIN {
                      PMf_KEEP,          'o',
                      PMf_SINGLELINE,    's',
                      PMf_EXTENDED,      'x',
-                     RXf_PMf_KEEPCOPY,  'p');
+                   );
+    if ($^V ge v5.10.0) {
+        push @MATCH_FLAGS, B::RXf_PMf_KEEPCOPY(), 'p';
+    }
     if ($^V ge v5.22.0) {
         push @MATCH_FLAGS, B::RXf_PMf_NOCAPTURE(), 'n';
     }
