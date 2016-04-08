@@ -171,7 +171,6 @@ subtest 'string functions' => sub {
         pack_fcn  => join("\n", q(my $a;),
                                 q($a = pack($a, 1, 2, 3))),
         unpack_fcn => join("\n",q(my $a;),
-                                q($a = unpack($a);),
                                 q($a = unpack('%32b', $a);),
                                 q($a = unpack($a, $a))),
         reverse_fcn => join("\n",   q(my $a;),
@@ -578,7 +577,6 @@ subtest 'files' => sub {
         link_fcn => join("\n",  q(my $a = link('/old/path', '/new/path');),
                                 q($a = link($a, '/foo/bar'))),
         mkdir_fcn => join("\n", q(my $a = mkdir('/some/path', 0755);),
-                                q(mkdir();),
                                 q($a = mkdir('/other/path'))),
         open_fcn => join("\n",  q(my $rv = open(F, 'some/path');),
                                 q($rv = open(*F, 'r', '/some/path');),
@@ -1028,6 +1026,8 @@ subtest time => sub {
 subtest 'perl-5.10.1' => sub {
     _run_tests(
         requires_version(v5.10.1),
+        unpack_one_arg => join("\n", q($a = unpack($a))),
+        mkdir_no_args => join("\n",  q(mkdir())),
         say_fcn => join("\n",   q(my $a = say();),
                                 q(say('foo bar', 'baz', "\n");),
                                 q(say F ('foo bar', 'baz', "\n");),
