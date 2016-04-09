@@ -59,7 +59,7 @@ sub pp_subst {
         $re = $self->op->precomp;
     }
 
-    my $replacement = $children[0]->deparse(skip_quotes => 1);
+    my $replacement = $children[0]->deparse(skip_quotes => 1, skip_concat => 1);
 
     my $flags = _match_flags($self);
     "${var}s/${re}/${replacement}/${flags}";

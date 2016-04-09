@@ -17,9 +17,16 @@ sub pp_regcomp {
     my %params = @_;
 
     my $rx_op = $self->first;
-    $rx_op = $rx_op->first if $rx_op->op->name eq 'regcmaybe';
+    my $rx_op_name = $rx_op->op->name;
+    $rx_op = $rx_op->first if ($rx_op_name eq 'regcmaybe'
+                                or $rx_op_name eq 'regcreset');
 
-    join('', $rx_op->deparse(skip_parens => 1, skip_quotes => 1, join_with => '', %params));
+    my $deparsed;
+    join('', $rx_op->deparse(skip_parens => 1,
+                             skip_quotes => 1,
+                             skip_concat => 1,
+                             join_with => '',
+                             %params));
 }
 
 sub pp_substcont {
