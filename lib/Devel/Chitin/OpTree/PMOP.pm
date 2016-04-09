@@ -68,9 +68,16 @@ sub pp_subst {
 sub _match_op {
     my($self, $operator, %params) = @_;
 
-    my $children = $self->children;
-
     my $re = $self->op->precomp;
+    if (defined($re)
+        and $self->op->name eq 'pushre'
+        and $self->op->flags & B::OPf_SPECIAL
+    ) {
+        return q(' ') if $re eq '\s+';
+        return q('') if $re eq '';
+    }
+
+    my $children = $self->children;
     foreach my $child ( @$children ) {
         if ($child->op->name eq 'regcomp') {
             $re = $child->deparse(in_regex => 1,
