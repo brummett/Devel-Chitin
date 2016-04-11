@@ -195,7 +195,8 @@ sub pp_av2arylen {
 
 sub pp_delete {
     my $self = shift;
-    my $local = $self->op->private & B::OPpLVAL_INTRO
+    my $local = ($self->op->private & B::OPpLVAL_INTRO
+                 || $self->first->op->private & B::OPpLVAL_INTRO)
                     ? 'local '
                     : '';
     "delete(${local}" . $self->first->deparse . ')';
