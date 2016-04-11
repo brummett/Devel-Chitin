@@ -446,8 +446,6 @@ sub pp_last { 'last' }
 sub pp_redo { 'redo' }
 sub pp_const { q('constant optimized away') }
 
-sub pp_pop { 'pop()' }
-sub pp_shift { 'shift()' }
 sub pp_close { 'close()' }
 sub pp_getc { 'getc()' }
 sub pp_tell { 'tell()' }
@@ -477,6 +475,28 @@ sub pp_eof {
     shift->op->flags & B::OPf_SPECIAL
         ? 'eof()'
         : 'eof';
+}
+
+# Starting with Perl 5.14, these are base-ops with the special flag set when used without args
+foreach my $a ( [ pp_shift  => 'shift' ],
+                [ pp_pop    => 'pop' ],
+) {
+    my($pp_name, $perl_name) = @$a;
+    my $sub = sub {
+        my $self = shift;
+        if ($self->op->flags & B::OPf_SPECIAL) {
+            "$perl_name()";
+        } else {
+            my $arg = $self->first->deparse;
+            if ($arg eq '@_') {
+                "$perl_name()";
+            } else {
+                "$perl_name($arg)";
+            }
+        }
+    };
+    no strict 'refs';
+    *$pp_name = $sub;
 }
 
 # reference aliasing OPs
