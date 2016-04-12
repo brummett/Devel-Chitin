@@ -46,7 +46,10 @@ sub _should_insert_semicolon {
     return '' unless $is_subsequent_cop;
 
     my $prev = ($self->pre_siblings)[-1];
-    my $prev_parent; $prev_parent = $prev->parent if $prev;
+
+    return '' if $prev
+                 and $prev->isa('Devel::Chitin::OpTree::COP')
+                 and $prev->op->line == $self->op->line;
 
     if ($prev
         and (
