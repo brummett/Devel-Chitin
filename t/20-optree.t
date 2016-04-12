@@ -131,6 +131,8 @@ subtest 'subroutine call' => sub {
         'call_with_amp' => join("\n",   q(&foo(1, 2, 3);),
                                         q(&foo();),
                                         q(&foo)),
+        call_without_paren => join("\n",    q(my $a = _get_optree_for_sub_named;),
+                                            q($a = _get_optree_for_sub_named 1, 2, 3)),
     );
 };
 

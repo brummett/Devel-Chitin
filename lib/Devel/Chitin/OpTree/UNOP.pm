@@ -142,16 +142,23 @@ sub pp_entersub {
         $prefix = '&';
     }
 
-    my $function_args = '';
+    my $function_args;
     if ($self->op->flags & B::OPf_STACKED) {
-        $function_args = '('
-                        . join(', ', map { $_->deparse } @params_ops)
-                        . ')';
+        $function_args = join(', ', map { $_->deparse } @params_ops) || '';
     }
 
-    return $prefix
-            . _deparse_sub_invocation($sub_name_op)
-            . $function_args;
+    my $sub_invocation = $prefix . _deparse_sub_invocation($sub_name_op);
+
+    if ($sub_name_op->op->private & B::OPpENTERSUB_NOPAREN) {
+        $function_args
+            ? join(' ', $sub_invocation, $function_args)
+            : $sub_invocation;
+
+    } elsif (defined $function_args) {
+        "$sub_invocation($function_args)";
+    } else {
+        $sub_invocation;
+    }
 }
 
 sub _deparse_sub_invocation {
