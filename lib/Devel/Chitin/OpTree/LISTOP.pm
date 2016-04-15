@@ -14,19 +14,42 @@ sub pp_lineseq {
     my $self = shift;
     my %params = @_;
 
-    my $deparsed = '';
     my $children = $self->children;
 
     my $start = $params{skip} || 0;
-    for (my $i = $start; $i < @$children; $i++) {
+    my $deparsed;
+    my $end = $#$children;
+    $end-- if $children->[-1]->op->name eq 'unstack';
+    for (my $i = $start; $i <= $end; $i++) {
+        my $this_child_deparsed;
         if ($children->[$i]->is_for_loop) {
-            $deparsed .= $children->[$i]->_deparse_for_loop;
+            $this_child_deparsed = $children->[$i]->_deparse_for_loop;
             $i += $children->[$i]->_num_ops_in_for_loop;
         } else {
-            $deparsed .= $children->[$i]->deparse;
+            $this_child_deparsed = $children->[$i]->deparse;
         }
+        next unless length $this_child_deparsed;
+        $deparsed .= $this_child_deparsed;
+        $deparsed .= ';' if _should_insert_semicolon_after($children->[$i]);
+        $deparsed .= "\n" unless $i == $end;
     }
     $deparsed;
+}
+
+# Don't put a semi after a block, or after the last statement (has no sibling)
+# It determines if this op decodes as a block by recursing into this OPs
+# children and looking at the last child to see if it's scope-like
+sub _should_insert_semicolon_after {
+    my $op = shift;
+
+    return if ($op->op->sibling->isa('B::NULL')
+                or
+                $op->op->sibling->name eq 'unstack' && $op->op->sibling->sibling->isa('B::NULL'));
+    while($op) {
+        return if $op->is_scopelike;
+        $op = $op->children->[-1];
+    }
+    return 1;
 }
 
 sub pp_leave {

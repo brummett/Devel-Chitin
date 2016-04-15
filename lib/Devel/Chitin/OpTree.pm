@@ -800,15 +800,13 @@ sub _deparse_flags {
 }
 
 sub _indent_block_text {
-    my($self, $text) = @_;
+    my($self, $text, %params) = @_;
 
-    my $lines = $text =~ s/\n/\n\t/g;
-    if ($lines > 1) {
-        $text .= "\n";
-    } elsif ($lines == 1 and index($text, "\n") == 0) {
-        $text .= "\n";
+    my $newlines = $text =~ s/\n/\n\t/g;
+    if ($newlines or $params{force_multiline}) {
+        "\n\t" . $text . "\n";
     } else {
-        $text = " $text ";
+        " $text ";
     }
 }
 

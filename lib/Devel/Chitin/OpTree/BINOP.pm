@@ -201,7 +201,7 @@ sub _deparse_while_until {
     if ($enterloop->nextop->op->name eq 'unstack') {
         # no continue
         # loop contents are wrapped in a lineseq
-        $loop_content = '{' . $self->_indent_block_text( $condition_op->other->deparse ) . '}';
+        $loop_content = '{' . $self->_indent_block_text( $condition_op->other->deparse, force_multiline => 1 ) . '}';
     } else {
         # has continue
         # loop and continue contents are wrapped in scopes

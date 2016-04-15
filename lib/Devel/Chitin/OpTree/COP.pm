@@ -9,38 +9,25 @@ use warnings;
 sub pp_nextstate {
     my $self = shift;
 
-    my $deparsed = '';
-    if (_should_insert_semicolon($self)) {
-        $deparsed .= ';';
-    }
+    my @package_and_label;
 
     my $cur_cop = $self->_get_cur_cop;
-    my $vertical_ws = ($cur_cop and !$self->is_null)
-                        ? $self->op->line - $cur_cop->op->line
-                        : 0;
-    $vertical_ws = 1 if ($vertical_ws > 1);
-
     if ($cur_cop and !$self->is_null and $self->op->stashpv ne $cur_cop->op->stashpv) {
-        $deparsed .= "\npackage " . $self->op->stashpv . ";\n";
-        $vertical_ws--;
+        push @package_and_label, 'package ' . $self->op->stashpv;
     }
 
-    if (!$self->is_null and $self->op->label) {
-        $deparsed .= "\n" if $self->_should_insert_semicolon;
-        $deparsed .= $self->op->label . ":\n";
-        $vertical_ws--;
+    if (!$self->is_null and my $label = $self->op->label) {
+        push @package_and_label, "$label:";
     }
-
-    $deparsed .= "\n" x $vertical_ws;
 
     $self->_set_cur_cop if (!$cur_cop or !$self->is_null);
 
-    $deparsed;
+    join(";\n", @package_and_label);
 }
 *pp_dbstate = \&pp_nextstate;
 *pp_setstate = \&pp_nextstate;
 
-sub _should_insert_semicolon {
+sub X_should_insert_semicolon {
     my $self = shift;
     my $is_subsequent_cop = $self->_get_cur_cop_in_scope;
     return '' unless $is_subsequent_cop;
