@@ -477,6 +477,24 @@ sub pp_eof {
         : 'eof';
 }
 
+sub pp_break {
+    my $self = shift;
+    ($self->op->flags & B::OPf_SPECIAL)
+        ? ''        # an implicit break at the end of each when { }
+        : 'break';  # and explicit break
+}
+
+sub is_implicit_break_at_end_of_when_block {
+    my $self = shift;
+
+    $self->op->name eq 'break'
+        and $self->op->flags & B::OPf_SPECIAL
+}
+
+sub pp_continue {
+    'continue';
+}
+
 # Starting with Perl 5.14, these are base-ops with the special flag set when used without args
 foreach my $a ( [ pp_shift  => 'shift' ],
                 [ pp_pop    => 'pop' ],

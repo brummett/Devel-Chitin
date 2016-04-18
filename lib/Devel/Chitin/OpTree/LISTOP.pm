@@ -17,9 +17,15 @@ sub pp_lineseq {
     my $children = $self->children;
 
     my $start = $params{skip} || 0;
-    my $deparsed;
     my $end = $#$children;
-    $end-- if $children->[-1]->op->name eq 'unstack';
+    if ($children->[-1]->op->name eq 'unstack'
+        or
+        $children->[-1]->is_implicit_break_at_end_of_when_block
+    ) {
+        $end--;
+    }
+
+    my $deparsed;
     for (my $i = $start; $i <= $end; $i++) {
         my $this_child_deparsed;
         if ($children->[$i]->is_for_loop) {
@@ -44,7 +50,9 @@ sub _should_insert_semicolon_after {
 
     return if ($op->op->sibling->isa('B::NULL')
                 or
-                $op->op->sibling->name eq 'unstack' && $op->op->sibling->sibling->isa('B::NULL'));
+                $op->op->sibling->name eq 'unstack' && $op->op->sibling->sibling->isa('B::NULL')
+                or
+                $op->next->is_implicit_break_at_end_of_when_block);
     while($op) {
         return 1 if $op->is_postfix_loop;
         return if $op->is_scopelike;
