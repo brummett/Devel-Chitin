@@ -1179,6 +1179,13 @@ subtest 'perl-5.22 differences' => sub {
         readline_with_brackets => join("\n",    q(my $fh;),
                                                 q(my $line = <$fh>;),
                                                 q(my @lines = <$fh>)),
+        hash_key_assignment => join("\n",   q(my(%a, $a);),
+                                            q($a{key} = 1;),
+                                            q($a{'key'} = 1;),
+                                            q($a{'1'} = 1;),
+                                            q($a->{key} = 1;),
+                                            q($a->{'key'} = 1;),
+                                            q($a->{'1'} = 1)),
     );
 };
 
