@@ -27,36 +27,4 @@ sub pp_nextstate {
 *pp_dbstate = \&pp_nextstate;
 *pp_setstate = \&pp_nextstate;
 
-sub X_should_insert_semicolon {
-    my $self = shift;
-    my $is_subsequent_cop = $self->_get_cur_cop_in_scope;
-    return '' unless $is_subsequent_cop;
-
-    my $prev = ($self->pre_siblings)[-1];
-
-    return '' if $prev
-                 and $prev->isa('Devel::Chitin::OpTree::COP')
-                 and $prev->op->line == $self->op->line;
-
-    if ($prev
-        and (
-              # $prev was some kind of block
-              ( $prev->is_scopelike
-                and
-                ! $prev->_deparse_postfix_while
-              )
-              or
-              # $prev was the end of an if-block
-              ( $prev->children->[0]
-                and $prev->children->[0]->children->[1]
-                and $prev->children->[0]->children->[1]->is_scopelike
-              )
-        )
-    ) {
-        return ''; # don't put a semi after a block-like construct
-    }
-
-    1;
-}
-
 1;
