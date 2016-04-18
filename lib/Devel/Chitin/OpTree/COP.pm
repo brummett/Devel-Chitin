@@ -13,7 +13,7 @@ sub pp_nextstate {
 
     my $cur_cop = $self->_get_cur_cop;
     if ($cur_cop and !$self->is_null and $self->op->stashpv ne $cur_cop->op->stashpv) {
-        push @package_and_label, 'package ' . $self->op->stashpv;
+        push @package_and_label, 'package ' . $self->op->stashpv . ';';
     }
 
     if (!$self->is_null and my $label = $self->op->label) {

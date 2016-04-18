@@ -762,6 +762,19 @@ sub _deparse_postfix_while {
     return '';
 }
 
+sub is_postfix_foreach {
+    my $self = shift;
+    return $self->op->name eq 'leaveloop'
+            && $self->first->op->name eq 'enteriter'
+            && ! $self->first->sibling->first->first->sibling->first->isa('Devel::Chitin::OpTree::COP');
+}
+
+sub is_postfix_loop {
+    my $self = shift;
+    return $self->is_postfix_foreach
+            || $self->_deparse_postfix_while;
+}
+
 sub _quote_sv {
     my($self, $sv, %params) = @_;
     my $string = $sv->PV;

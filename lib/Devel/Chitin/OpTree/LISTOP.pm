@@ -46,7 +46,9 @@ sub _should_insert_semicolon_after {
                 or
                 $op->op->sibling->name eq 'unstack' && $op->op->sibling->sibling->isa('B::NULL'));
     while($op) {
+        return 1 if $op->is_postfix_loop;
         return if $op->is_scopelike;
+        return if $op->isa('Devel::Chitin::OpTree::COP');
         $op = $op->children->[-1];
     }
     return 1;

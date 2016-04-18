@@ -104,16 +104,20 @@ sub pp_and {
 
 sub pp_or {
     my $self = shift;
-    my $right = $self->other->deparse;
-    if ($self->other->is_scopelike
-        and
-        $self->first->is_null
-        and
-        $self->first->_ex_name eq 'pp_not'
-    ) {
-        my $left = _format_if_conditional($self->first->first->deparse);
-        $right = _format_if_block($self->other->deparse);
-        "unless ($left) $right";
+    if ($self->other->is_scopelike) {
+        my $condition;
+        if ($self->first->is_null
+            and $self->first->_ex_name eq 'pp_not'
+        ) {
+            # starting with 5.12
+            $condition = $self->first->first->deparse;
+        } else {
+            # perl 5.10.1 and older
+            $condition = $self->first->deparse;
+        }
+        $condition = _format_if_conditional($condition);
+        my $code = _format_if_block($self->other->deparse);
+        "unless ($condition) $code";
 
     } elsif ($self->parent->is_null
             and $self->parent->pre_siblings
