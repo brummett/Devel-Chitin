@@ -728,6 +728,40 @@ sub is_list_reference_alias {
             && $self->last->is_array_container;
 }
 
+# Based on B::Deparse::is_miniwhile()
+sub _deparse_postfix_while {
+    my $self = shift;
+
+    my $top = $self->children->[1];
+    my $condition_op;
+    if ($self->op->name eq 'leave'
+        and $top
+        and $top->is_null
+        and $top->class eq 'UNOP'
+        and ($condition_op = $top->first)
+        and ($condition_op->op->name eq 'and' or $condition_op->op->name eq 'or')
+        and (
+            $top->first->children->[1]->op->name eq 'lineseq'
+            or
+            ( $top->first->op->name eq 'lineseq'
+              and ! $top->first->children->[1]->is_null
+              and $top->first->children->[1]->op->name eq 'unstack'
+            )
+        )
+    ) {
+        my $type;
+        my $condition = $condition_op->first->deparse;
+        if ($condition_op->op->name eq 'and') {
+            $type = 'while';
+        } else {
+            $type = 'until';
+            $condition =~ s/^!//;
+        }
+        return $condition_op->children->[1]->deparse . " $type ($condition)";
+    }
+    return '';
+}
+
 sub _quote_sv {
     my($self, $sv, %params) = @_;
     my $string = $sv->PV;
