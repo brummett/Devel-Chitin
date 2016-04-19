@@ -303,11 +303,12 @@ sub next_statement {
     my $optree = $optrees{$loc->subroutine} ||= Devel::Chitin::OpTree->build_from_location($loc);
 
     my $callsite = $loc->callsite;
-    my $current_op;
+    my($last_cop, $current_op);
     BREAKOUT:
     for(1) {
         $optree->walk_inorder(sub {
             my $op = shift;
+            $last_cop = $op if ($op->isa('Devel::Chitin::OpTree::COP'));
             if (${$op->op} == $callsite) {
                 $current_op = $op;
                 no warnings 'exiting';
@@ -316,12 +317,12 @@ sub next_statement {
         });
     }
 
-    while($current_op && $scopes--) {
-        $current_op = $current_op->parent;
+    while($last_cop && $scopes--) {
+        $last_cop = $last_cop->parent;
     }
 
-    if ($current_op) {
-        return $current_op->deparse;
+    if ($last_cop) {
+        return $last_cop->sibling->deparse;
     } else {
         Carp::carp("Cannot find current opcode at $callsite in ".$loc->subroutine);
         return '';
