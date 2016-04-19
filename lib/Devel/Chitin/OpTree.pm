@@ -330,12 +330,18 @@ sub print_as_tree {
                     }
                     qw(WANT_VOID WANT_SCALAR WANT_LIST KIDS PARENS REF MOD STACKED SPECIAL);
 
-        my $file_and_line = $op->class eq 'COP'
-                            ? join(':', $op->op->file, $op->op->line)
-                            : '';
-        printf("%s%s %s (%s) %s 0x%x\n", '  'x$level, $op->class, $name,
+        my $mini_deparsed = '';
+        if ($op->class eq 'COP') {
+            $mini_deparsed = join(':', $op->op->file, $op->op->line);
+        } elsif ($op->is_scalar_container
+                or $op->is_array_container
+                or $op->op->name eq 'const'
+        ) {
+            $mini_deparsed = $op->deparse;
+        }
+
                                  join(', ', @flags),
-                                 $file_and_line,
+                                 $mini_deparsed,
                                  refaddr($op));
     });
 }
