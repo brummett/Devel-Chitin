@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/brummett/Devel-Chitin.png?branch=master)](https://travis-ci.org/brummett/Devel-Chitin)
 ## Devel::Chitin
 
 Programmatic interface to the Perl debugging API
