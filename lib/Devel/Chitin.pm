@@ -357,6 +357,7 @@ sub cleanup {}
 sub notify_stopped {}
 sub notify_resumed {}
 sub notify_trace {}
+sub notify_trace_resumed {}
 sub notify_fork_parent {}
 sub notify_fork_child {}
 sub notify_program_terminated {}
@@ -649,6 +650,8 @@ sub DB {
 
     RETURN_TO_DEBUGGED_PROGRAM:
 
+    $_->notify_trace_resumed($current_location) foreach values(%trace_clients);
+
     $previous_location = $current_location;
     undef $current_location;
     Devel::Chitin::Stack::invalidate();
@@ -796,6 +799,7 @@ Devel::Chitin - Programmatic interface to the Perl debugging API
   CLIENT->poll($location);              # Return true if there is user input
   CLIENT->idle($location);              # Handle user interaction (can block)
   CLIENT->notify_trace($location);      # Called on each executable statement
+  CLIENT->notify_trace_resumed($location);  # Called before the program gets control after trace
   CLIENT->notify_stopped($location);    # Called when a break has occured
   CLIENT->notify_resumed($location);    # Called before the program gets control after a break
   CLIENT->notify_fork_parent($location,$pid);   # Called after fork() in parent
@@ -847,7 +851,9 @@ C<attach> call.
 =item CLIENT->trace([1 | 0])
 
 Get or set the trace flag.  If trace is on, the client will get notified
-before every executable statement by having its C<notify_trace> method called.
+before every executable statement by having its C<notify_trace> method called,
+and before returning to the debugged program by having its
+C<notify_trace_resumed> method called.
 
 =item CLIENT->disable_debugger()
 
@@ -995,8 +1001,8 @@ watched expression's value ever changes, the client that added the expression
 will be notified via its C<notify_watch_expr()> method.  These expressions
 are always evaluated in list context.  They are considered changed if the
 list's length changes, or if one of the elements has a different value
-when compared as strings.  This comparison is only a shallow; it will not
-recurse deeply into references.
+when compared as strings.  This comparison is only shallow; it will not
+recurse into references or nested data structures.
 
 =over 4
 
@@ -1046,6 +1052,11 @@ If a client has turned on the trace flag, this method will be called before
 each executable statement.  The return value is ignored.  $location is an
 instance of L<Devel::Chitin::Location> indicating the next statement to be
 executed in the debugged program.
+
+=item CLIENT->notify_trace_resumed($location)
+
+If a client has turned on the trace flag, this method will be called before
+the debugged program regains control.  The return value is ignored.
 
 notify_trace() will be called only on clients that have requested tracing by
 calling CLIENT->trace(1).
