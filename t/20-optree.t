@@ -1262,6 +1262,7 @@ sub excludes_version {
     my $required_version = shift;
     return sub {
         my $required_version_string = sprintf('%vd', $required_version);
+diag sprintf("excluding for version $required_version_string, this is %vd", $^V);
         if ($^V gt $required_version) {
             plan skip_all => "doesn't work starting with version $required_version_string";
             return;
