@@ -313,6 +313,8 @@ my %flag_values = (
 );
 sub print_as_tree {
     my $self = shift;
+    my $current_callsite = shift;
+
     $self->walk_inorder(sub {
         my $op = shift;
         my($level, $parent) = (0, $op);
@@ -340,6 +342,10 @@ sub print_as_tree {
             $mini_deparsed = $op->deparse;
         }
 
+        my $indent = ($current_callsite and $op->op == $current_callsite)
+                        ? '=>' . ('  ' x($level-1))
+                        : '  'x$level;
+        printf("%s%s %s (%s) %s 0x%x\n", $indent, $op->class, $name,
                                  join(', ', @flags),
                                  $mini_deparsed,
                                  refaddr($op));
