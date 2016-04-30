@@ -460,9 +460,8 @@ sub pp_sassign {
     $self->first->deparse;
 }
 
-# 5.14 and earlier Perls used glob as an optimized-out UNOP and looks like
-# a call to CORE::GLOBAL__glob(),  Newer perls have it as a LISTOP and
-# encode the params differently.
+# 5.12 and earlier Perls used glob as an optimized-out UNOP and looks like
+# a call to CORE::GLOBAL__glob()
 # This glob is compiled like this:
 # ex-pp_glob
 #   entersub
@@ -472,9 +471,24 @@ sub pp_sassign {
 #       const integer 0
 #     ex-rv2cv
 #       gv *CORE::GLOBAL::glob
+# 5.14 is wierder - it has the same ex-glob/entersub, but then a real glob OP
+# inside there
+# ex-pp_glob
+#   entersub
+#     ex-list
+#       pushmark
+#       glob (listOP)
+#         ex-pushmark
+#         argument-to-glob
+#         const integer 0
+#     ex-rv2cv
+#       gv *CORE::GLOBAL::glob
+# Newer perls just have the inner LISTOP and encode the params differently.
 sub pp_glob {
     my $self = shift;
-    'glob(' . $self->first->first->children->[1]->deparse . ')';
+    ($^V lt v5.14)
+        ? 'glob(' . $self->first->first->children->[1]->deparse . ')'
+        : $self->first->first->children->[1]->deparse;
 }
 
 # Operators
