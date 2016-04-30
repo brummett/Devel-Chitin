@@ -3,7 +3,7 @@ package Devel::Chitin::SubroutineLocation;
 use strict;
 use warnings;
 
-use Devel::Chitin qw( $VERSION );
+use Devel::Chitin::Version;
 
 use Carp;
 

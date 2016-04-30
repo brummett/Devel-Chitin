@@ -3,7 +3,7 @@ use strict;
 
 package Devel::Chitin;
 
-our $VERSION = '0.06';
+use Devel::Chitin::Version;
 
 use Scalar::Util;
 use IO::File;
@@ -14,6 +14,7 @@ use Devel::Chitin::Stack;
 use Devel::Chitin::Location;
 use Devel::Chitin::SubroutineLocation;
 use Devel::Chitin::Exception;
+use Devel::Chitin::OpTree;
 
 use base 'Exporter';
 our @EXPORT_OK = qw( $VERSION );
@@ -291,6 +292,60 @@ sub file_source {
     my $glob = $main::{'_<' . $file};
     return unless $glob;
     return *{$glob}{ARRAY};
+}
+
+my %optrees;
+sub next_statement {
+    my($class, $scopes) = @_;
+
+    my $loc = $class->current_location();
+    $loc = $class->_fixup_location_inside_eval($loc);
+    my $optree = $optrees{$loc->subroutine} ||= Devel::Chitin::OpTree->build_from_location($loc);
+
+    my $callsite = $loc->callsite;
+    my($last_cop, $current_op);
+    BREAKOUT:
+    for(1) {
+        $optree->walk_inorder(sub {
+            my $op = shift;
+            $last_cop = $op if ($op->isa('Devel::Chitin::OpTree::COP'));
+            if (${$op->op} == $callsite) {
+                $current_op = $op;
+                no warnings 'exiting';
+                last BREAKOUT;
+            }
+        });
+    }
+
+    while($last_cop && $scopes--) {
+        $last_cop = $last_cop->parent;
+    }
+
+    if ($last_cop) {
+        return $last_cop->sibling->deparse;
+    } else {
+        Carp::carp("Cannot find current opcode at $callsite in ".$loc->subroutine);
+        return '';
+    }
+}
+
+sub _fixup_location_inside_eval {
+    my($class, $loc) = @_;
+
+    if ($loc->subroutine eq '(eval)') {
+        my $stack = $class->stack->iterator;
+        my $frame;
+        for($frame = $stack->(); $frame; $frame = $stack->()) {
+            last if $frame->subroutine ne '(eval)';
+        }
+        if ($frame) {
+            return Devel::Chitin::Location->new(
+                        (map { $_ => $frame->$_ } qw(package filename line subroutine)),
+                        callsite => $loc->callsite
+                    );
+        }
+    }
+    return $loc;
 }
 
 ## Methods called by the DB core - override in clients
@@ -734,6 +789,7 @@ Devel::Chitin - Programmatic interface to the Perl debugging API
   CLIENT->is_breakable($file, $line);   # Return true if the line is executable
   CLIENT->stack();              # Return Devel::Chitin::Stack
   CLIENT->current_location();   # Where is the program stopped at?
+  CLIENT->next_statement([$scopes]);    # Return the next statement to execute
   CLIENT->add_watchexpr($expr); # Add a new watch expression
   CLIENT->remove_watchexpr($expr);  # Remove a watch expression
 
@@ -917,6 +973,16 @@ Return an instance of L<Devel::Chitin::Location> representing the currently
 stopped location in the debugged program.  This method returns undef if
 called when the debugged program is actively running.
 
+=item CLIENT->next_statement([$scope])
+
+Returns a string representing the next Perl statement to execute when control
+returns to the debugged program.  This involves inspecting the OpTree of the
+currently executing subroutine and deparsing it at the stopped location.
+Since the returned string is a reconstruction based on the OpTree, it may not
+match the original source code exactly.
+
+Requires the L<Devel::Callsite> module to be installed.
+
 =item CLIENT->file_source($filename)
 
 Return a list of strings containing the source code for a loaded file.
@@ -1069,7 +1135,7 @@ reports so we can converge on a usable API quickly.
 
 L<Devel::Chitin::Location>, L<Devel::Chitin::Exception>,
 L<Devel::Chitin::Stack>, L<Devel::Chitin::Actionable>,
-L<Devel::Chitin::GetVarAtLevel>
+L<Devel::Chitin::GetVarAtLevel>, L<Devel::Callsite>
 
 The API for this module was inspired by L<DB>
 
