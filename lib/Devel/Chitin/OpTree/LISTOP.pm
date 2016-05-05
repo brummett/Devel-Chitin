@@ -64,13 +64,14 @@ sub _should_insert_semicolon_after {
 
 sub pp_leave {
     my $self = shift;
+    my %params = @_;
 
     if (my $deparsed = $self->_deparse_postfix_while) {
         return $deparsed;
     }
 
     $self->_enter_scope;
-    my $deparsed = $self->pp_lineseq(@_, skip => 1) || ';';
+    my $deparsed = $self->pp_lineseq(@_, skip => 1, %params) || ';';
     $self->_leave_scope;
 
     my $parent = $self->parent;
@@ -85,7 +86,7 @@ sub pp_leave {
         $block_declaration = 'eval ';
     }
 
-    $deparsed = $self->_indent_block_text($deparsed);
+    $deparsed = $self->_indent_block_text($deparsed, %params);
 
     $block_declaration . "{$deparsed}";
 }

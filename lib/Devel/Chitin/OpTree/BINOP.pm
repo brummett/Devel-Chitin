@@ -206,8 +206,8 @@ sub _deparse_while_until {
         # has continue
         # loop and continue contents are wrapped in scopes
         my $children = $condition_op->other->children;
-        $loop_content = $children->[0]->deparse;
-        $continue_content = ' continue ' . $children->[1]->deparse;
+        $loop_content = $children->[0]->deparse(force_multiline => 1);
+        $continue_content = ' continue ' . $children->[1]->deparse(force_multiline => 1);
     }
 
     my $loop_condition = $condition_op->first->deparse;
