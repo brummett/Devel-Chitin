@@ -70,7 +70,7 @@ sub notify_trace {
     Test::More::is($next_statement, $expected_next_statement, 'next_statement for line '.$loc->line)
         || do {
             Test::More::diag(sprintf("stopped at line %d callsite 0x%0x\n", $loc->line, $loc->callsite));
-            Test::More::diag(Devel::Chitin::OpTree->build_from_location($loc)->print_as_tree($class->current_location));
+            Test::More::diag(Devel::Chitin::OpTree->build_from_location($loc)->print_as_tree($loc->callsite));
         };
 }
 

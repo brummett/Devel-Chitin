@@ -342,13 +342,13 @@ sub print_as_tree {
             $mini_deparsed = $op->deparse;
         }
 
-        my $indent = ($current_callsite and $op->op == $current_callsite)
+        my $indent = ($current_callsite and ${$op->op} == $current_callsite)
                         ? '=>' . ('  ' x($level-1))
                         : '  'x$level;
         printf("%s%s %s (%s) %s 0x%x\n", $indent, $op->class, $name,
                                  join(', ', @flags),
                                  $mini_deparsed,
-                                 refaddr($op));
+                                 $current_callsite ? ${$op->op} : refaddr($op));
     });
 }
 
