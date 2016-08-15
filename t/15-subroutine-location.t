@@ -96,7 +96,7 @@ sub check_subroutine_location {
         {
             package => 'Bar',
             subroutine => 'sub_in_eval',
-            filename => qr{^\(eval \d+\)\[$this_file:22\]$},
+            filename => qr{^\(eval \d+\)\[\Q$this_file\E:22\]$},
             source => __FILE__,
             line => 2,
             source_line => 22,
