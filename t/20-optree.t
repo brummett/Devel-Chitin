@@ -1272,10 +1272,14 @@ sub excludes_version {
 
 sub _run_tests {
     my $use_version = '';
-    if (ref($_[0]) and reftype($_[0]) eq 'CODE') {
-        $use_version = shift->();
-        return unless defined $use_version;
+
+    my $should_skip = 0;
+    while (ref($_[0]) and reftype($_[0]) eq 'CODE') {
+        my $code = shift;
+        $use_version .= $code->();
+        $should_skip = 1 if !defined($use_version);
     }
+    return() if $should_skip;
 
     my %tests = @_;
     plan tests => scalar keys %tests;
