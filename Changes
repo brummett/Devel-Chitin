@@ -1,7 +1,7 @@
 15 Aug 2016 - v0.07
     * Fix for running tests on Windows (thanks, nanis)
     * Preliminary support for decompiling.  Currently undocumented, but see
-        Devel::Chitin::OpTree->build_from_location()
+        Devel::Chitin::OpTree->build_from_location() and t/20-optree.t
 
 21 Jan 2016 - v0.06
     * When Devel::Callsite is available, Location objects have a 'callsite'
