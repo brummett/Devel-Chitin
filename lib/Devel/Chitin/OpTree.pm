@@ -515,11 +515,11 @@ foreach my $a ( [ pp_shift  => 'shift' ],
     my $sub = sub {
         my $self = shift;
         if ($self->op->flags & B::OPf_SPECIAL) {
-            "$perl_name()";
+            "$perl_name";
         } else {
             my $arg = $self->first->deparse;
             if ($arg eq '@_') {
-                "$perl_name()";
+                "$perl_name";
             } else {
                 "$perl_name($arg)";
             }
