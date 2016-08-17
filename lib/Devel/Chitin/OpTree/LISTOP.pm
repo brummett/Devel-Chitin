@@ -349,9 +349,7 @@ sub pp_sysopen {
     'sysopen(' . join(', ', @params) . ')';
 }
 
-my @waitpid_flags = _generate_flag_list(qw(
-                        WEXITSTATUS WIFEXITED WIFSIGNALED WIFSTOPPED
-                        WNOHANG WSTOPSIG WTERMSIG WUNTRACED ));
+my @waitpid_flags = _generate_flag_list(qw( WNOHANG WSTOPSIG WTERMSIG WUNTRACED ));
 sub pp_waitpid {
     my $self = shift;
     my $children = $self->children;
