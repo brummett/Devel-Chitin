@@ -317,12 +317,14 @@ sub next_statement {
         });
     }
 
-    while($last_cop && $scopes--) {
-        $last_cop = $last_cop->parent;
+    my $op_to_deparse = $last_cop ? $last_cop->sibling : $current_op;
+    while($op_to_deparse && $scopes--) {
+        my $parent = $op_to_deparse->parent;
+        $op_to_deparse = $parent if $parent;
     }
 
-    if ($last_cop) {
-        return $last_cop->sibling->deparse;
+    if ($op_to_deparse) {
+        return $op_to_deparse->deparse;
     } else {
         Carp::carp("Cannot find current opcode at $callsite in ".$loc->subroutine);
         return '';
