@@ -75,12 +75,12 @@ sub pp_leave {
     $self->_leave_scope;
 
     my $parent = $self->parent;
-    my $do = ($parent->is_null and $parent->op->flags & B::OPf_SPECIAL)
+    my $do = ($parent and $parent->is_null and $parent->op->flags & B::OPf_SPECIAL)
                 ? 'do '
                 : '';
 
     my $block_declaration = '';
-    if ($parent->is_null and $parent->op->flags & B::OPf_SPECIAL) {
+    if ($parent and $parent->is_null and $parent->op->flags & B::OPf_SPECIAL) {
         $block_declaration = 'do ';
     } elsif ($self->op->name eq 'leavetry') {
         $block_declaration = 'eval ';

@@ -24,7 +24,7 @@ sub foo {
 BEGIN {
     if (is_in_test_program) {
         if (Devel::Chitin::TestRunner::has_callsite) {
-            eval "use Test::More tests => 11;";
+            eval "use Test::More tests => 22;";
         } else {
             eval "use Test::More skip_all => 'Devel::Callsite is not available'";
         }
@@ -72,5 +72,9 @@ sub notify_trace {
             Test::More::diag(sprintf("stopped at line %d callsite 0x%0x\n", $loc->line, $loc->callsite));
             Test::More::diag(Devel::Chitin::OpTree->build_from_location($loc)->print_as_tree($loc->callsite));
         };
+
+    eval { $class->next_statement(1) };
+    Test::More::ok(! $@, 'able to get next_statement on parent for line '.$loc->line)
+        || Test::More::diag("exception was: $@");
 }
 
