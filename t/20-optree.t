@@ -911,6 +911,8 @@ subtest 'program flow' => sub {
 #    );
 #};
 
+printf STDERR "\n\n*** WNOHANG: %s WUNTRACED: %s\n", WNOHANG, WUNTRACED;
+
 subtest process => sub {
     _run_tests(
         alarm_fcn => q(alarm(4)),
