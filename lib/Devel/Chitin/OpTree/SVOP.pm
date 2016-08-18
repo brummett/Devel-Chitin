@@ -43,3 +43,38 @@ sub pp_gv {
 *pp_gvsv = \&pp_gv;
 
 1;
+
+__END__
+
+=pod
+
+=head1 NAME
+
+Devel::Chitin::OpTree::SVOP - Deparser class for SV-related OPs
+
+=head1 DESCRIPTION
+
+This package contains methods to deparse SVOPs (const, method_named, etc)
+
+=head2 Methods
+
+=over 4
+
+=item last
+
+Returns a L<Devel::Chitin::OpTree> instance for the second child of this node
+
+=back
+
+=head1 SEE ALSO
+
+L<Devel::Chitin::OpTree>, L<Devel::Chitin>, L<B>, L<B::Deparse>, L<B::DeparseTree>
+
+=head1 AUTHOR
+
+Anthony Brummett <brummett@cpan.org>
+
+=head1 COPYRIGHT
+
+Copyright 2016, Anthony Brummett.  This module is free software. It may
+be used, redistributed and/or modified under the same terms as Perl itself.
