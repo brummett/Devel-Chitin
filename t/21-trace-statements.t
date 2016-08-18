@@ -36,45 +36,61 @@ use base 'Devel::Chitin';
 my @trace;
 BEGIN {
     @trace = (
-        '$line = 12',
-        '$i = 0',
-        '$b = 13',
+        [ '$line = 12', '12',   '$line = 12' ],
+        [ '$i = 0',     '0',    '$i = 0' ],
+        [ '$b = 13',    '13',   '$b = 13' ],
         # while loop
-        join("\n",  'while ($i < 2) {',
+        [   join("\n",  'while ($i < 2) {',
                     "\tfoo(\$i)",
                     '} continue {',
                     "\t\$a = \$i++",
                     '}'),
+            '$i < 2',
+            join("\n",  'while ($i < 2) {',
+                    "\tfoo(\$i)",
+                    '} continue {',
+                    "\t\$a = \$i++",
+                    '}'),
+        ],
         # about to call foo()
-        'foo($i)',
-        '$line = 21',
+        [ 'foo($i)',    'foo($i)',  '($i, foo)' ],
+        [ '$line = 21', '21',       '$line = 21' ],
         # continue
-        '$a = $i++',
+        [ '$a = $i++',  '$i',       '$i++' ],
         # About to call foo() again
-        'foo($i)',
-        '$line = 21',
+        [ 'foo($i)',    'foo($i)',  '($i, foo)' ],
+        [ '$line = 21', '21',       '$line = 21' ],
         # continue
-        '$a = $i++',
+        [ '$a = $i++',  '$i',       '$i++' ],
         # done
-        '$line = 19',
+        [ '$line = 19', '19',       '$line = 19' ],
     );
 }
 
 sub notify_trace {
     my($class, $loc) = @_;
+    my $line = $loc->line;
 
-    my $expected_next_statement = shift @trace;
-    exit unless $expected_next_statement;
+    my $expected_next = shift @trace;
+    exit unless $expected_next;
+
+    my($expected_next_statement, $expected_next_fragment, $expected_next_parent_frag) = @$expected_next;
 
     my $next_statement = $class->next_statement();
-    Test::More::is($next_statement, $expected_next_statement, 'next_statement for line '.$loc->line)
-        || do {
-            Test::More::diag(sprintf("stopped at line %d callsite 0x%0x\n", $loc->line, $loc->callsite));
-            Test::More::diag(Devel::Chitin::OpTree->build_from_location($loc)->print_as_tree($loc->callsite));
-        };
+    Test::More::is($next_statement, $expected_next_statement, "next_statement for line $line")
+        || print_errors($loc);
 
-    eval { $class->next_statement(1) };
-    Test::More::ok(! $@, 'able to get next_statement on parent for line '.$loc->line)
-        || Test::More::diag("exception was: $@");
+    my $next_fragment = $class->next_fragment();
+    Test::More::is($next_fragment, $expected_next_fragment, "next_fragment for line $line")
+        || print_errors($loc);
+
+    my $next_fragment_parent = $class->next_fragment(1);
+    Test::More::is($next_fragment_parent, $expected_next_parent_frag, "next_fragment parent for line $line")
+        || print_errors($loc);
 }
 
+sub print_errors {
+    my $loc = shift;
+    Test::More::diag(sprintf("stopped at line %d callsite 0x%0x\n", $loc->line, $loc->callsite));
+    Test::More::diag(Devel::Chitin::OpTree->build_from_location($loc)->print_as_tree($loc->callsite));
+}

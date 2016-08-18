@@ -296,7 +296,7 @@ sub file_source {
 
 my %optrees;
 sub next_statement {
-    my($class, $scopes) = @_;
+    my $class = shift;
 
     my $loc = $class->current_location();
     $loc = $class->_fixup_location_inside_eval($loc);
@@ -318,13 +318,49 @@ sub next_statement {
     }
 
     my $op_to_deparse = $last_cop ? $last_cop->sibling : $current_op;
-    while($op_to_deparse && $scopes--) {
-        my $parent = $op_to_deparse->parent;
-        $op_to_deparse = $parent if $parent;
-    }
 
     if ($op_to_deparse) {
         return $op_to_deparse->deparse;
+    } else {
+        Carp::carp("Cannot find current opcode at $callsite in ".$loc->subroutine);
+        return '';
+    }
+}
+
+# Some OPs don't deparse to anything useful on their own
+my %fragment_transforms = (
+    enterloop    => sub { shift->sibling->children->[0]->children->[0] },  # deparse the conditional
+    pushmark     => sub {
+                        # deparse either the list or entersub
+                        my $parent = shift->parent;
+                        my $grandparent = $parent->parent;
+                        $grandparent->op->name eq 'entersub'
+                            ? $grandparent
+                            : $parent;
+                    },
+);
+sub next_fragment {
+    my($class, $parents) = @_;
+
+    my $loc = $class->current_location();
+    $loc = $class->_fixup_location_inside_eval($loc);
+    my $optree = $optrees{$loc->subroutine} ||= Devel::Chitin::OpTree->build_from_location($loc);
+
+    my $callsite = $loc->callsite;
+    my $current_op = Devel::Chitin::OpTree->_obj_for_op(\$callsite);
+
+    while($current_op && $parents--) {
+        my $parent = $current_op->parent;
+        $current_op = $parent if $parent;
+    }
+
+    if (my $xform = $fragment_transforms{$current_op->op->name}) {
+        local $@;
+        $current_op = eval { $xform->($current_op) };
+    }
+
+    if ($current_op) {
+        return $current_op->deparse;
     } else {
         Carp::carp("Cannot find current opcode at $callsite in ".$loc->subroutine);
         return '';
@@ -791,7 +827,8 @@ Devel::Chitin - Programmatic interface to the Perl debugging API
   CLIENT->is_breakable($file, $line);   # Return true if the line is executable
   CLIENT->stack();              # Return Devel::Chitin::Stack
   CLIENT->current_location();   # Where is the program stopped at?
-  CLIENT->next_statement([$scopes]);    # Return the next statement to execute
+  CLIENT->next_statement();     # Return the next statement to execute
+  CLIENT->next_fragment([$parents]); # Return the next op to execute
   CLIENT->add_watchexpr($expr); # Add a new watch expression
   CLIENT->remove_watchexpr($expr);  # Remove a watch expression
 
@@ -975,15 +1012,23 @@ Return an instance of L<Devel::Chitin::Location> representing the currently
 stopped location in the debugged program.  This method returns undef if
 called when the debugged program is actively running.
 
-=item CLIENT->next_statement([$scope])
+=item CLIENT->next_statement()
 
 Returns a string representing the next Perl statement to execute when control
-returns to the debugged program.  This involves inspecting the OpTree of the
-currently executing subroutine and deparsing it at the stopped location.
-Since the returned string is a reconstruction based on the OpTree, it may not
-match the original source code exactly.
+returns to the debugged program with "step over".  This involves inspecting
+the OpTree of the currently executing subroutine and deparsing it at the
+stopped location.  Since the returned string is a reconstruction based on the
+OpTree, it may not match the original source code exactly.
 
 Requires the L<Devel::Callsite> module to be installed.
+
+=item CLIENT->next_fragment($parents)
+
+Returns a string representing the next Perl operation to execute when control
+returns to the debugged program.  This differes from next_statement() in that
+next_fragment() only deparses the immediately next opcode (and its children).
+C<$parents> is an optional param to indicate how many parent OPs to back up
+before deparsing.
 
 =item CLIENT->file_source($filename)
 
