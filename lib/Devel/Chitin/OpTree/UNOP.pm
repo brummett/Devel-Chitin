@@ -62,7 +62,12 @@ sub pp_refgen {
     if ($anoncode) {
         my $subref = $self->_padval_sv($anoncode->op->targ);
         my $deparser = Devel::Chitin::OpTree->build_from_location($subref->object_2svref);
-        'sub { ' . $deparser->deparse . ' }';
+        my $deparsed = $deparser->deparse;
+        if ($deparsed =~ m/\n/) {
+            return join('', 'sub {', $self->_indent_block_text($deparsed), '}');
+        } else {
+            return join('', 'sub { ', $deparsed, ' }');
+        }
 
     } elsif ($first->is_null
              and $first->_ex_name eq 'pp_list'

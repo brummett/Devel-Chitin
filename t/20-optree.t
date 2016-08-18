@@ -743,7 +743,11 @@ subtest operators => sub {
                                     q($a = \\%hash;),
                                     q($a = \\*scalar_assignment;),
                                     q($a = \\&scalar_assignment;),
-                                    q($a = sub { my $inner = 1 })),
+                                    q($a = sub { my $inner = 1 };),
+                                    q($a = sub {),
+                                   qq(\tfirst_thing();),
+                                   qq(\tsecond_thing()),
+                                    q(})),
     );
 };
 
