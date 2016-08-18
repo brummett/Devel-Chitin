@@ -319,7 +319,8 @@ sub _deparse_seeklike {
 }
 
 sub _generate_flag_list {
-    map { my $val = eval "$_";
+    map { local $@;
+          my $val = eval "$_";
           $val ? ( $_ => $val ) : ()
     } @_
 }
