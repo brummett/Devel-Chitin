@@ -24,7 +24,7 @@ sub foo {
 BEGIN {
     if (is_in_test_program) {
         if (Devel::Chitin::TestRunner::has_callsite) {
-            eval "use Test::More tests => 22;";
+            eval "use Test::More tests => 33;";
         } else {
             eval "use Test::More skip_all => 'Devel::Callsite is not available'";
         }
