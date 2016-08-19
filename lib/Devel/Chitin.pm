@@ -295,12 +295,20 @@ sub file_source {
 }
 
 my %optrees;
+our $current_sub;
+sub _get_optree_for_current_sub {
+    my $loc = current_location;
+
+    my $optree_cache_key = ref($current_sub) ? "$current_sub" : $loc->subroutine;
+    my $optree = $optrees{$optree_cache_key} ||= Devel::Chitin::OpTree->build_from_location(ref($current_sub) ? $current_sub : $loc);
+}
+
 sub next_statement {
     my $class = shift;
 
+    my $optree = _get_optree_for_current_sub();
     my $loc = $class->current_location();
     $loc = $class->_fixup_location_inside_eval($loc);
-    my $optree = $optrees{$loc->subroutine} ||= Devel::Chitin::OpTree->build_from_location($loc);
 
     my $callsite = $loc->callsite;
     my($last_cop, $current_op);
@@ -320,7 +328,13 @@ sub next_statement {
     my $op_to_deparse = $last_cop ? $last_cop->sibling : $current_op;
 
     if ($op_to_deparse) {
-        return $op_to_deparse->deparse;
+        local $@;
+        my $deparsed = eval { $op_to_deparse->deparse };
+        if ($@) {
+            warn "failed to deparse: $@";
+            $optree->print_as_tree($callsite);
+        }
+        return $deparsed;
     } else {
         Carp::carp("Cannot find current opcode at $callsite in ".$loc->subroutine);
         return '';
@@ -342,9 +356,9 @@ my %fragment_transforms = (
 sub next_fragment {
     my($class, $parents) = @_;
 
+    my $optree = _get_optree_for_current_sub();
     my $loc = $class->current_location();
     $loc = $class->_fixup_location_inside_eval($loc);
-    my $optree = $optrees{$loc->subroutine} ||= Devel::Chitin::OpTree->build_from_location($loc);
 
     my $callsite = $loc->callsite;
     my $current_op = Devel::Chitin::OpTree->_obj_for_op(\$callsite);
@@ -360,7 +374,13 @@ sub next_fragment {
     }
 
     if ($current_op) {
-        return $current_op->deparse;
+        local $@;
+        my $deparsed = eval { $current_op->deparse };
+        if ($@) {
+            warn "failed to deparse: $@";
+            $optree->print_as_tree($callsite);
+        }
+        return $deparsed;
     } else {
         Carp::carp("Cannot find current opcode at $callsite in ".$loc->subroutine);
         return '';
@@ -710,6 +730,8 @@ BEGIN {
 sub sub {
     no strict 'refs';
     goto &$sub if (! $ready or index($sub, 'Devel::Chitin::StackTracker') == 0 or $debugger_disabled);
+
+    local $Devel::Chitin::current_sub = $sub unless $in_debugger;
 
     local @AUTOLOAD_names = @AUTOLOAD_names;
     if (index($sub, '::AUTOLOAD', -10) >= 0) {
