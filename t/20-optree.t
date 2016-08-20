@@ -3,7 +3,7 @@ use warnings;
 
 use Devel::Chitin::OpTree;
 use Devel::Chitin::Location;
-use Test::More tests => 30;
+use Test::More tests => 31;
 
 use Fcntl qw(:flock :DEFAULT SEEK_SET SEEK_CUR SEEK_END);
 use POSIX qw(:sys_wait_h);
@@ -911,8 +911,6 @@ subtest 'program flow' => sub {
 #    );
 #};
 
-printf STDERR "\n\n*** WNOHANG: %s WUNTRACED: %s\n", WNOHANG, WUNTRACED;
-
 subtest process => sub {
     _run_tests(
         alarm_fcn => q(alarm(4)),
@@ -947,8 +945,6 @@ subtest process => sub {
                                     q(my $a = times())),
         wait_fcn => join("\n",      q(my $a = wait();),
                                     q(wait())),
-        waitpid_fcn => join("\n",   q(my $a = waitpid(123, WNOHANG | WUNTRACED);),
-                                    q($a = waitpid($a, 0))),
         getpriority_fcn => join("\n",   q(my $a = getpriority(1, 2);),
                                         q($a = getpriority(0, 0))),
         setpriority_fcn => join("\n",   q($a = setpriority(1, 2, 3);),
@@ -956,6 +952,14 @@ subtest process => sub {
         setpgrp_fcn => join("\n",   q(my $a = setpgrp();),
                                     q($a = setpgrp(0, 0);),
                                     q($a = setpgrp(9, 10))),
+    );
+};
+
+subtest 'process waitpid' => sub {
+    plan skip_all => q(WNOHANG isn't defined on Windows) if $^O eq 'MSWin32';
+    _run_tests(
+        waitpid_fcn => join("\n",   q(my $a = waitpid(123, WNOHANG | WUNTRACED);),
+                                    q($a = waitpid($a, 0))),
     );
 };
 
