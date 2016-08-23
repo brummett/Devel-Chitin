@@ -3,7 +3,7 @@ package Devel::Chitin::Stack;
 use strict;
 use warnings;
 
-use Devel::Chitin::Version;
+our $VERSION = '0.09';
 
 our @saved_ARGV;
 BEGIN {
@@ -413,6 +413,6 @@ Anthony Brummett <brummett@cpan.org>
 
 =head1 COPYRIGHT
 
-Copyright 2014, Anthony Brummett.  This module is free software. It may
+Copyright 2016, Anthony Brummett.  This module is free software. It may
 be used, redistributed and/or modified under the same terms as Perl itself.
 

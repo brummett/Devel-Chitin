@@ -3,7 +3,7 @@ use warnings;
 
 use Devel::Chitin::OpTree;
 use Devel::Chitin::Location;
-use Test::More tests => 29;
+use Test::More tests => 31;
 
 use Fcntl qw(:flock :DEFAULT SEEK_SET SEEK_CUR SEEK_END);
 use POSIX qw(:sys_wait_h);
@@ -948,8 +948,6 @@ subtest process => sub {
                                     q(my $a = times())),
         wait_fcn => join("\n",      q(my $a = wait();),
                                     q(wait())),
-        waitpid_fcn => join("\n",   q(my $a = waitpid(123, WNOHANG | WUNTRACED);),
-                                    q($a = waitpid($a, 0))),
         getpriority_fcn => join("\n",   q(my $a = getpriority(1, 2);),
                                         q($a = getpriority(0, 0))),
         setpriority_fcn => join("\n",   q($a = setpriority(1, 2, 3);),
@@ -957,6 +955,14 @@ subtest process => sub {
         setpgrp_fcn => join("\n",   q(my $a = setpgrp();),
                                     q($a = setpgrp(0, 0);),
                                     q($a = setpgrp(9, 10))),
+    );
+};
+
+subtest 'process waitpid' => sub {
+    plan skip_all => q(WNOHANG isn't defined on Windows) if $^O eq 'MSWin32';
+    _run_tests(
+        waitpid_fcn => join("\n",   q(my $a = waitpid(123, WNOHANG | WUNTRACED);),
+                                    q($a = waitpid($a, 0))),
     );
 };
 
@@ -1100,6 +1106,15 @@ subtest 'perl-5.12' => sub {
 subtest 'perl-5.14' => sub {
     _run_tests(
         requires_version(v5.14.0),
+        tr_r_flag => join("\n",     q(my $a;),
+                                    q($a = tr/$a/zyxw/cdsr)),
+    );
+};
+
+subtest '5.14 experimental ref ops' => sub {
+    _run_tests(
+        requires_version(v5.14.0),
+        excludes_version(v5.24.0),
         keys_ref => join("\n",  q(my $h = {1 => 2, 3 => 4};),
                                 q(keys($h);),
                                 q(my $a = [1, 2, 3];),
@@ -1122,8 +1137,6 @@ subtest 'perl-5.14' => sub {
                                     q(unshift($a, 1))),
         splice_ref => join("\n",    q(my $a = [1, 2, 3];),
                                     q(splice($a, 2, 3, 4))),
-        tr_r_flag => join("\n",     q(my $a;),
-                                    q($a = tr/$a/zyxw/cdsr)),
     );
 };
 
@@ -1275,10 +1288,14 @@ sub excludes_version {
 
 sub _run_tests {
     my $use_version = '';
-    if (ref($_[0]) and reftype($_[0]) eq 'CODE') {
-        $use_version = shift->();
-        return unless defined $use_version;
+
+    my $should_skip = 0;
+    while (ref($_[0]) and reftype($_[0]) eq 'CODE') {
+        my $code = shift;
+        $use_version .= $code->();
+        $should_skip = 1 if !defined($use_version);
     }
+    return() if $should_skip;
 
     my %tests = @_;
     plan tests => scalar keys %tests;

@@ -3,7 +3,7 @@ package Devel::Chitin::OpTree;
 use strict;
 use warnings;
 
-use Devel::Chitin::Version;
+our $VERSION = '0.09';
 
 use Carp;
 use Scalar::Util qw(blessed reftype weaken refaddr);

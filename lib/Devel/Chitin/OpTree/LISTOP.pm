@@ -1,7 +1,7 @@
 package Devel::Chitin::OpTree::LISTOP;
 use base Devel::Chitin::OpTree::BINOP;
 
-use Devel::Chitin::Version;
+our $VERSION = '0.09';
 
 use Fcntl qw(:DEFAULT :flock SEEK_SET SEEK_CUR SEEK_END);
 use POSIX qw(:sys_wait_h);
@@ -320,7 +320,8 @@ sub _deparse_seeklike {
 }
 
 sub _generate_flag_list {
-    map { my $val = eval "$_";
+    map { local $@;
+          my $val = eval "$_";
           $val ? ( $_ => $val ) : ()
     } @_
 }
@@ -350,9 +351,7 @@ sub pp_sysopen {
     'sysopen(' . join(', ', @params) . ')';
 }
 
-my @waitpid_flags = _generate_flag_list(qw(
-                        WEXITSTATUS WIFEXITED WIFSIGNALED WIFSTOPPED
-                        WNOHANG WSTOPSIG WTERMSIG WUNTRACED ));
+my @waitpid_flags = _generate_flag_list(qw( WNOHANG WUNTRACED ));
 sub pp_waitpid {
     my $self = shift;
     my $children = $self->children;
@@ -360,6 +359,7 @@ sub pp_waitpid {
                                       \@waitpid_flags);
     $flags ||= '0';
     my $target = $self->_maybe_targmy;
+print STDERR "waitpid flags: ",join(', ', @waitpid_flags),"\n";
     "${target}waitpid(" . join(', ', $children->[1]->deparse, # PID
                             $flags) . ')';
 }

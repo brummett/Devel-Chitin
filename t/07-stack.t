@@ -61,7 +61,7 @@ sub check_stack {
             serial      => $serial_5,
         },
         {   package     => 'Bar',
-            filename    => qr/\(eval \d+\)\[$filename:27\]/,
+            filename    => qr/\(eval \d+\)\[\Q$filename\E:27\]/,
             line        => 1,   # line 1 if the eval text
             subroutine  => '(eval)',
             hasargs     => 0,

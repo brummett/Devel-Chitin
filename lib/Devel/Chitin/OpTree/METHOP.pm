@@ -1,14 +1,18 @@
 package Devel::Chitin::OpTree::METHOP;
 use base 'Devel::Chitin::OpTree::UNOP';
 
-use Devel::Chitin::Version;
+our $VERSION = '0.09';
 
 use strict;
 use warnings;
 
 sub pp_method_named {
     my $self = shift;
-    $self->op->meth_sv->PV;
+
+    my $sv = $self->op->meth_sv;
+    $sv = $self->_padval_sv($self->op->targ) unless $$sv;  # happens in thread-enabled perls
+
+    $sv->PV;
 }
 
 1;
