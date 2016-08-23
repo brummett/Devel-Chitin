@@ -321,7 +321,6 @@ sub _deparse_seeklike {
 sub _generate_flag_list {
     map { local $@;
           my $val = eval "$_";
-print STDERR "*** in generate_flag_list(), $_ threw exception: $@\n" if $@;
           $val ? ( $_ => $val ) : ()
     } @_
 }
