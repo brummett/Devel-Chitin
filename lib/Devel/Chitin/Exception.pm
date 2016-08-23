@@ -3,7 +3,7 @@ package Devel::Chitin::Exception;
 use strict;
 use warnings;
 
-use Devel::Chitin::Version;
+our $VERSION = '0.07';
 use base 'Devel::Chitin::Location';
 
 sub _required_properties {

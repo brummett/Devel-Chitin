@@ -3,7 +3,7 @@ package Devel::Chitin::Location;
 use strict;
 use warnings;
 
-use Devel::Chitin::Version;
+our $VERSION = '0.07';
 
 use Carp;
 

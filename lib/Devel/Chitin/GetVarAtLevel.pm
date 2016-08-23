@@ -3,7 +3,7 @@ use warnings;
 
 package Devel::Chitin::GetVarAtLevel;
 
-use Devel::Chitin::Version;
+our $VERSION = '0.07';
 
 sub evaluate_complex_var_at_level {
     my($expr, $level) = @_;
