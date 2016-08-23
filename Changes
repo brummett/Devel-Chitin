@@ -1,3 +1,6 @@
+{{$NEXT}}
+    * Require at least Perl 5.8.9
+
 15 Aug 2016 - v0.07
     * Fix for running tests on Windows (thanks, nanis)
     * Preliminary support for decompiling.  Currently undocumented, but see
