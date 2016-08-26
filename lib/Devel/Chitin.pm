@@ -364,12 +364,12 @@ sub next_fragment {
     my $callsite = $loc->callsite;
     my $current_op = Devel::Chitin::OpTree->_obj_for_op(\$callsite);
 
-    while($current_op && $parents--) {
-        my $parent = $current_op->parent;
-        $current_op = $parent if $parent;
-    }
-
-    if (my $xform = $fragment_transforms{$current_op->op->name}) {
+    if (defined $parents) {
+        while($current_op && $parents--) {
+            my $parent = $current_op->parent;
+            $current_op = $parent if $parent;
+        }
+    } elsif (my $xform = $fragment_transforms{$current_op->op->name}) {
         local $@;
         $current_op = eval { $xform->($current_op) };
     }
