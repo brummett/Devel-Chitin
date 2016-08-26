@@ -304,6 +304,20 @@ sub _get_optree_for_current_sub {
     my $optree = $optrees{$optree_cache_key} ||= Devel::Chitin::OpTree->build_from_location(ref($current_sub) ? $current_sub : $loc);
 }
 
+# Some OPs don't deparse to anything useful on their own
+my %fragment_transforms = (
+    enterloop    => sub { shift->sibling->children->[0]->children->[0] },  # deparse the conditional
+    leaveloop    => sub { shift->children->[0]->sibling->children->[0]->children->[0] },  # deparse the conditional
+    pushmark     => sub {
+                        # deparse either the list or entersub
+                        my $parent = shift->parent;
+                        my $grandparent = $parent->parent;
+                        $grandparent->op->name eq 'entersub'
+                            ? $grandparent
+                            : $parent;
+                    },
+);
+
 sub next_statement {
     my $class = shift;
 
@@ -328,6 +342,17 @@ sub next_statement {
 
     my $op_to_deparse = $last_cop ? $last_cop->sibling : $current_op;
 
+    if (my $xform = $fragment_transforms{$op_to_deparse->op->name}) {
+        local $@;
+        $op_to_deparse = eval { $xform->($op_to_deparse) } || $op_to_deparse;
+
+    } elsif ($op_to_deparse->is_null
+             and $op_to_deparse->children
+             and $op_to_deparse->children->[0]->is_if_statement
+    ) {
+        $op_to_deparse = $op_to_deparse->children->[0]->children->[0];  # deparse the if-condition, not the whole block
+    }
+
     if ($op_to_deparse) {
         local $@;
         my $deparsed = eval { $op_to_deparse->deparse };
@@ -342,18 +367,6 @@ sub next_statement {
     }
 }
 
-# Some OPs don't deparse to anything useful on their own
-my %fragment_transforms = (
-    enterloop    => sub { shift->sibling->children->[0]->children->[0] },  # deparse the conditional
-    pushmark     => sub {
-                        # deparse either the list or entersub
-                        my $parent = shift->parent;
-                        my $grandparent = $parent->parent;
-                        $grandparent->op->name eq 'entersub'
-                            ? $grandparent
-                            : $parent;
-                    },
-);
 sub next_fragment {
     my($class, $parents) = @_;
 
@@ -1042,6 +1055,26 @@ returns to the debugged program with "step over".  This involves inspecting
 the OpTree of the currently executing subroutine and deparsing it at the
 stopped location.  Since the returned string is a reconstruction based on the
 OpTree, it may not match the original source code exactly.
+
+The deparse normally starts by finding the closest contol OP (COP) before the
+current OP, then deparsing its sibling.  In some cases this results in a
+misleading deparse, so some adjustments may be made to the starting OP:
+
+=over 2
+
+=item while loop (enterloop/leaveloop)
+
+Return the while loop condition instead of the whole loop
+
+=item list or function all (pushmark)
+
+Return either the list construction or the function call
+
+=item if() or unless() statement
+
+Return the if () condition instead of the entire if()/unless() statement
+
+=back
 
 Requires the L<Devel::Callsite> module to be installed.
 

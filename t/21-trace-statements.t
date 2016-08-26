@@ -20,6 +20,9 @@ $line = 19;
 sub foo {
     $line = 21;
 }
+if (23 < $line) {
+    $i = 24;
+}
 
 BEGIN {
     if (is_in_test_program) {
@@ -40,11 +43,7 @@ BEGIN {
         [ '$i = 0',     '0',    '$i = 0' ],
         [ '$b = 13',    '13',   '$b = 13' ],
         # while loop
-        [   join("\n",  'while ($i < 2) {',
-                    "\tfoo(\$i)",
-                    '} continue {',
-                    "\t\$a = \$i++",
-                    '}'),
+        [   '$i < 2',
             '$i < 2',
             join("\n",  'while ($i < 2) {',
                     "\tfoo(\$i)",
@@ -64,6 +63,8 @@ BEGIN {
         [ '$a = $i++',  '$i',       '$i++' ],
         # done
         [ '$line = 19', '19',       '$line = 19' ],
+        # if() condition
+        [ '23 < $line', '23',       '23 < $line' ],
     );
 }
 
