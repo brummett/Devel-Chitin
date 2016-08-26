@@ -86,15 +86,12 @@ sub pp_and {
     my $self = shift;
     my $left = $self->first->deparse;
     my $right = $self->other->deparse;
-    if ($self->other->is_scopelike) {
+    if ($self->is_if_statement) {
         $left = _format_if_conditional($left);
         $right = _format_if_block($right);
         "if ($left) $right";
 
-    } elsif ($self->parent->is_null
-            and $self->parent->pre_siblings
-            and ($self->parent->pre_siblings)[-1]->class eq 'COP'
-    ) {
+    } elsif ($self->is_posfix_if) {
         "$right if $left";
 
     } else {
@@ -104,7 +101,7 @@ sub pp_and {
 
 sub pp_or {
     my $self = shift;
-    if ($self->other->is_scopelike) {
+    if ($self->is_if_statement) {
         my $condition;
         if ($self->first->is_null
             and $self->first->_ex_name eq 'pp_not'
@@ -119,10 +116,7 @@ sub pp_or {
         my $code = _format_if_block($self->other->deparse);
         "unless ($condition) $code";
 
-    } elsif ($self->parent->is_null
-            and $self->parent->pre_siblings
-            and ($self->parent->pre_siblings)[0]->class eq 'COP'
-    ) {
+    } elsif ($self->is_posfix_if) {
         $self->other->deparse . ' unless ' . $self->first->deparse;
 
     } else {

@@ -698,6 +698,28 @@ sub is_for_loop {
     return ''
 }
 
+# Return true for
+# if (conditional) { ... }
+# and
+# unless (conditional) { ... }
+sub is_if_statement {
+    my $self = shift;
+    my $name = $self->op->name;
+
+    ( $name eq 'and' or $name eq 'or' )
+    and $self->other->is_scopelike;
+}
+
+sub is_posfix_if {
+    my $self = shift;
+    my $name = $self->op->name;
+
+    ( $name eq 'and' or $name eq 'or' )
+    and $self->parent->is_null
+    and $self->parent->pre_siblings
+    and ($self->parent->pre_siblings)[-1]->class eq 'COP'
+}
+
 sub _num_ops_in_for_loop {
     my $self = shift;
     $self->sibling->op->name eq 'unstack' ? 2 : 1;
