@@ -391,7 +391,7 @@ sub next_fragment {
         local $@;
         my $deparsed = eval { $current_op->deparse };
         if ($@) {
-            warn "failed to deparse: $@";
+            warn "failed to deparse: $@\ncurrent op name ",$current_op->op->name,"\n";
             $optree->print_as_tree($callsite);
         }
         return $deparsed;
