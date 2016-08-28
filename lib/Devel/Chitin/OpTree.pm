@@ -1001,7 +1001,7 @@ a part of
 =item root_op
 
 Returns a Devel::Chitin::OpTree instance representing the entrypoint for the
-subroutine the invicant is a part of
+subroutine the invocant is a part of
 
 =item walk_inorder
 
