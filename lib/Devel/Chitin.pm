@@ -351,6 +351,22 @@ sub next_statement {
              and $op_to_deparse->children->[0]->is_if_statement
     ) {
         $op_to_deparse = $op_to_deparse->children->[0]->children->[0];  # deparse the if-condition, not the whole block
+
+    # !!! special deparsing for landing on a block-map/grep...
+    # return just the list we're mapping/grepping over
+    } elsif ($op_to_deparse->op->name eq 'mapwhile' or $op_to_deparse->op->name eq 'grepwhile'
+             and ( $op_to_deparse->first->children->[1]->first->is_scopelike
+                    or
+                   ( $op_to_deparse->first->children->[1]->first->is_null
+                     and
+                     $op_to_deparse->first->children->[1]->first->first->is_scopelike
+                   )
+                 )
+    ) {
+        # This list contains a pushmark, the block, then all the args
+        my $map_args = $op_to_deparse->first->children;
+        my @maplist = @$map_args[2 .. $#$map_args];
+        return join(', ', map { $_->deparse } @maplist);
     }
 
     if ($op_to_deparse) {
@@ -1073,6 +1089,10 @@ Return either the list construction or the function call
 =item if() or unless() statement
 
 Return the if () condition instead of the entire if()/unless() statement
+
+=item block map/grep (mapstart/grepstart)
+
+Return the list being mapped/grepped over
 
 =back
 

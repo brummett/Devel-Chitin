@@ -25,11 +25,13 @@ if (23 < $line) {
 } else {
     $i = 26;
 }
+my @a = ( 28 );
+map { $_ + 1 } ( 29, @a );
 
 BEGIN {
     if (is_in_test_program) {
         if (Devel::Chitin::TestRunner::has_callsite) {
-            eval "use Test::More tests => 33;";
+            eval "use Test::More tests => 51;";
         } else {
             eval "use Test::More skip_all => 'Devel::Callsite is not available'";
         }
@@ -67,6 +69,11 @@ BEGIN {
         [ '$line = 19', '19',       '$line = 19' ],
         # if() condition
         [ '23 < $line', '23',       '23 < $line' ],
+        [ '$i = 26',    '26',       '$i = 26'],
+        [ '@a = 28',    '28',       '28' ],
+        [ '29, @a',   'map',      'map' ],
+        [ '$_ + 1',     '_',        '$_' ],
+        [ '$_ + 1',     '_',        '$_' ],
     );
 }
 

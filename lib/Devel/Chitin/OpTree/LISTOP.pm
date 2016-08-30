@@ -556,6 +556,9 @@ sub pp_substr {
     }
 }
 
+sub pp_mapstart { 'map' }
+sub pp_grepstart { 'grep' }
+
 #                 OP name           Perl fcn    targmy?
 foreach my $a ( [ pp_crypt      => 'crypt',     1 ],
                 [ pp_index      => 'index',     1 ],
