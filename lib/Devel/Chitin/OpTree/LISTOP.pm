@@ -358,7 +358,6 @@ sub pp_waitpid {
                                       \@waitpid_flags);
     $flags ||= '0';
     my $target = $self->_maybe_targmy;
-print STDERR "waitpid flags: ",join(', ', @waitpid_flags),"\n";
     "${target}waitpid(" . join(', ', $children->[1]->deparse, # PID
                             $flags) . ')';
 }
