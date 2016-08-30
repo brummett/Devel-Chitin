@@ -706,7 +706,7 @@ sub is_if_statement {
     my $self = shift;
     my $name = $self->op->name;
 
-    ( $name eq 'and' or $name eq 'or' )
+    ( $name eq 'and' or $name eq 'or' or $name eq 'cond_expr')
     and $self->other->is_scopelike;
 }
 

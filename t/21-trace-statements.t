@@ -22,6 +22,8 @@ sub foo {
 }
 if (23 < $line) {
     $i = 24;
+} else {
+    $i = 26;
 }
 
 BEGIN {
