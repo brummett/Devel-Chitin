@@ -86,15 +86,12 @@ sub pp_and {
     my $self = shift;
     my $left = $self->first->deparse;
     my $right = $self->other->deparse;
-    if ($self->other->is_scopelike) {
+    if ($self->is_if_statement) {
         $left = _format_if_conditional($left);
         $right = _format_if_block($right);
         "if ($left) $right";
 
-    } elsif ($self->parent->is_null
-            and $self->parent->pre_siblings
-            and ($self->parent->pre_siblings)[-1]->class eq 'COP'
-    ) {
+    } elsif ($self->is_posfix_if) {
         "$right if $left";
 
     } else {
@@ -104,7 +101,7 @@ sub pp_and {
 
 sub pp_or {
     my $self = shift;
-    if ($self->other->is_scopelike) {
+    if ($self->is_if_statement) {
         my $condition;
         if ($self->first->is_null
             and $self->first->_ex_name eq 'pp_not'
@@ -119,10 +116,7 @@ sub pp_or {
         my $code = _format_if_block($self->other->deparse);
         "unless ($condition) $code";
 
-    } elsif ($self->parent->is_null
-            and $self->parent->pre_siblings
-            and ($self->parent->pre_siblings)[0]->class eq 'COP'
-    ) {
+    } elsif ($self->is_posfix_if) {
         $self->other->deparse . ' unless ' . $self->first->deparse;
 
     } else {
@@ -195,3 +189,28 @@ sub pp_cond_expr {
 }
 
 1;
+
+__END__
+
+=pod
+
+=head1 NAME
+
+Devel::Chitin::OpTree::LOGOP - Deparser class for logical OPs
+
+=head1 DESCRIPTION
+
+This package contains methods to deparse LOGOPs (and, grepwhile, etc).
+
+=head1 SEE ALSO
+
+L<Devel::Chitin::OpTree>, L<Devel::Chitin>, L<B>, L<B::Deparse>, L<B::DeparseTree>
+
+=head1 AUTHOR
+
+Anthony Brummett <brummett@cpan.org>
+
+=head1 COPYRIGHT
+
+Copyright 2016, Anthony Brummett.  This module is free software. It may
+be used, redistributed and/or modified under the same terms as Perl itself.

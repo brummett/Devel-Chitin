@@ -64,28 +64,29 @@ sub _should_insert_semicolon_after {
 
 sub pp_leave {
     my $self = shift;
+    my %params = @_;
 
     if (my $deparsed = $self->_deparse_postfix_while) {
         return $deparsed;
     }
 
     $self->_enter_scope;
-    my $deparsed = $self->pp_lineseq(@_, skip => 1) || ';';
+    my $deparsed = $self->pp_lineseq(@_, skip => 1, %params) || ';';
     $self->_leave_scope;
 
     my $parent = $self->parent;
-    my $do = ($parent->is_null and $parent->op->flags & B::OPf_SPECIAL)
+    my $do = ($parent and $parent->is_null and $parent->op->flags & B::OPf_SPECIAL)
                 ? 'do '
                 : '';
 
     my $block_declaration = '';
-    if ($parent->is_null and $parent->op->flags & B::OPf_SPECIAL) {
+    if ($parent and $parent->is_null and $parent->op->flags & B::OPf_SPECIAL) {
         $block_declaration = 'do ';
     } elsif ($self->op->name eq 'leavetry') {
         $block_declaration = 'eval ';
     }
 
-    $deparsed = $self->_indent_block_text($deparsed);
+    $deparsed = $self->_indent_block_text($deparsed, %params);
 
     $block_declaration . "{$deparsed}";
 }
@@ -554,6 +555,9 @@ sub pp_substr {
     }
 }
 
+sub pp_mapstart { 'map' }
+sub pp_grepstart { 'grep' }
+
 #                 OP name           Perl fcn    targmy?
 foreach my $a ( [ pp_crypt      => 'crypt',     1 ],
                 [ pp_index      => 'index',     1 ],
@@ -635,3 +639,28 @@ foreach my $a ( [ pp_crypt      => 'crypt',     1 ],
 }
 
 1;
+
+__END__
+
+=pod
+
+=head1 NAME
+
+Devel::Chitin::OpTree::LISTOP - Deparser class for list OPs
+
+=head1 DESCRIPTION
+
+This package contains methods to deparse LISTOPs (lineseq, list, etc).
+
+=head1 SEE ALSO
+
+L<Devel::Chitin::OpTree>, L<Devel::Chitin>, L<B>, L<B::Deparse>, L<B::DeparseTree>
+
+=head1 AUTHOR
+
+Anthony Brummett <brummett@cpan.org>
+
+=head1 COPYRIGHT
+
+Copyright 2016, Anthony Brummett.  This module is free software. It may
+be used, redistributed and/or modified under the same terms as Perl itself.

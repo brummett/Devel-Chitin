@@ -342,13 +342,13 @@ sub print_as_tree {
             $mini_deparsed = $op->deparse;
         }
 
-        my $indent = ($current_callsite and $op->op == $current_callsite)
+        my $indent = ($current_callsite and ${$op->op} == $current_callsite)
                         ? '=>' . ('  ' x($level-1))
                         : '  'x$level;
         printf("%s%s %s (%s) %s 0x%x\n", $indent, $op->class, $name,
                                  join(', ', @flags),
                                  $mini_deparsed,
-                                 refaddr($op));
+                                 $current_callsite ? ${$op->op} : refaddr($op));
     });
 }
 
@@ -515,11 +515,11 @@ foreach my $a ( [ pp_shift  => 'shift' ],
     my $sub = sub {
         my $self = shift;
         if ($self->op->flags & B::OPf_SPECIAL) {
-            "$perl_name()";
+            "$perl_name";
         } else {
             my $arg = $self->first->deparse;
             if ($arg eq '@_') {
-                "$perl_name()";
+                "$perl_name";
             } else {
                 "$perl_name($arg)";
             }
@@ -696,6 +696,28 @@ sub is_for_loop {
         return $sibsib && ! $sibsib->is_null && $sibsib->op->name eq 'leaveloop'
     }
     return ''
+}
+
+# Return true for
+# if (conditional) { ... }
+# and
+# unless (conditional) { ... }
+sub is_if_statement {
+    my $self = shift;
+    my $name = $self->op->name;
+
+    ( $name eq 'and' or $name eq 'or' or $name eq 'cond_expr')
+    and $self->other->is_scopelike;
+}
+
+sub is_posfix_if {
+    my $self = shift;
+    my $name = $self->op->name;
+
+    ( $name eq 'and' or $name eq 'or' )
+    and $self->parent->is_null
+    and $self->parent->pre_siblings
+    and ($self->parent->pre_siblings)[-1]->class eq 'COP'
 }
 
 sub _num_ops_in_for_loop {
@@ -888,3 +910,137 @@ sub _indent_block_text {
 }
 
 1;
+
+__END__
+
+=pod
+
+=head1 NAME
+
+Devel::Chitin::OpTree - OpTree deparsing for Devel::Chitin
+
+=head1 SYNOPSIS
+
+  my $optree = Devel::Chitin::OpTree->build_from_location($subref);
+  # or
+  $optree = Devel::Chitin::OpTree->build_from_location($location_obj);
+
+  $optree->walk_inorder(sub {
+      my $op = shift;
+      my $b_op = $op->op;
+      printf("OP named %s has %d children\n",
+              $b_op->name, scalar(@{ $op->children }));
+      printf("  parent %s, sibling %s, next %s\n",
+              $op->parent->op->name,
+              $op->sibling->op->name,
+              $op->next->op->name);
+  });
+
+  print $optree->deparse;
+
+=head1 DESCRIPTION
+
+This class is a wrapper around the L<B::OP-related classes|B/"OP-RELATED CLASSES">
+to make navigating around the optree and deparsing easier.  It differs from
+L<B::Deparse> in that Devel::Chitin::OpTree is meant to be used at run-time
+and it supports deparsing from any point in the tree, not just at function
+entry points.
+
+This module contains a mixture of methods responsible for construction,
+helpers used by the other OpTree-related classes, and deparsing methods
+for nullary OPs.
+
+=head2 Constructor
+
+Constructing an OpTree for a subroutine is done via C<build_from_location()>
+
+  my $optree = Devel::Chitin::OpTree->build_from_location($subref);
+  $optree    = Devel::Chitin::OpTree->build_from_location($location_obj);
+
+You can pass in either a subref or a L<Devel::Chitin::Location> object.  In
+the latter case, it uses the object's C<package> and C<subroutine> values to
+find the sub.  Note that locations within anonymous subs aren't supported yet.
+
+The returned OpTree object is the root of the optree.  Each element of the
+tree is itself a Devel::Chitin::OpTree instance.  You can explore the tree
+with the methods below.
+
+OpTrees are cached, so that if C<build_from_location()> is called twice for
+the same subroutine, the same OpTree object will be returned.
+
+=head2 Methods
+
+=over 4
+
+=item op
+
+Returns the B::OP-related object wrapped by the invocant
+
+=item parent
+
+Returns a Devel::Chitin::OpTree instance for the parent node of the invocant
+
+=item next
+
+Returns a Devel::Chitin::OpTree instance for the invocant's OP's next pointer
+
+=item sibling
+
+Returns a Devel::Chitin::OpTree instance for the invocant's OP's sibling pointer
+
+=item children
+
+Returns a listref of Devel::Chitin::OpTree objects representing the children
+of the invocant
+
+=item cv
+
+Returns a C<B::CV|B/B::CV-Methods> object for the subroutine the invocant is
+a part of
+
+=item root_op
+
+Returns a Devel::Chitin::OpTree instance representing the entrypoint for the
+subroutine the invocant is a part of
+
+=item walk_inorder
+
+  $op->walk_inorder($cb);
+
+Perform an in-order walk of the optree and call the given callback function
+(a coderef) for each node in the tree.  The callback is passed a
+Devel::Chitin::OpTree object as its only argument.
+
+=item walk_preorder
+
+  $op->walk_preorder($cb);
+
+Perform a pre-order (children before parent) walk of the optree and call the
+given callback function (a coderef) for each node in the tree.  The callback
+is passed a Devel::Chitin::OpTree object as its only argument.
+
+=item deparse
+
+Returns a string containing Perl code by essentially doing an in-order walk
+of the tree, turning each op into the Perl code it represents.
+
+=item pp_*
+
+These functions a responsible for the deparsing process.  They contain
+whatever logic is necessary to turn the node and its children into Perl.
+
+=back
+
+=head1 SEE ALSO
+
+L<Devel::Chitin>, L<Devel::Chitin::Location>, L<B>, L<B::Deparse>,
+L<B::DeparseTree>
+
+=head1 AUTHOR
+
+Anthony Brummett <brummett@cpan.org>
+
+=head1 COPYRIGHT
+
+Copyright 2016, Anthony Brummett.  This module is free software. It may
+be used, redistributed and/or modified under the same terms as Perl itself.

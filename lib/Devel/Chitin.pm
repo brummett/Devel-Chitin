@@ -296,12 +296,34 @@ sub file_source {
 }
 
 my %optrees;
-sub next_statement {
-    my($class, $scopes) = @_;
+our $current_sub;
+sub _get_optree_for_current_sub {
+    my $loc = current_location;
 
+    my $optree_cache_key = ref($current_sub) ? "$current_sub" : $loc->subroutine;
+    my $optree = $optrees{$optree_cache_key} ||= Devel::Chitin::OpTree->build_from_location(ref($current_sub) ? $current_sub : $loc);
+}
+
+# Some OPs don't deparse to anything useful on their own
+my %fragment_transforms = (
+    enterloop    => sub { shift->sibling->children->[0]->children->[0] },  # deparse the conditional
+    leaveloop    => sub { shift->children->[0]->sibling->children->[0]->children->[0] },  # deparse the conditional
+    pushmark     => sub {
+                        # deparse either the list or entersub
+                        my $parent = shift->parent;
+                        my $grandparent = $parent->parent;
+                        $grandparent->op->name eq 'entersub'
+                            ? $grandparent
+                            : $parent;
+                    },
+);
+
+sub next_statement {
+    my $class = shift;
+
+    my $optree = _get_optree_for_current_sub();
     my $loc = $class->current_location();
     $loc = $class->_fixup_location_inside_eval($loc);
-    my $optree = $optrees{$loc->subroutine} ||= Devel::Chitin::OpTree->build_from_location($loc);
 
     my $callsite = $loc->callsite;
     my($last_cop, $current_op);
@@ -318,12 +340,77 @@ sub next_statement {
         });
     }
 
-    while($last_cop && $scopes--) {
-        $last_cop = $last_cop->parent;
+    my $op_to_deparse = $last_cop ? $last_cop->sibling : $current_op;
+
+    if (my $xform = $fragment_transforms{$op_to_deparse->op->name}) {
+        local $@;
+        $op_to_deparse = eval { $xform->($op_to_deparse) } || $op_to_deparse;
+
+    } elsif ($op_to_deparse->is_null
+             and $op_to_deparse->children
+             and $op_to_deparse->children->[0]->is_if_statement
+    ) {
+        $op_to_deparse = $op_to_deparse->children->[0]->children->[0];  # deparse the if-condition, not the whole block
+
+    # !!! special deparsing for landing on a block-map/grep...
+    # return just the list we're mapping/grepping over
+    } elsif ($op_to_deparse->op->name eq 'mapwhile' or $op_to_deparse->op->name eq 'grepwhile'
+             and ( $op_to_deparse->first->children->[1]->first->is_scopelike
+                    or
+                   ( $op_to_deparse->first->children->[1]->first->is_null
+                     and
+                     $op_to_deparse->first->children->[1]->first->first->is_scopelike
+                   )
+                 )
+    ) {
+        # This list contains a pushmark, the block, then all the args
+        my $map_args = $op_to_deparse->first->children;
+        my @maplist = @$map_args[2 .. $#$map_args];
+        return join(', ', map { $_->deparse } @maplist);
     }
 
-    if ($last_cop) {
-        return $last_cop->sibling->deparse;
+    if ($op_to_deparse) {
+        local $@;
+        my $deparsed = eval { $op_to_deparse->deparse };
+        if ($@) {
+            warn "failed to deparse: $@";
+            $optree->print_as_tree($callsite);
+        }
+        return $deparsed;
+    } else {
+        Carp::carp("Cannot find current opcode at $callsite in ".$loc->subroutine);
+        return '';
+    }
+}
+
+sub next_fragment {
+    my($class, $parents) = @_;
+
+    my $optree = _get_optree_for_current_sub();
+    my $loc = $class->current_location();
+    $loc = $class->_fixup_location_inside_eval($loc);
+
+    my $callsite = $loc->callsite;
+    my $current_op = Devel::Chitin::OpTree->_obj_for_op(\$callsite);
+
+    if (defined $parents) {
+        while($current_op && $parents--) {
+            my $parent = $current_op->parent;
+            $current_op = $parent if $parent;
+        }
+    } elsif (my $xform = $fragment_transforms{$current_op->op->name}) {
+        local $@;
+        $current_op = eval { $xform->($current_op) };
+    }
+
+    if ($current_op) {
+        local $@;
+        my $deparsed = eval { $current_op->deparse };
+        if ($@) {
+            warn "failed to deparse: $@\ncurrent op name ",$current_op->op->name,"\n";
+            $optree->print_as_tree($callsite);
+        }
+        return $deparsed;
     } else {
         Carp::carp("Cannot find current opcode at $callsite in ".$loc->subroutine);
         return '';
@@ -674,6 +761,8 @@ sub sub {
     no strict 'refs';
     goto &$sub if (! $ready or index($sub, 'Devel::Chitin::StackTracker') == 0 or $debugger_disabled);
 
+    local $Devel::Chitin::current_sub = $sub unless $in_debugger;
+
     local @AUTOLOAD_names = @AUTOLOAD_names;
     if (index($sub, '::AUTOLOAD', -10) >= 0) {
         my $caller_pkg = substr($sub, 0, length($sub)-8);
@@ -790,7 +879,8 @@ Devel::Chitin - Programmatic interface to the Perl debugging API
   CLIENT->is_breakable($file, $line);   # Return true if the line is executable
   CLIENT->stack();              # Return Devel::Chitin::Stack
   CLIENT->current_location();   # Where is the program stopped at?
-  CLIENT->next_statement([$scopes]);    # Return the next statement to execute
+  CLIENT->next_statement();     # Return the next statement to execute
+  CLIENT->next_fragment([$parents]); # Return the next op to execute
   CLIENT->add_watchexpr($expr); # Add a new watch expression
   CLIENT->remove_watchexpr($expr);  # Remove a watch expression
 
@@ -974,15 +1064,47 @@ Return an instance of L<Devel::Chitin::Location> representing the currently
 stopped location in the debugged program.  This method returns undef if
 called when the debugged program is actively running.
 
-=item CLIENT->next_statement([$scope])
+=item CLIENT->next_statement()
 
 Returns a string representing the next Perl statement to execute when control
-returns to the debugged program.  This involves inspecting the OpTree of the
-currently executing subroutine and deparsing it at the stopped location.
-Since the returned string is a reconstruction based on the OpTree, it may not
-match the original source code exactly.
+returns to the debugged program with "step over".  This involves inspecting
+the OpTree of the currently executing subroutine and deparsing it at the
+stopped location.  Since the returned string is a reconstruction based on the
+OpTree, it may not match the original source code exactly.
+
+The deparse normally starts by finding the closest contol OP (COP) before the
+current OP, then deparsing its sibling.  In some cases this results in a
+misleading deparse, so some adjustments may be made to the starting OP:
+
+=over 2
+
+=item while loop (enterloop/leaveloop)
+
+Return the while loop condition instead of the whole loop
+
+=item list or function all (pushmark)
+
+Return either the list construction or the function call
+
+=item if() or unless() statement
+
+Return the if () condition instead of the entire if()/unless() statement
+
+=item block map/grep (mapstart/grepstart)
+
+Return the list being mapped/grepped over
+
+=back
 
 Requires the L<Devel::Callsite> module to be installed.
+
+=item CLIENT->next_fragment($parents)
+
+Returns a string representing the next Perl operation to execute when control
+returns to the debugged program.  This differes from next_statement() in that
+next_fragment() only deparses the immediately next opcode (and its children).
+C<$parents> is an optional param to indicate how many parent OPs to back up
+before deparsing.
 
 =item CLIENT->file_source($filename)
 

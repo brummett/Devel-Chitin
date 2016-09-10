@@ -206,8 +206,8 @@ sub _deparse_while_until {
         # has continue
         # loop and continue contents are wrapped in scopes
         my $children = $condition_op->other->children;
-        $loop_content = $children->[0]->deparse;
-        $continue_content = ' continue ' . $children->[1]->deparse;
+        $loop_content = $children->[0]->deparse(force_multiline => 1);
+        $continue_content = ' continue ' . $children->[1]->deparse(force_multiline => 1);
     }
 
     my $loop_condition = $condition_op->first->deparse;
@@ -391,3 +391,38 @@ foreach my $a ( [ pp_add        => '+',     1 ],
 }
 
 1;
+
+__END__
+
+=pod
+
+=head1 NAME
+
+Devel::Chitin::OpTree::BINOP - Deparser class for binary OPs
+
+=head1 DESCRIPTION
+
+This package contains methods to deparse BINOPs (add, aelem, etc).
+
+=head2 Methods
+
+=over 4
+
+=item last
+
+Returns a L<Devel::Chitin::OpTree> instance for the second child of this node
+
+=back
+
+=head1 SEE ALSO
+
+L<Devel::Chitin::OpTree>, L<Devel::Chitin>, L<B>, L<B::Deparse>, L<B::DeparseTree>
+
+=head1 AUTHOR
+
+Anthony Brummett <brummett@cpan.org>
+
+=head1 COPYRIGHT
+
+Copyright 2016, Anthony Brummett.  This module is free software. It may
+be used, redistributed and/or modified under the same terms as Perl itself.
