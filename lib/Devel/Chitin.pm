@@ -316,6 +316,14 @@ my %fragment_transforms = (
                             ? $grandparent
                             : $parent;
                     },
+    padrange    => sub {
+                        # deparse either the list or entersub
+                        my $parent = shift->parent;
+                        my $grandparent = $parent->parent;
+                        $grandparent->op->name eq 'entersub'
+                            ? $grandparent
+                            : $parent;
+                    },
 );
 
 sub next_statement {
