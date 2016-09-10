@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+0.09      2016-09-10 11:59:03-05:00 America/Chicago
+    * Documented decompiling support - besides getting entire optrees,
+        you can use the next_statement() and next_fragment() methods
+
 0.08      2016-08-23 16:09:57-05:00 America/Chicago
     * Require at least Perl 5.8.9
 
