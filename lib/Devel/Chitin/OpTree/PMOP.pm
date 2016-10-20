@@ -124,6 +124,16 @@ sub _match_flags {
     $flags;
 }
 
+sub _resolve_split_expr {
+    my $self = shift;
+
+    return $self->_match_op('', @_);
+}
+
+sub _resolve_split_target_pmop { $_[0] }
+sub _split_string_child { 0 }
+sub _split_limit_child { 1 }
+
 1;
 
 __END__
