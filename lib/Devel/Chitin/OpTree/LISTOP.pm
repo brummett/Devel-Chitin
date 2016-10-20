@@ -419,13 +419,7 @@ sub pp_split {
 
     my $children = $self->children;
 
-    my $regex_op = $children->[0];
-    my $regex = ( $regex_op->op->flags & B::OPf_SPECIAL
-                  and
-                  ! @{$regex_op->children}
-                )
-                    ? $regex_op->deparse(delimiter => "'") # regex was given as a string
-                    : $regex_op->deparse;
+    my $regex = $self->_resolve_split_expr;
 
     my @params = (
             $regex,
@@ -439,6 +433,20 @@ sub pp_split {
 
     "${target}split(" . join(', ', @params) . ')';
 }
+
+sub _resolve_split_expr {
+    my $self = shift;
+
+    my $regex_op = $self->children->[0];
+    my $regex = ( $regex_op->op->flags & B::OPf_SPECIAL
+                  and
+                  ! @{$regex_op->children}
+                )
+                    ? $regex_op->deparse(delimiter => "'") # regex was given as a string
+                    : $regex_op->deparse;
+    return $regex;
+}
+
 
 sub _resolve_split_target {
     my $self = shift;
