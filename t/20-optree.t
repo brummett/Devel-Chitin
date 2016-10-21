@@ -3,7 +3,7 @@ use warnings;
 
 use Devel::Chitin::OpTree;
 use Devel::Chitin::Location;
-use Test::More tests => 31;
+use Test::More tests => 32;
 
 use Fcntl qw(:flock :DEFAULT SEEK_SET SEEK_CUR SEEK_END);
 use POSIX qw(:sys_wait_h);
@@ -232,9 +232,8 @@ subtest regex => sub {
                                     q(my $rx;),
                                     q(my @strings = split(/$rx/, $a, 1);),
                                     q(@strings = split(/a/, $a);),
-                                    q(our @s = split('', $a);),
                                     q(@strings = split(//, $a);),
-                                    q(@strings = split(' ', $a);),
+                                    q(@strings = split(/ /, $a);),
                                     q(my($v1, $v2) = split(/$rx/, $a, 3))),  # the 3 is implicit
     );
 };
@@ -1236,6 +1235,14 @@ subtest 'perl-5.22' => sub {
         double_diamond => join("\n",    q(while (defined($_ = <<>>)) {),
                                        qq(\tprint()),
                                         q(})),
+    );
+};
+
+subtest 'perl-5.25.6 split changes' => sub {
+    _run_tests(
+        excludes_version(v5.25.6),
+        split_specials => join("\n",    q(our @s = split('', $a);),
+                                        q(my @strings = split(' ', $a))),
     );
 };
 

@@ -414,37 +414,53 @@ sub pp_glob {
     'glob(' . $self->children->[1]->deparse . ')';
 }
 
+# pp_split is a LISTOP up through 5.25.5 and became a PMOP in
+# 5.25.6
 sub pp_split {
     my $self = shift;
 
     my $children = $self->children;
 
-    my $regex_op = $children->[0];
+    my $regex = $self->_resolve_split_expr;
+
+    my @params = ( $regex );
+
+    my $i = 0;
+    $i++ if ($children->[0]->op->name eq 'pushre'
+             or
+             $children->[0]->op->name eq 'regcomp');
+
+    push @params, $children->[$i++]->deparse;  # string
+
+    if (my $n_fields = $children->[ $i++ ]->deparse) {
+        push(@params, $n_fields) if $n_fields > 0;
+    }
+
+    my $target = $self->_resolve_split_target;
+
+    "${target}split(" . join(', ', @params) . ')';
+}
+
+sub _resolve_split_expr {
+    my $self = shift;
+
+    my $regex_op = $self->children->[0];
     my $regex = ( $regex_op->op->flags & B::OPf_SPECIAL
                   and
                   ! @{$regex_op->children}
                 )
                     ? $regex_op->deparse(delimiter => "'") # regex was given as a string
                     : $regex_op->deparse;
-
-    my @params = (
-            $regex,
-            $children->[1]->deparse,
-        );
-    if (my $n_fields = $children->[2]->deparse) {
-        push(@params, $n_fields) if $n_fields > 0;
-    }
-
-    my $target = _resolve_split_target($self);
-
-    "${target}split(" . join(', ', @params) . ')';
+    return $regex;
 }
+
 
 sub _resolve_split_target {
     my $self = shift;
     my $children = $self->children;
 
-    my $pmreplroot = $children->[0]->op->pmreplroot;
+    my $pmreplroot_op = $self->_resolve_split_target_pmop;
+    my $pmreplroot = $pmreplroot_op->op->pmreplroot;
     my $gv;
     if (ref($pmreplroot) eq 'B::GV') {
         $gv = $pmreplroot;
@@ -456,14 +472,19 @@ sub _resolve_split_target {
     if ($gv) {
         $target = '@' . $self->_gv_name($gv);
 
-    } elsif (my $targ = $children->[0]->op->targ) {
-        $target = $children->[0]->_padname_sv($targ)->PV;
+    } elsif (my $targ = $pmreplroot_op->op->targ) {
+        $target = $pmreplroot_op->_padname_sv($targ)->PV;
 
     } elsif ($self->op->flags & B::OPf_STACKED) {
         $target = $children->[-1]->deparse;
     }
 
     $target .= ' = ' if $target;
+}
+
+sub _resolve_split_target_pmop {
+    my $self = shift;
+    return $self->children->[0];
 }
 
 foreach my $d ( [ pp_exec => 'exec' ],
