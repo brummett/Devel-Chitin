@@ -152,8 +152,6 @@ sub _resolve_split_target {
 }
 
 sub _resolve_split_target_pmop { $_[0] }
-sub _split_string_child { 0 }
-sub _split_limit_child { 1 }
 
 1;
 

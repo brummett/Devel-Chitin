@@ -441,9 +441,6 @@ sub pp_split {
     "${target}split(" . join(', ', @params) . ')';
 }
 
-sub _split_string_child { 1 }
-sub _split_limit_child { 2 }
-
 sub _resolve_split_expr {
     my $self = shift;
 
