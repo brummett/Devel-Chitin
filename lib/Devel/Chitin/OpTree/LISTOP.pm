@@ -423,11 +423,16 @@ sub pp_split {
 
     my $regex = $self->_resolve_split_expr;
 
-    my @params = (
-            $regex,
-            $children->[ $self->_split_string_child ]->deparse,
-        );
-    if (my $n_fields = $children->[ $self->_split_limit_child ]->deparse) {
+    my @params = ( $regex );
+
+    my $i = 0;
+    $i++ if ($children->[0]->op->name eq 'pushre'
+             or
+             $children->[0]->op->name eq 'regcomp');
+
+    push @params, $children->[$i++]->deparse;  # string
+
+    if (my $n_fields = $children->[ $i++ ]->deparse) {
         push(@params, $n_fields) if $n_fields > 0;
     }
 

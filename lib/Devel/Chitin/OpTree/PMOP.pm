@@ -130,6 +130,27 @@ sub _resolve_split_expr {
     return $self->_match_op('', @_);
 }
 
+sub _resolve_split_target {
+    my $self = shift;
+
+    my $target = '';
+    if ($self->op->private & B::OPpSPLIT_ASSIGN()) {
+        if ($self->op->flags & B::OPf_STACKED()) {
+            # target is encoded as the last child op
+            $target = $self->children->[-1]->deparse;
+
+        } elsif ($self->op->private & B::OPpSPLIT_LEX()) {
+            $target = $self->_padname_sv($self->op->pmreplroot)->PV;
+
+        } else {
+            my $gv = $self->op->pmreplroot();
+            $gv = $self->_padval_sv($gv) if !ref($gv);
+            $target = '@' . $self->_gv_name($gv);
+        }
+    }
+    $target .= ' = ' if $target;
+}
+
 sub _resolve_split_target_pmop { $_[0] }
 sub _split_string_child { 0 }
 sub _split_limit_child { 1 }
