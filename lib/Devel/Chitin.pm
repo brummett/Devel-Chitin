@@ -8,6 +8,7 @@ our $VERSION = '0.11';
 
 use Scalar::Util;
 use IO::File;
+use B;
 
 use Devel::Chitin::Actionable;  # Breakpoints and Actions
 use Devel::Chitin::Eval;
@@ -771,9 +772,22 @@ sub sub {
 
     local $Devel::Chitin::current_sub = $sub unless $in_debugger;
 
+    # Try and figure out if this anon sub has a name
+    my $subname;
+    if (ref $sub) {
+        my $cv = B::svref_2object($sub);
+        my $gv = $cv->GV;
+        if (my $name = $gv->NAME) {
+            my $package = $gv->STASH->NAME;
+            $subname = join('::', $package, $name);
+        }
+    } else {
+        $subname = $sub;
+    }
+
     local @AUTOLOAD_names = @AUTOLOAD_names;
-    if (index($sub, '::AUTOLOAD', -10) >= 0) {
-        my $caller_pkg = substr($sub, 0, length($sub)-8);
+    if (index($subname, '::AUTOLOAD', -10) >= 0) {
+        my $caller_pkg = substr($subname, 0, length($subname)-8);
         my $caller_AUTOLOAD = ${ $caller_pkg . 'AUTOLOAD'};
         unshift @AUTOLOAD_names, $caller_AUTOLOAD;
     }
@@ -783,7 +797,7 @@ sub sub {
         $stack_depth++;
         $stack_tracker = _new_stack_tracker(_allocate_sub_serial());
 
-        push(@Devel::Chitin::stack_serial, [ $sub, $$stack_tracker]);
+        push(@Devel::Chitin::stack_serial, [ $subname, $$stack_tracker]);
     }
 
     my @rv;
