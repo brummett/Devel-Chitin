@@ -766,23 +766,31 @@ BEGIN {
 }
 
 
+my $do_nothing_sub = sub {};
+my %should_override_B_DESTROY;
+foreach my $class ( qw(B::HV B::GV B::CV) ) {
+    $should_override_B_DESTROY{$class . '::DESTROY'} = 1 unless $class->can('DESTROY');
+}
+
 sub sub {
     no strict 'refs';
     goto &$sub if (! $ready or index($sub, 'Devel::Chitin::StackTracker') == 0 or $debugger_disabled);
+    #goto &$sub if (! $ready or $in_debugger or index($sub, 'Devel::Chitin::StackTracker') == 0 or $debugger_disabled);
 
     local $Devel::Chitin::current_sub = $sub unless $in_debugger;
 
     # Try and figure out if this anon sub has a name
-    my $subname;
+    my $subname = $sub;
     if (ref $sub) {
+        local *B::HV::DESTROY = $do_nothing_sub if ($should_override_B_DESTROY{'B::HV::DESTROY'});
+        local *B::GV::DESTROY = $do_nothing_sub if ($should_override_B_DESTROY{'B::GV::DESTROY'});
+        local *B::CV::DESTROY = $do_nothing_sub if ($should_override_B_DESTROY{'B::CV::DESTROY'});
         my $cv = B::svref_2object($sub);
         my $gv = $cv->GV;
         if (my $name = $gv->NAME) {
             my $package = $gv->STASH->NAME;
             $subname = join('::', $package, $name);
         }
-    } else {
-        $subname = $sub;
     }
 
     local @AUTOLOAD_names = @AUTOLOAD_names;
