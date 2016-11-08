@@ -779,23 +779,9 @@ sub sub {
 
     local $Devel::Chitin::current_sub = $sub unless $in_debugger;
 
-    # Try and figure out if this anon sub has a name
-    my $subname = $sub;
-    if (ref $sub) {
-        local *B::HV::DESTROY = $do_nothing_sub if ($should_override_B_DESTROY{'B::HV::DESTROY'});
-        local *B::GV::DESTROY = $do_nothing_sub if ($should_override_B_DESTROY{'B::GV::DESTROY'});
-        local *B::CV::DESTROY = $do_nothing_sub if ($should_override_B_DESTROY{'B::CV::DESTROY'});
-        my $cv = B::svref_2object($sub);
-        my $gv = $cv->GV;
-        if (my $name = $gv->NAME) {
-            my $package = $gv->STASH->NAME;
-            $subname = join('::', $package, $name);
-        }
-    }
-
     local @AUTOLOAD_names = @AUTOLOAD_names;
-    if (index($subname, '::AUTOLOAD', -10) >= 0) {
-        my $caller_pkg = substr($subname, 0, length($subname)-8);
+    if (index($sub, '::AUTOLOAD', -10) >= 0) {
+        my $caller_pkg = substr($sub, 0, length($sub)-8);
         my $caller_AUTOLOAD = ${ $caller_pkg . 'AUTOLOAD'};
         unshift @AUTOLOAD_names, $caller_AUTOLOAD;
     }
@@ -804,6 +790,19 @@ sub sub {
     unless ($in_debugger) {
         $stack_depth++;
         $stack_tracker = _new_stack_tracker(_allocate_sub_serial());
+
+        my $subname = $sub;
+        if (ref $sub) {
+            local *B::HV::DESTROY = $do_nothing_sub if ($should_override_B_DESTROY{'B::HV::DESTROY'});
+            local *B::GV::DESTROY = $do_nothing_sub if ($should_override_B_DESTROY{'B::GV::DESTROY'});
+            local *B::CV::DESTROY = $do_nothing_sub if ($should_override_B_DESTROY{'B::CV::DESTROY'});
+            my $cv = B::svref_2object($sub);
+            my $gv = $cv->GV;
+            if (my $name = $gv->NAME) {
+                my $package = $gv->STASH->NAME;
+                $subname = join('::', $package, $name);
+            }
+        }
 
         push(@Devel::Chitin::stack_serial, [ $subname, $$stack_tracker]);
     }
