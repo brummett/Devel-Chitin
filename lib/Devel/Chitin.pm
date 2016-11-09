@@ -766,10 +766,15 @@ BEGIN {
 }
 
 
-my $do_nothing_sub = sub {};
-my %should_override_B_DESTROY;
+# When using Class::Autouse, the B::* objects created below to determine if an
+# anon sub has a name (such as via Sub::Name) trigger calls to its UNIVERSAL
+# DESTROY as the B::* objects go out of scope as you step in to a call to
+# that named sub.  This hack gives those classes a DESTROY method to avoid that
 foreach my $class ( qw(B::HV B::GV B::CV) ) {
-    $should_override_B_DESTROY{$class . '::DESTROY'} = 1 unless $class->can('DESTROY');
+    next if $class->can('DESTROY');
+    my $destroy = $class . '::DESTROY';
+    no strict 'refs';
+    *$destroy = sub {};
 }
 
 sub sub {
@@ -793,9 +798,6 @@ sub sub {
 
         my $subname = $sub;
         if (ref $sub) {
-            local *B::HV::DESTROY = $do_nothing_sub if ($should_override_B_DESTROY{'B::HV::DESTROY'});
-            local *B::GV::DESTROY = $do_nothing_sub if ($should_override_B_DESTROY{'B::GV::DESTROY'});
-            local *B::CV::DESTROY = $do_nothing_sub if ($should_override_B_DESTROY{'B::CV::DESTROY'});
             my $cv = B::svref_2object($sub);
             my $gv = $cv->GV;
             if (my $name = $gv->NAME) {
