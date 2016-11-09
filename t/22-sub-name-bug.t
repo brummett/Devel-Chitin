@@ -13,29 +13,37 @@ Devel::Chitin::TestDB->attach();
 Devel::Chitin::TestDB->trace(1);
 
 my $main_serial = $Devel::Chitin::stack_serial[0]->[-1];
-my $serial_in_sub;
+my($in_sub, @serials);
 my $anon = Sub::Name::subname 'foo' => sub {
-    $serial_in_sub = $Devel::Chitin::stack_serial[-1]->[-1];  # start testing here
+    push @serials, $Devel::Chitin::stack_serial[-1]->[-1];
+    $in_sub = 1;  # start testing here
     my @a = (1, 2, 3);
     (4, 5, 6);
-    undef $serial_in_sub;  # stop testing after this...
+    undef $in_sub;  # stop testing after this...
 };
 $anon->(7, 8, 9);
+*anon = $anon;
+anon('a', 'b', 'c');
 
 package Devel::Chitin::TestDB;
 use base 'Devel::Chitin';
 
 BEGIN {
     if (Devel::Chitin::TestRunner::is_in_test_program) {
-        eval "use Test::More tests => 3";
+        eval "use Test::More tests => 9";
     }
 }
 
 sub notify_trace {
-    return unless $serial_in_sub;
+    return unless $in_sub;
 
     my($class, $loc) = @_;
 
     my $stackframe = $class->stack->frame(0);
-    is($stackframe->serial, $serial_in_sub, 'serial matches');
+    is($stackframe->serial, $serials[-1], 'serial matches');
+
+    if (@serials == 2) {
+        # We're in the second call
+        isnt($stackframe->serial, $serials[0], 'second serial is different than first');
+    }
 }
