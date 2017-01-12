@@ -1232,7 +1232,7 @@ This method is called immediately after the debugged program calls fork()
 in the context of the parent process.  C<$pid> is the child process ID
 created by the fork.  The return value is ignored.
 
-Note that the $location will be the first executable statement _after_ the
+Note that the $location will be the first executable statement B<after> the
 fork() in the parent process.
 
 =item CLIENT->notify_fork_child($location)
@@ -1240,7 +1240,7 @@ fork() in the parent process.
 This method is called immediately after the debugged program calls fork()
 in the context of the child process.  The return value is ignored.
 
-Note that the $location will be the first executable statement _after_ the
+Note that the $location will be the first executable statement B<after> the
 fork() in the parent process.
 
 =item CLIENT->notify_program_terminated($?)
