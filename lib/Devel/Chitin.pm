@@ -1113,7 +1113,7 @@ misleading deparse, so some adjustments may be made to the starting OP:
 
 Return the while loop condition instead of the whole loop
 
-=item list or function all (pushmark)
+=item list or function call (pushmark)
 
 Return either the list construction or the function call
 
