@@ -1190,7 +1190,9 @@ statement in the debugged program.  Its return value is ignored
 =item CLIENT->poll($location)
 
 Called when the debugger is stopped on a line.  This method should return
-true to indicate that it wants its C<idle> method called.
+true to indicate that it wants its C<idle> method called.  C<$location>
+is an instance of L<Devel::Chitin::Location> indicating the next statement to
+be executed in the debugged program.
 
 =item CLIENT->idle($location)
 
@@ -1203,9 +1205,7 @@ true.
 =item CLIENT->notify_trace($location)
 
 If a client has turned on the trace flag, this method will be called before
-each executable statement.  The return value is ignored.  $location is an
-instance of L<Devel::Chitin::Location> indicating the next statement to be
-executed in the debugged program.
+each executable statement.  The return value is ignored.
 
 =item CLIENT->notify_trace_resumed($location)
 
