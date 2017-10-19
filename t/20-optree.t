@@ -1119,7 +1119,7 @@ subtest '5.14 experimental ref ops' => sub {
     _run_tests(
         requires_version(v5.14.0),
         excludes_version(v5.24.0),
-        no_warnings('experimental::autoderef'),
+        no_warnings(),
         keys_ref => join("\n",  q(my $h = {1 => 2, 3 => 4};),
                                 q(keys($h);),
                                 q(my $a = [1, 2, 3];),
@@ -1399,5 +1399,5 @@ package Devel::Chitin::NoWarnings;
 use base 'Devel::Chitin::TestDirective';
 sub compose {
     my $self = shift;
-    sprintf(q(no warnings '%s';), $$self);
+    $$self ? sprintf(q(no warnings '%s';), $$self) : 'no warnings;';
 }
