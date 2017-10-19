@@ -182,7 +182,8 @@ subtest 'string functions' => sub {
                                     q(my @a;),
                                     q(@a = reverse(@_);),
                                     q(@a = reverse(@a))),
-        tr_operator => join("\n",   q(my $a;),
+        tr_operator => no_warnings('misc'),
+                       join("\n",   q(my $a;),
                                     q($a = tr/$a/zyxw/cds)),
         quotemeta_fcn => join("\n", q(my $a;),
                                     q($a = quotemeta();),
@@ -711,7 +712,8 @@ subtest operators => sub {
                                 q(our $b = 1;),
                                 q($a = $a || $b;),
                                 q($b = $b || $a)),
-        log_xor => join("\n",   q(my $a = 1;),
+        log_xor => no_warnings('void'),
+                   join("\n",   q(my $a = 1;),
                                 q(our $b = 2;),
                                 q($a = $a xor $b;),
                                 q($b = $b xor $a)),
@@ -780,7 +782,8 @@ subtest 'program flow' => sub {
         require_version =>  q(require v5.8.7),
         wantarray_keyword =>            q(my $wa = wantarray),
         return_keyword =>               q(return(1, 2, 3)),
-        dump_keyword => join("\n",      q(dump;),
+        dump_keyword => no_warnings('misc'),
+                        join("\n",      q(dump;),
                                         q(dump DUMP_LABEL)),
         goto_label => join("\n",        q(LABEL:),
                                         q(goto LABEL;),
@@ -916,7 +919,8 @@ subtest 'program flow' => sub {
 subtest process => sub {
     _run_tests(
         alarm_fcn => q(alarm(4)),
-        exec_fcn => join("\n",  q(my $rv = exec('/bin/echo', 'hi', 'there');),
+        exec_fcn => no_warnings('exec'),
+                    join("\n",  q(my $rv = exec('/bin/echo', 'hi', 'there');),
                                 q($rv = exec('/bin/echo | cat');),
                                 q($rv = exec { '/bin/echo' } ('hi', 'there');),
                                 q(my $a = exec $rv ('hi', 'there'))),
@@ -1072,7 +1076,8 @@ subtest 'perl-5.10.1' => sub {
         defined_or => join("\n",q(my $a;),
                                 q(my $rv = $a // 1;),
                                 q($a //= 4)),
-        given_when => join("\n",q(my $a;),
+        given_when => use_experimental('switch'),
+                      join("\n",q(my $a;),
                                 q(given ($a) {),
                                qq(\twhen (1) { print 'one' }),
                                qq(\twhen (2) {),
@@ -1105,7 +1110,8 @@ subtest 'perl-5.12' => sub {
 subtest 'perl-5.14' => sub {
     _run_tests(
         requires_version(v5.14.0),
-        tr_r_flag => join("\n",     q(my $a;),
+        tr_r_flag => no_warnings('misc'),
+                     join("\n",     q(my $a;),
                                     q($a = tr/$a/zyxw/cdsr)),
     );
 };
@@ -1114,6 +1120,7 @@ subtest '5.14 experimental ref ops' => sub {
     _run_tests(
         requires_version(v5.14.0),
         excludes_version(v5.24.0),
+        no_warnings('experimental::autoderef'),
         keys_ref => join("\n",  q(my $h = {1 => 2, 3 => 4};),
                                 q(keys($h);),
                                 q(my $a = [1, 2, 3];),
@@ -1142,7 +1149,8 @@ subtest '5.14 experimental ref ops' => sub {
 subtest 'perl-5.18' => sub {
     _run_tests(
         requires_version(v5.18.0),
-        dump_expr => join("\n", q(my $expr;),
+        dump_expr => no_warnings('misc'),
+                     join("\n", q(my $expr;),
                                 q(dump $expr;),
                                 q(dump 'foo' . $expr)),
         next_last_redo_expr => join("\n",   q(foreach my $a (1, 2) {),
@@ -1268,6 +1276,11 @@ sub excludes_version {
     Devel::Chitin::ExcludeVersion->new($ver);
 }
 
+sub no_warnings {
+    my $warn = shift;
+    Devel::Chitin::NoWarnings->new($warn);
+}
+
 sub _run_tests {
     my @tests = @_;
 
@@ -1381,4 +1394,11 @@ use base 'Devel::Chitin::TestDirective';
 sub compose {
     my $self = shift;
     sprintf(q(use experimental '%s';), $$self);
+}
+
+package Devel::Chitin::NoWarnings;
+use base 'Devel::Chitin::TestDirective';
+sub compose {
+    my $self = shift;
+    sprintf(q(no warnings '%s';), $$self);
 }
