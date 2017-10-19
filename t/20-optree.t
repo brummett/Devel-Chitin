@@ -8,7 +8,7 @@ use Test::More tests => 32;
 use Fcntl qw(:flock :DEFAULT SEEK_SET SEEK_CUR SEEK_END);
 use POSIX qw(:sys_wait_h);
 use Socket;
-use Scalar::Util qw(reftype);
+use Scalar::Util qw(blessed);
 
 subtest construction => sub {
     plan tests => 5;
@@ -1206,7 +1206,9 @@ subtest 'perl-5.22 differences' => sub {
 
 subtest 'perl-5.22' => sub {
     _run_tests(
-        requires_version(v5.22.0, experimental => 'bitwise', experimental => 'refaliasing'),
+        requires_version(v5.22.0),
+        use_experimental('bitwise'),
+        use_experimental('refaliasing'),
         string_bitwise  => join("\n",   q(my($a, $b);),
                                         q($a = $a &. $b;),
                                         q($a &.= $b;),
@@ -1247,73 +1249,59 @@ subtest 'perl-5.25.6 split changes' => sub {
 };
 
 sub requires_version {
-    my $required_version = shift;
-    my($features, $experimental) = _extract_features_and_experimental(@_);
-
-    return sub {
-        my $required_version_string = sprintf('%vd', $required_version);
-        if ($^V lt $required_version) {
-            plan skip_all => "needs version $required_version_string";
-            return;
-        }
-        return "use $required_version_string;${features}${experimental}";
-    };
+    my $ver = shift;
+    Devel::Chitin::RequireVersion->new($ver);
 }
 
-sub _extract_features_and_experimental {
-    my(@features, @experimental);
-    for (my $i = 0; $i < @_; $i+=2) {
-        if ($_[$i] eq 'feature') {
-            push @features, $_[$i+1];
-        } elsif ($_[$i] eq 'experimental') {
-            push @experimental, $_[$i+1];
-        } else {
-            die "expected 'feature' or 'experimental', but got $_[$i]";
-        }
-    }
+sub use_feature {
+    my $f = shift;
+    Devel::Chitin::UseFeature->new($f);
+}
 
-    my $features = @features
-                        ? "use feature ('" . join("','", @features) . "');"
-                        : '';
-    my $experimental = @experimental
-                        ? "use experimental ('" . join("','", @experimental) . "');"
-                        : '';
-    return ($features, $experimental);
+sub use_experimental {
+    my $e = shift;
+    Devel::Chitin::UseExperimental->new($e);
 }
 
 sub excludes_version {
-    my $required_version = shift;
-    return sub {
-        my $required_version_string = sprintf('%vd', $required_version);
-        if ($^V ge $required_version) {
-            plan skip_all => "doesn't work starting with version $required_version_string";
-            return;
-        }
-        return '';
-    };
+    my $ver = shift;
+    Devel::Chitin::ExcludeVersion->new($ver);
 }
 
 sub _run_tests {
-    my $use_version = '';
+    my @tests = @_;
 
-    my $should_skip = 0;
-    while (ref($_[0]) and reftype($_[0]) eq 'CODE') {
-        my $code = shift;
-        $use_version .= $code->();
-        $should_skip = 1 if !defined($use_version);
-    }
-    return() if $should_skip;
-
-    my %tests = @_;
-    plan tests => scalar keys %tests;
-
-    foreach my $test_name ( keys %tests ) {
-        my $code = $tests{$test_name};
-        eval "${use_version}sub $test_name { $code }";
-        (my $expected = $code) =~ s/\b(?:my|our)\b\s*//mg;
-        if ($@) {
-            die "Couldn't compile code for $test_name: $@";
+    my $testwide_preamble = '';
+    while (@tests and blessed($tests[0])) {
+        my $obj = shift @tests;
+        my $directive = $obj->compose();
+        if (defined $directive) {
+            $testwide_preamble .= $directive;
+        } else {
+            return ();
         }
+    }
+
+    plan tests => _count_tests(@tests);
+
+    while (@tests) {
+        my $test_name = shift @tests;
+
+        my $preamble = '';
+        while (blessed $tests[0]) {
+            $preamble .= shift(@tests)->compose;
+        }
+        my $code = shift @tests;
+        my $eval_string = "${testwide_preamble}${preamble}sub $test_name { $code }";
+        my $exception = do {
+            local $@;
+            eval $eval_string;
+            $@;
+        };
+        if ($exception) {
+            die "Couldn't compile code for $test_name: $@\nCode was:\n$eval_string";
+        }
+        (my $expected = $code) =~ s/\b(?:my|our)\b\s*//mg;
         my $ops = _get_optree_for_sub_named($test_name);
         my $got = eval { $ops->deparse };
         is($got, $expected, "code for $test_name")
@@ -1325,6 +1313,15 @@ sub _run_tests {
     }
 }
 
+sub _count_tests {
+    my @tests = @_;
+    my $count = 0;
+    for (my $i = 0; $i < @tests; $i++) {
+        next if ref($tests[$i]);
+        $count++;
+    }
+    return int($count / 2);
+}
 
 sub _get_optree_for_sub_named {
     my $subname = shift;
@@ -1336,4 +1333,52 @@ sub _get_optree_for_sub_named {
             line => 1,
         )
     );
+}
+
+package Devel::Chitin::TestDirective;
+sub new {
+    my($class, $code) = @_;
+    return bless \$code, $class;
+}
+
+package Devel::Chitin::RequireVersion;
+use base 'Devel::Chitin::TestDirective';
+use Test::More;
+
+sub compose {
+    my $self = shift;
+    my $required_version_string = sprintf('%vd', $$self);
+    if ($^V lt $$self) {
+        plan skip_all => "needs version $required_version_string";
+        return undef;
+    }
+    return "use $required_version_string;";
+}
+
+package Devel::Chitin::ExcludeVersion;
+use base 'Devel::Chitin::TestDirective';
+use Test::More;
+
+sub compose {
+    my $self = shift;
+    my $excluded_version_string = sprintf('%vd', $$self);
+    if ($^V ge $$self) {
+        plan skip_all => "doesn't work starting with version $excluded_version_string";
+        return undef;
+    }
+    return '';
+}
+
+package Devel::Chitin::UseFeature;
+use base 'Devel::Chitin::TestDirective';
+sub compose {
+    my $self = shift;
+    sprintf(q(use feature '%s';), $$self);
+}
+
+package Devel::Chitin::UseExperimental;
+use base 'Devel::Chitin::TestDirective';
+sub compose {
+    my $self = shift;
+    sprintf(q(use experimental '%s';), $$self);
 }
