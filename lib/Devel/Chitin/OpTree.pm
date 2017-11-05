@@ -855,6 +855,11 @@ sub is_postfix_loop {
 sub _quote_sv {
     my($self, $sv, %params) = @_;
     my $string = $sv->PV;
+    $self->_quote_string($string, %params);
+}
+
+sub _quote_string {
+    my($self, $string, %params) = @_;
 
     my $quote = ($params{skip_quotes} or $self->op->private & B::OPpCONST_BARE)
                     ? ''
