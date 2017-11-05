@@ -340,6 +340,23 @@ sub print_as_tree {
                 or $op->op->name eq 'const'
         ) {
             $mini_deparsed = $op->deparse;
+
+        } elsif ($op->op->name eq 'multiconcat') {
+            my($nargs, $const_str, @substr_lengths) = $op->op->aux_list($op->cv);
+            my $substr_lengths = join(',', @substr_lengths);
+
+            my $target= '';
+            if ($op->op->private & B::OPpTARGET_MY) {
+                $target = $op->_padname_sv($op->op->targ)->PV . ' = ';
+            }
+
+            my @multiconcat_flags;
+            push @multiconcat_flags, 'APPEND' if $op->op->private & B::OPpMULTICONCAT_APPEND;
+            push @multiconcat_flags, 'STRINGIFY' if $op->op->private & B::OPpMULTICONCAT_STRINGIFY;
+            push @multiconcat_flags, 'SPRINTF' if $op->op->private & B::OPpMULTICONCAT_FAKE;
+            my $multiconcat_flags = join(',', @multiconcat_flags);
+
+            $mini_deparsed = qq(${target}"$const_str"[$substr_lengths] $multiconcat_flags);
         }
 
         my $indent = ($current_callsite and ${$op->op} == $current_callsite)
