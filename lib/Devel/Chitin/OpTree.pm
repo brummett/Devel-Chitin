@@ -320,6 +320,9 @@ my %flag_values = (
     STACKED => B::OPf_STACKED,
     SPECIAL => B::OPf_SPECIAL,
 );
+my %private_values = (
+    BARE => B::OPpCONST_BARE,
+);
 sub print_as_tree {
     my $self = shift;
     my $current_callsite = shift;
@@ -334,6 +337,7 @@ sub print_as_tree {
         }
 
         my @flags = _parse_bit_flags($op->op->flags, %flag_values);
+        my @private = _parse_bit_flags($op->op->private, %private_values);
 
         my $mini_deparsed = '';
         if ($op->class eq 'COP') {
@@ -365,9 +369,10 @@ sub print_as_tree {
         my $indent = ($current_callsite and ${$op->op} == $current_callsite)
                         ? '=>' . ('  ' x($level-1))
                         : '  'x$level;
-        printf("%s%s %s (%s) %s 0x%x\n", $indent, $op->class, $name,
+        printf("%s%s %s (%s) %s %s 0x%x\n", $indent, $op->class, $name,
                                  join(', ', @flags),
                                  $mini_deparsed,
+                                join(', ', @private),
                                  $current_callsite ? ${$op->op} : refaddr($op));
     });
 }
