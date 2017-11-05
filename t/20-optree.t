@@ -1311,7 +1311,7 @@ sub _run_tests {
             $@;
         };
         if ($exception) {
-            die "Couldn't compile code for $test_name: $@\nCode was:\n$eval_string";
+            die "Couldn't compile code for $test_name: $exception\nCode was:\n$eval_string";
         }
         (my $expected = $code) =~ s/\b(?:my|our)\b\s*//mg;
         my $ops = _get_optree_for_sub_named($test_name);
