@@ -300,6 +300,15 @@ sub pre_siblings {
     });
 }
 
+sub _parse_bit_flags {
+    my($bits, %flags) = @_;
+    map {
+        $bits & $flags{$_}
+            ? $_
+            : ()
+    } sort keys %flags;
+}
+
 my %flag_values = (
     WANT_VOID => B::OPf_WANT_VOID,
     WANT_SCALAR => B::OPf_WANT_SCALAR,
@@ -324,13 +333,7 @@ sub print_as_tree {
             $name .= ' (ex-' . $op->_ex_name . ')';
         }
 
-        my $flags = $op->op->flags;
-        my @flags = map {
-                        $flags & $flag_values{$_}
-                            ? $_
-                            : ()
-                    }
-                    qw(WANT_VOID WANT_SCALAR WANT_LIST KIDS PARENS REF MOD STACKED SPECIAL);
+        my @flags = _parse_bit_flags($op->op->flags, %flag_values);
 
         my $mini_deparsed = '';
         if ($op->class eq 'COP') {
