@@ -358,13 +358,12 @@ sub print_as_tree {
                 $target = $op->_padname_sv($op->op->targ)->PV . ' = ';
             }
 
-            my @multiconcat_flags;
-            push @multiconcat_flags, 'APPEND' if $op->op->private & B::OPpMULTICONCAT_APPEND;
-            push @multiconcat_flags, 'STRINGIFY' if $op->op->private & B::OPpMULTICONCAT_STRINGIFY;
-            push @multiconcat_flags, 'SPRINTF' if $op->op->private & B::OPpMULTICONCAT_FAKE;
-            my $multiconcat_flags = join(',', @multiconcat_flags);
-
-            $mini_deparsed = qq(${target}"$const_str"[$substr_lengths] $multiconcat_flags);
+            push @private, _parse_bit_flags($op->op->private,
+                                              ( APPEND => &B::OPpMULTICONCAT_APPEND,
+                                                STRINGIFY => &B::OPpMULTICONCAT_STRINGIFY,
+                                                SPRINTF => &B::OPpMULTICONCAT_FAKE,
+                                              ));
+            $mini_deparsed = qq(${target}"$const_str"[$substr_lengths]);
         }
 
         my $indent = ($current_callsite and ${$op->op} == $current_callsite)
