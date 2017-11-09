@@ -347,6 +347,7 @@ sub print_as_tree {
                 or $op->op->name eq 'const'
         ) {
             $mini_deparsed = $op->deparse;
+            $mini_deparsed = '' unless defined $mini_deparsed;  # multiconcat can optimze away the target of an assignment
 
         } elsif ($op->op->name eq 'multiconcat') {
             my($nargs, $const_str, @substr_lengths) = $op->op->aux_list($op->cv);
