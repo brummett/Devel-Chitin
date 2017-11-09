@@ -861,7 +861,8 @@ sub _quote_sv {
 sub _quote_string {
     my($self, $string, %params) = @_;
 
-    my $quote = ($params{skip_quotes} or $self->op->private & B::OPpCONST_BARE)
+    # Seems that multiconcat can have the BARE flag set erroneously? on 5.27.6
+    my $quote = ($params{skip_quotes} or ($self->op->private & B::OPpCONST_BARE and $self->op->name ne 'multiconcat'))
                     ? ''
                     : q(');
     if ($string =~ m/[\000-\037]/ and !$params{regex_x_flag}) {

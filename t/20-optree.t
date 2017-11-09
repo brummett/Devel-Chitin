@@ -194,6 +194,10 @@ subtest 'string functions' => sub {
         formline_fcn => join("\n",  q(my($a, $b);),
                                     q($a = formline('one', $b, 'three'))),
 
+        concat_op => join("\n", q(my $a;),
+                                q($a = qq(abc$a);),
+                                q(my $b = qq(123$a) . $a . qq(456$a) . $a . '789')),
+
         map { ( "${_}_dfl"      => "$_()",
                 "${_}_to_var"   => join("\n",   q(my $a;),
                                                 "\$a = $_()"),
