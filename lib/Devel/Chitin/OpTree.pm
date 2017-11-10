@@ -322,6 +322,7 @@ my %flag_values = (
 );
 my %private_values = (
     BARE => B::OPpCONST_BARE,
+    TARGMY => B::OPpTARGET_MY,
 );
 sub print_as_tree {
     my $self = shift;
