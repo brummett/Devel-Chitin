@@ -1,7 +1,7 @@
 package Devel::Chitin::OpTree::UNOP_AUX;
 use base 'Devel::Chitin::OpTree::UNOP';
 
-our $VERSION = '0.12';
+our $VERSION = '0.13';
 
 use strict;
 use warnings;
@@ -85,8 +85,8 @@ sub pp_multiconcat {
                       if ($name eq 'null') {
                           $name = 'ex-' . $_->_ex_name;
                       }
-                      print STDERR "Kid: $name\n";
-                    ! ( $_->is_null && $multiconcat_skip_optimized_children{ $_->_ex_name } ) }
+                      ! ( $_->is_null && $multiconcat_skip_optimized_children{ $_->_ex_name } )
+                    }
                 @{$self->children};
 
     my $is_assign;
