@@ -91,7 +91,7 @@ sub pp_and {
         $right = _format_if_block($right);
         "if ($left) $right";
 
-    } elsif ($self->is_posfix_if) {
+    } elsif ($self->is_postfix_if) {
         "$right if $left";
 
     } else {
@@ -116,7 +116,7 @@ sub pp_or {
         my $code = _format_if_block($self->other->deparse);
         "unless ($condition) $code";
 
-    } elsif ($self->is_posfix_if) {
+    } elsif ($self->is_postfix_if) {
         $self->other->deparse . ' unless ' . $self->first->deparse;
 
     } else {
