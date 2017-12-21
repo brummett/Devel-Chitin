@@ -88,7 +88,9 @@ sub pp_leave {
 
     $deparsed = $self->_indent_block_text($deparsed, %params);
 
-    $block_declaration . "{$deparsed}";
+    my($open_brace, $close_brace) = $params{omit_braces} ? ('','') : ('{', '}');
+
+    join('', $block_declaration, $open_brace, $deparsed, $close_brace);
 }
 *pp_scope = \&pp_leave;
 *pp_leavetry = \&pp_leave;
