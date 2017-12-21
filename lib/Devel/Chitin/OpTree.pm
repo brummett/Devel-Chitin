@@ -690,6 +690,10 @@ my %scopelike_ops = (
     pp_entergiven => 1,
     enterwhile => 1,
     pp_enterwhile => 1,
+    entergiven => 1,
+    pp_entergiven => 1,
+    enterwhereso => 1,
+    pp_enterwhereso => 1,
 );
 sub is_scopelike {
     my $self = shift;
@@ -936,6 +940,8 @@ sub _indent_block_text {
     my $newlines = $text =~ s/\n/\n\t/g;
     if ($newlines or $params{force_multiline}) {
         "\n\t" . $text . "\n";
+    } elsif ($params{noindent}) {
+        $text;
     } else {
         " $text ";
     }

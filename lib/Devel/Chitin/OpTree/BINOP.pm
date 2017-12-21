@@ -186,9 +186,23 @@ sub pp_leaveloop {
     if ($enterloop->op->name eq 'enteriter') {
         return $self->_deparse_foreach;
 
+    } elsif ($enterloop->op->name eq 'entergiven') {
+        return $self->_deparse_given;
+
     } else {
         return $self->_deparse_while_until;
     }
+}
+
+sub _deparse_given {
+    my $self = shift;
+
+    my $enter_op = $self->first;
+    my $topic_op = $enter_op->first;
+    my $topic = $topic_op->deparse;
+    my $block_content = $topic_op->sibling->deparse(omit_braces => 1);
+
+    "given ($topic) {$block_content}";
 }
 
 sub _deparse_while_until {
@@ -348,9 +362,7 @@ sub pp_aelem {
 
 sub pp_smartmatch {
     my $self = shift;
-    if ($self->op->flags & B::OPf_SPECIAL) {
-        $self->last->deparse;
-    }
+    $self->last->deparse;
 }
 
 sub pp_lslice {
