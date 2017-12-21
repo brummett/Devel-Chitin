@@ -740,7 +740,7 @@ sub is_if_statement {
     and $self->other->is_scopelike;
 }
 
-sub is_posfix_if {
+sub is_postfix_if {
     my $self = shift;
     my $name = $self->op->name;
 
