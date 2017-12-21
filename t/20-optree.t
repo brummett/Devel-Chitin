@@ -1118,6 +1118,7 @@ subtest 'given-when-5.27.7' => sub {
                              qq(\twhereso (m/def/) {),
                              qq(\t\tprint 'def'),
                              qq(\t}),
+                             qq(\tprint 'ghi' whereso (m/ghi/);),
                              qq(})),
     );
 };

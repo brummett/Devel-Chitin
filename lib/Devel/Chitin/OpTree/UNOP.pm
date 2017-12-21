@@ -532,15 +532,16 @@ sub pp_leavewhereso {
     my $condition_op = $enter_op->first;
     my $condition_deparsed = $condition_op->deparse;
     my $block_op = $condition_op->sibling;
-    my $block_deparsed = $block_op->deparse(force_multiline => 1);
 
     my $keyword = $condition_op->op->name eq 'smartmatch'
                     ? 'whereis'
                     : 'whereso';
 
     if ($self->_is_postfix_whereso) {
-        "$block_deparsed $keyword ($condition_deparsed)"
+        my $block_deparsed = $block_op->deparse(omit_braces => 1, skip => 0, noindent => 1);
+        "$block_deparsed $keyword ($condition_deparsed);" # ; because there's no COPs inside given to generate them
     } else {
+        my $block_deparsed = $block_op->deparse(force_multiline => 1);
         "$keyword ($condition_deparsed) $block_deparsed";
     }
 }
@@ -571,7 +572,7 @@ sub _is_postfix_whereso {
     return( $scope_name eq 'scope'
             and $first_in_scope_op
             and ! $first_in_scope_op->is_null
-            and ! $first_in_scope_op->_ex_name eq 'pp_nextstate'
+            and ! ($first_in_scope_op->_ex_name eq 'pp_nextstate')
         );
 }
 

@@ -940,6 +940,8 @@ sub _indent_block_text {
     my $newlines = $text =~ s/\n/\n\t/g;
     if ($newlines or $params{force_multiline}) {
         "\n\t" . $text . "\n";
+    } elsif ($params{noindent}) {
+        $text;
     } else {
         " $text ";
     }
