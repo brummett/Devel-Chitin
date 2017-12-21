@@ -362,9 +362,7 @@ sub pp_aelem {
 
 sub pp_smartmatch {
     my $self = shift;
-    if ($self->op->flags & B::OPf_SPECIAL) {
-        $self->last->deparse;
-    }
+    $self->last->deparse;
 }
 
 sub pp_lslice {

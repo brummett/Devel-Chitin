@@ -1119,10 +1119,14 @@ subtest 'given-when-5.27.7' => sub {
                              qq(\t\tprint 'def'),
                              qq(\t}),
                              qq(\tprint 'ghi' whereso (m/ghi/);),
+                             qq(\twhereis ('123') {),
+                             qq(\t\tprint '123'),
+                             qq(\t}),
+                             qq(\tprint '456' whereis (456);),
+                             qq(\tprint 'default case'),
                              qq(})),
     );
 };
-exit;
 
 subtest 'perl-5.12' => sub {
     _run_tests(
