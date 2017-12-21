@@ -1,7 +1,7 @@
 package Devel::Chitin::OpTree::LISTOP;
 use base Devel::Chitin::OpTree::BINOP;
 
-our $VERSION = '0.13';
+our $VERSION = '0.14';
 
 use Fcntl qw(:DEFAULT :flock SEEK_SET SEEK_CUR SEEK_END);
 use POSIX qw(:sys_wait_h);
@@ -685,5 +685,5 @@ Anthony Brummett <brummett@cpan.org>
 
 =head1 COPYRIGHT
 
-Copyright 2016, Anthony Brummett.  This module is free software. It may
+Copyright 2017, Anthony Brummett.  This module is free software. It may
 be used, redistributed and/or modified under the same terms as Perl itself.
