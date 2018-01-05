@@ -1,4 +1,5 @@
 {{$NEXT}}
+    * Revert given/whereso/whereis
 
 0.13      2017-12-21 16:22:54-06:00 America/Chicago
     * Support for the new given/whereso/whereis syntax in 5.27.7
