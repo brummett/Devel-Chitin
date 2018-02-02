@@ -1085,6 +1085,7 @@ subtest 'perl-5.10.1' => sub {
 subtest 'given-when-5.10.1' => sub {
     _run_tests(
         requires_version(v5.10.1),
+        excludes_only_version(v5.27.7),
         given_when_5_10 => use_experimental('switch'),
                       join("\n",q(my $a;),
                                 q(given ($a) {),
@@ -1309,6 +1310,11 @@ sub excludes_version {
     Devel::Chitin::ExcludeVersion->new($ver);
 }
 
+sub excludes_only_version {
+    my $ver = shift;
+    Devel::Chitin::ExcludeOnlyVersion->new($ver);
+}
+
 sub no_warnings {
     my $warn = shift;
     Devel::Chitin::NoWarnings->new($warn);
@@ -1410,6 +1416,20 @@ sub compose {
     my $excluded_version_string = sprintf('%vd', $$self);
     if ($^V ge $$self) {
         plan skip_all => "doesn't work starting with version $excluded_version_string";
+        return undef;
+    }
+    return '';
+}
+
+package Devel::Chitin::ExcludeOnlyVersion;
+use base 'Devel::Chitin::TestDirective';
+use Test::More;
+
+sub compose {
+    my $self = shift;
+    my $excluded_version_string = sprintf('%vd', $$self);
+    if ($^V eq $$self) {
+        plan skip_all => "doesn't work with version $excluded_version_string";
         return undef;
     }
     return '';
