@@ -6,6 +6,8 @@ our $VERSION = '0.15';
 use strict;
 use warnings;
 
+use Config;
+
 sub pp_dump {
     'dump ' . shift->op->pv;
 }
@@ -97,8 +99,18 @@ sub collapse {
 
 sub tr_decode_byte {
     my($table, $flags) = @_;
-    my(@table) = unpack("s*", $table);
-    splice @table, 0x100, 1;   # Number of subsequent elements
+
+    my @table;
+    if ($^V lt v5.27.8) {
+        @table = unpack("s*", $table);
+        splice @table, 0x100, 1;   # Number of subsequent elements
+
+    } else {
+        my $ssize_t = $Config{ptrsize} == 8 ? 'q' : 'l';
+        (undef, @table) = unpack("${ssize_t}s*", $table);
+        pop @table; # remove the wildcard final entry
+    }
+
     my($c, $tr, @from, @to, @delfrom, $delhyphen);
     if ($table[ord "-"] != -1
         and
