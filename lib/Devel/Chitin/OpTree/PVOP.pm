@@ -80,16 +80,17 @@ sub collapse {
     my(@chars) = @_;
     my($str, $c, $tr) = ("");
     for ($c = 0; $c < @chars; $c++) {
-    $tr = $chars[$c];
-    $str .= pchr($tr);
-    if ($c <= $#chars - 2 and $chars[$c + 1] == $tr + 1 and
-        $chars[$c + 2] == $tr + 2)
-    {
-        for (; $c <= $#chars-1 and $chars[$c + 1] == $chars[$c] + 1; $c++)
-          {}
-        $str .= "-";
-        $str .= pchr($chars[$c]);
-    }
+        $tr = $chars[$c];
+        $str .= pchr($tr);
+        if ($c <= $#chars - 2
+            and $chars[$c + 1] == $tr + 1
+            and $chars[$c + 2] == $tr + 2
+        ) {
+            for (; $c <= $#chars-1 and $chars[$c + 1] == $chars[$c] + 1; $c++)
+              {}
+            $str .= "-";
+            $str .= pchr($chars[$c]);
+        }
     }
     return $str;
 }
