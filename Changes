@@ -1,4 +1,5 @@
 {{$NEXT}}
+    * Handle changes to the translation table for tr/// introduced in 5.27.8
 
 0.14      2018-01-31 13:07:10-06:00 America/Chicago
     * Revert given/whereso/whereis
