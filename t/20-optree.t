@@ -1086,8 +1086,8 @@ subtest 'given-when-5.10.1' => sub {
     _run_tests(
         requires_version(v5.10.1),
         excludes_only_version(v5.27.7),
-        given_when_5_10 => use_experimental('switch'),
-                      join("\n",q(my $a;),
+        given_when_5_10 => join("\n",
+                                q(my $a;),
                                 q(given ($a) {),
                                qq(\twhen (1) { print 'one' }),
                                qq(\twhen (2) {),
@@ -1109,8 +1109,8 @@ subtest 'given-when-5.10.1' => sub {
 #subtest 'given-when-5.27.7' => sub {
 #    _run_tests(
 #        requires_version(v5.27.7),
-#        given_when_5_27 => use_experimental('switch'),
-#                    join("\n",q(my $a;),
+#        given_when_5_27 => join("\n",
+#                              q(my $a;),
 #                              q(given ($a) {),
 #                             qq(\twhereso (m/abc/) {),
 #                             qq(\t\tprint 'abc';),
@@ -1249,8 +1249,8 @@ subtest 'perl-5.22 differences' => sub {
 subtest 'perl-5.22' => sub {
     _run_tests(
         requires_version(v5.22.0),
-        use_experimental('bitwise'),
-        use_experimental('refaliasing'),
+        use_feature('bitwise'),
+        use_feature('refaliasing'),
         string_bitwise  => join("\n",   q(my($a, $b);),
                                         q($a = $a &. $b;),
                                         q($a &.= $b;),
@@ -1298,11 +1298,6 @@ sub requires_version {
 sub use_feature {
     my $f = shift;
     Devel::Chitin::UseFeature->new($f);
-}
-
-sub use_experimental {
-    my $e = shift;
-    Devel::Chitin::UseExperimental->new($e);
 }
 
 sub excludes_version {
@@ -1404,7 +1399,12 @@ sub compose {
         plan skip_all => "needs version $required_version_string";
         return undef;
     }
-    return "use $required_version_string;";
+
+    my $preamble = "use $required_version_string;";
+    if ($^V ge v5.18.0) {
+        $preamble .= "\nno warnings 'experimental';";
+    }
+    return $preamble;
 }
 
 package Devel::Chitin::ExcludeVersion;
@@ -1440,13 +1440,6 @@ use base 'Devel::Chitin::TestDirective';
 sub compose {
     my $self = shift;
     sprintf(q(use feature '%s';), $$self);
-}
-
-package Devel::Chitin::UseExperimental;
-use base 'Devel::Chitin::TestDirective';
-sub compose {
-    my $self = shift;
-    sprintf(q(use experimental '%s';), $$self);
 }
 
 package Devel::Chitin::NoWarnings;
