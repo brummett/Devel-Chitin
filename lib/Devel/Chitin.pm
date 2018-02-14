@@ -407,6 +407,9 @@ sub next_fragment {
             my $parent = $current_op->parent;
             $current_op = $parent if $parent;
         }
+    } elsif (! $current_op) {
+        Carp::carp("Cannot find current opcode at $callsite in ".$loc->subroutine);
+        return '';
     } elsif (my $xform = $fragment_transforms{$current_op->op->name}) {
         local $@;
         $current_op = eval { $xform->($current_op) };
