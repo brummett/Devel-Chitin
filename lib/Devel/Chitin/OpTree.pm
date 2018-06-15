@@ -323,6 +323,8 @@ my %flag_values = (
 my %private_values = (
     BARE => B::OPpCONST_BARE,
     TARGMY => B::OPpTARGET_MY,
+    SLICE => B::OPpSLICE,
+    ($^V ge v5.28.0 ? ( KVSLICE => &B::OPpKVSLICE ) : ()),
 );
 sub print_as_tree {
     my $self = shift;
