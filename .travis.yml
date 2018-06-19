@@ -1,30 +1,35 @@
 language: perl
 perl:
-  # - "5.8"  # Devel::Callsite doesn't install properly on TravisCI here
-  - "5.10"
-  - "5.12"
-  - "5.14"
-  - "5.16"
-  - "5.18"
+  - "5.8.9"
   - "5.20"
-  - "5.22"
-  - "5.24"
   - "5.26"
+  - "blead"
 
 sudo: false
 
 before_install:
     # Prevent "Please tell me who you are" errors for certain DZIL configs
     - git config --global user.name "TravisCI"
+    - git clone git://github.com/travis-perl/helpers ~/travis-perl-helpers
+    - source ~/travis-perl-helpers/init
+    - build-perl
+    - perl -V
+    - build-dist
+    - cd $BUILD_DIR             # $BUILD_DIR is set by the build-dist command
 
 install:
+    - cpan-install --deps       # installs prereqs, including recommends
+
+#install:
     # Deal with all of the DZIL dependancies, quickly and quietly
-    - cpanm --quiet --notest --skip-satisfied Dist::Zilla~'>=5.04, <6.000'
-    - dzil authordeps | grep -vP '[^\w:]' | xargs -n 5 -P 10 cpanm --quiet --notest --skip-satisfied
-    - export RELEASE_TESTING=1 AUTOMATED_TESTING=1 AUTHOR_TESTING=1 HARNESS_OPTIONS=j10:c HARNESS_TIMER=1
-    - dzil listdeps | grep -vP '[^\w:]' | cpanm --verbose
+#    - cpanm --quiet --notest --skip-satisfied Dist::Zilla~'>=5.04, <6.000'
+#    - dzil authordeps | grep -vP '[^\w:]' | xargs -n 5 -P 10 cpanm --quiet --notest --skip-satisfied
+#    - export RELEASE_TESTING=1 AUTOMATED_TESTING=1 AUTHOR_TESTING=1 HARNESS_OPTIONS=j10:c HARNESS_TIMER=1
+#    # check env var $TRAVIS_PERL_VERSION
+#    - dzil listdeps | grep -vP '[^\w:]' | cpanm --verbose
 
+#script:
+#    - dzil smoke --release --author
 script:
-
-    - dzil smoke --release --author
+    - prove -l
 
