@@ -311,6 +311,7 @@ foreach my $a ( [ pp_entereval  => 'eval',      0 ],
                 [ pp_pos        => 'pos',       0 ],
                 [ pp_alarm      => 'alarm',     0 ],
                 [ pp_ref        => 'ref',       0 ],
+                [ pp_fc         => 'fc',        1 ],
 ) {
     my($pp_name, $perl_name, $targmy) = @$a;
     my $sub = sub {

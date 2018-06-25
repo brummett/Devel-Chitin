@@ -3,7 +3,7 @@ use warnings;
 
 use Devel::Chitin::OpTree;
 use Devel::Chitin::Location;
-use Test::More tests => 34;
+use Test::More tests => 35;
 
 use Fcntl qw(:flock :DEFAULT SEEK_SET SEEK_CUR SEEK_END);
 use POSIX qw(:sys_wait_h);
@@ -1181,6 +1181,16 @@ subtest '5.14 experimental ref ops' => sub {
                                     q(unshift($a, 1))),
         splice_ref => join("\n",    q(my $a = [1, 2, 3];),
                                     q(splice($a, 2, 3, 4))),
+    );
+};
+
+subtest 'perl-5.16' => sub {
+    _run_tests(
+        requires_version(v5.16.0),
+        foldcase => join("\n",  q(my $a = 'aAbBcC';),
+                                q($a = fc($a);),
+                                q(fc($a);),
+                                q($a = fc())),
     );
 };
 
