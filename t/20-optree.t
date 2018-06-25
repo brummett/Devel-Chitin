@@ -1295,6 +1295,11 @@ subtest 'perl-5.28.0' => sub {
         requires_version(v5.28.0),
         delete_hash_slice => join("\n", q(my %myhash;),
                                         q(my %a = delete(%myhash{'baz', 'quux'}))),
+
+        optimized_index   => join("\n", q(my $a = 'abcd';),
+                                        q(if (index($a, 'q') == -1) {),
+                                       qq(\tprint 'no'),
+                                        q(})),
     );
 };
 

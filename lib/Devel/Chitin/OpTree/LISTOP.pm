@@ -584,7 +584,6 @@ sub pp_grepstart { 'grep' }
 
 #                 OP name           Perl fcn    targmy?
 foreach my $a ( [ pp_crypt      => 'crypt',     1 ],
-                [ pp_index      => 'index',     1 ],
                 [ pp_rindex     => 'rindex',    1 ],
                 [ pp_pack       => 'pack',      0 ],
                 [ pp_reverse    => 'reverse',   0 ],
@@ -660,6 +659,23 @@ foreach my $a ( [ pp_crypt      => 'crypt',     1 ],
     };
     no strict 'refs';
     *$pp_name = $sub;
+}
+
+my $INDEX_BOOLNEG = $^V ge v5.28.0 ? B::OPpINDEX_BOOLNEG() : 0;
+sub pp_index {
+    my $self = shift;
+
+    my $target = $self->_maybe_targmy;
+    my $children = $self->children;
+    my $deparsed = "${target}index("
+                   . join(', ', map { $_->deparse } @$children[1 .. $#$children]) # [0] is pushmark
+                   . ')';
+
+    if ($self->op->private & $INDEX_BOOLNEG) {
+        "$deparsed == -1";
+    } else {
+        $deparsed;
+    }
 }
 
 1;
