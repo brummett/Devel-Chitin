@@ -311,7 +311,6 @@ foreach my $a ( [ pp_entereval  => 'eval',      0 ],
                 [ pp_pos        => 'pos',       0 ],
                 [ pp_alarm      => 'alarm',     0 ],
                 [ pp_ref        => 'ref',       0 ],
-                [ pp_fc         => 'fc',        1 ],
 ) {
     my($pp_name, $perl_name, $targmy) = @$a;
     my $sub = sub {
@@ -326,6 +325,25 @@ foreach my $a ( [ pp_entereval  => 'eval',      0 ],
     no strict 'refs';
     *$pp_name = $sub;
 }
+
+sub pp_fc {
+    my($self, %params) = @_;
+
+    my $children = $self->children;
+    if (@$children > 1) {
+        # This is part of a \F...\E sequence within a double-quoted string, first child is a pushmark
+        '\F' . $children->[1]->deparse . '\E';
+
+    } else {
+        # This is a regular fc() UNOP
+        my $arg = $self->first->deparse;
+        my $target = $self->_maybe_targmy;
+        "${target}fc("
+            . ( $arg eq '$_' ? '' : $arg )
+            . ')';
+    }
+}
+
 
 # Functions that don't operate on $_
 #                   OP name        Perl fcn    targmy?

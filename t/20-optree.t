@@ -1190,7 +1190,8 @@ subtest 'perl-5.16' => sub {
         foldcase => join("\n",  q(my $a = 'aAbBcC';),
                                 q($a = fc($a);),
                                 q(fc($a);),
-                                q($a = fc())),
+                                q($a = fc();),
+                                q(print qq(ab\F$a\E))),
     );
 };
 
