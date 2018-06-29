@@ -1299,6 +1299,8 @@ subtest 'perl-5.28.0' => sub {
         optimized_index   => join("\n", q(my $a = 'abcd';),
                                         q(if (index($a, 'q') == -1) {),
                                        qq(\tprint 'no'),
+                                        q(} elsif (index($a, 'q') != -1) {),
+                                       qq(\tprint 'yes'),
                                         q(})),
     );
 };

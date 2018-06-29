@@ -661,7 +661,10 @@ foreach my $a ( [ pp_crypt      => 'crypt',     1 ],
     *$pp_name = $sub;
 }
 
-my $INDEX_BOOLNEG = $^V ge v5.28.0 ? B::OPpINDEX_BOOLNEG() : 0;
+my($INDEX_BOOLNEG, $INDEX_TRUEBOOL) = $^V ge v5.28.0
+                                    ? (B::OPpINDEX_BOOLNEG(), B::OPpTRUEBOOL())
+                                    : (0,0);
+
 sub pp_index {
     my $self = shift;
 
@@ -671,8 +674,10 @@ sub pp_index {
                    . join(', ', map { $_->deparse } @$children[1 .. $#$children]) # [0] is pushmark
                    . ')';
 
-    if ($self->op->private & $INDEX_BOOLNEG) {
-        "$deparsed == -1";
+    my $private_flags = $self->op->private;
+    if ($private_flags & $INDEX_TRUEBOOL) {
+        my $operator = $self->op->private & $INDEX_BOOLNEG ? '==' : '!=';
+        "$deparsed $operator -1";
     } else {
         $deparsed;
     }
