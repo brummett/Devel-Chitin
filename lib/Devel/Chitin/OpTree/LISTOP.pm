@@ -584,7 +584,6 @@ sub pp_grepstart { 'grep' }
 
 #                 OP name           Perl fcn    targmy?
 foreach my $a ( [ pp_crypt      => 'crypt',     1 ],
-                [ pp_rindex     => 'rindex',    1 ],
                 [ pp_pack       => 'pack',      0 ],
                 [ pp_reverse    => 'reverse',   0 ],
                 [ pp_sprintf    => 'sprintf',   0 ],
@@ -664,23 +663,28 @@ foreach my $a ( [ pp_crypt      => 'crypt',     1 ],
 my($INDEX_BOOLNEG, $INDEX_TRUEBOOL) = $^V ge v5.28.0
                                     ? (B::OPpINDEX_BOOLNEG(), B::OPpTRUEBOOL())
                                     : (0,0);
+foreach my $index_fcn ( 'index', 'rindex') {
+    my $pp_name = "pp_${index_fcn}";
 
-sub pp_index {
-    my $self = shift;
+    my $sub = sub {
+        my $self = shift;
 
-    my $target = $self->_maybe_targmy;
-    my $children = $self->children;
-    my $deparsed = "${target}index("
-                   . join(', ', map { $_->deparse } @$children[1 .. $#$children]) # [0] is pushmark
-                   . ')';
+        my $target = $self->_maybe_targmy;
+        my $children = $self->children;
+        my $deparsed = "${target}${index_fcn}("
+                       . join(', ', map { $_->deparse } @$children[1 .. $#$children]) # [0] is pushmark
+                       . ')';
 
-    my $private_flags = $self->op->private;
-    if ($private_flags & $INDEX_TRUEBOOL) {
-        my $operator = $self->op->private & $INDEX_BOOLNEG ? '==' : '!=';
-        "$deparsed $operator -1";
-    } else {
-        $deparsed;
-    }
+        my $private_flags = $self->op->private;
+        if ($private_flags & $INDEX_TRUEBOOL) {
+            my $operator = $self->op->private & $INDEX_BOOLNEG ? '==' : '!=';
+            "$deparsed $operator -1";
+        } else {
+            $deparsed;
+        }
+    };
+    no strict 'refs';
+    *$pp_name = $sub;
 }
 
 1;

@@ -1302,6 +1302,12 @@ subtest 'perl-5.28.0' => sub {
                                         q(} elsif (index($a, 'q') != -1) {),
                                        qq(\tprint 'yes'),
                                         q(})),
+        optimized_rindex  => join("\n", q(my $a = 'abcd';),
+                                        q(if (rindex($a, 'q') == -1) {),
+                                       qq(\tprint 'no'),
+                                        q(} elsif (rindex($a, 'q') != -1) {),
+                                       qq(\tprint 'yes'),
+                                        q(})),
     );
 };
 
