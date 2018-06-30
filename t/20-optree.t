@@ -156,10 +156,14 @@ subtest 'string functions' => sub {
                                 q(crypt($a, 'salt'))),
         index_fcn => join("\n", q(my $a;),
                                 q($a = index($a, 'foo');),
-                                q(index($a, 'foo', 1))),
+                                q(index($a, 'foo', 1);),
+                                q($a = index($a, 'foo') == -1;),
+                                q($a = index($a, 'foo') != -1)),
         rindex_fcn  => join("\n",   q(my $a;),
                                     q($a = rindex($a, 'foo');),
-                                    q(rindex($a, 'foo', 1))),
+                                    q(rindex($a, 'foo', 1);),
+                                    q($a = rindex($a, 'foo') == -1;),
+                                    q($a = rindex($a, 'foo') != -1)),
         substr_fcn  => join("\n",   q(my $a;),
                                     q($a = substr($a, 1, 2, 'foo');),
                                     q(substr($a, 2, 3) = 'bar';),  # doubled because the first one triggers an optimized-out
@@ -1295,19 +1299,6 @@ subtest 'perl-5.28.0' => sub {
         requires_version(v5.28.0),
         delete_hash_slice => join("\n", q(my %myhash;),
                                         q(my %a = delete(%myhash{'baz', 'quux'}))),
-
-        optimized_index   => join("\n", q(my $a = 'abcd';),
-                                        q(if (index($a, 'q') == -1) {),
-                                       qq(\tprint 'no'),
-                                        q(} elsif (index($a, 'q') != -1) {),
-                                       qq(\tprint 'yes'),
-                                        q(})),
-        optimized_rindex  => join("\n", q(my $a = 'abcd';),
-                                        q(if (rindex($a, 'q') == -1) {),
-                                       qq(\tprint 'no'),
-                                        q(} elsif (rindex($a, 'q') != -1) {),
-                                       qq(\tprint 'yes'),
-                                        q(})),
     );
 };
 
