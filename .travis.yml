@@ -21,6 +21,8 @@ before_install:
         perlbrew --notest install -v perl-5.8.9
         perlbrew use perl-5.8.9
         perl --version
+        export PERL_CPANM_OPT="--mirror http://backpan.cpantesters.org"
+        cpanm --quiet --notest --skip-satisfied Dist::Zilla~'>=5.04, <6.000'
       fi
 
 install:
