@@ -25,7 +25,7 @@ before_install:
 
 install:
     # Deal with all of the DZIL dependancies, quickly and quietly
-    - cpanm --quiet --notest --skip-satisfied Dist::Zilla~'>=5.04, <6.000'
+    - cpanm --quiet --notest --skip-satisfied Dist::Zilla~'>=5.04'
     - export RELEASE_TESTING=1 AUTOMATED_TESTING=1 AUTHOR_TESTING=1 HARNESS_OPTIONS=j10:c HARNESS_TIMER=1
     # This is the list from 'dzil listdeps', hardcoded here because Dist::Zilla::Plugin::Git
     # won't install on perl-5.8.
