@@ -159,7 +159,7 @@ subtest 'string functions' => sub {
                                 q(index($a, 'foo', 1))),
         rindex_fcn  => join("\n",   q(my $a;),
                                     q($a = rindex($a, 'foo');),
-                                    q(index($a, 'foo', 1))),
+                                    q(rindex($a, 'foo', 1))),
         substr_fcn  => join("\n",   q(my $a;),
                                     q($a = substr($a, 1, 2, 'foo');),
                                     q(substr($a, 2, 3) = 'bar';),  # doubled because the first one triggers an optimized-out
