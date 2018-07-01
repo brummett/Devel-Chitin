@@ -18,14 +18,16 @@ before_install:
     - git config --global user.name "TravisCI"
     - |
       if perl -e 'if ($] < "5.008009") { exit(0) } else { exit(1) }'; then
-        perlbrew --notest install perl-5.8.9
+        perlbrew --notest install -v perl-5.8.9
         perlbrew use perl-5.8.9
         perl --version
+        export PERL_CPANM_OPT="--mirror http://backpan.cpantesters.org"
+        cpanm --quiet --notest --skip-satisfied Dist::Zilla~'>=5.04, <6.000'
       fi
 
 install:
     # Deal with all of the DZIL dependancies, quickly and quietly
-    - cpanm --quiet --notest --skip-satisfied Dist::Zilla~'>=5.04, <6.000'
+    - cpanm --quiet --notest --skip-satisfied Dist::Zilla~'>=5.04'
     - export RELEASE_TESTING=1 AUTOMATED_TESTING=1 AUTHOR_TESTING=1 HARNESS_OPTIONS=j10:c HARNESS_TIMER=1
     # This is the list from 'dzil listdeps', hardcoded here because Dist::Zilla::Plugin::Git
     # won't install on perl-5.8.
