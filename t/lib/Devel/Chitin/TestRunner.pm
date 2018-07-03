@@ -62,6 +62,7 @@ sub loc {
     defined($params{filename}) || do { $params{filename} = (caller)[1] };
     defined($params{package}) || do { $params{package} = 'main' };
     defined($params{callsite}) || do { $params{callsite} = has_callsite() ? Devel::Callsite::callsite(0) : undef };
+    exists($params{subref}) && do { my $ref = $params{subref}; $params{subref} = sub { $ref } };
     return Devel::Chitin::Location->new(%params);
 }
 
@@ -120,6 +121,12 @@ sub _compare_locations {
 
         foreach my $attr ( qw( package filename line ) ) {
             Test::More::is($got_loc->$attr, $expected_loc->$attr, $attr);
+        }
+
+        if (defined $expected_loc->subref) {
+            $expected_loc->subref->()
+                ? Test::More::ok($got_loc->subref, 'subref seen')
+                : Test::More::ok(! $got_loc->subref, 'subref missing');
         }
     });
 }

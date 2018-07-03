@@ -298,6 +298,7 @@ sub file_source {
 
 my %optrees;
 our $current_sub;
+sub current_sub { $current_sub }
 sub _get_optree_for_current_sub {
     my $loc = current_location;
 
@@ -710,6 +711,7 @@ sub DB {
         line        => $line,
         subroutine  => $subroutine,
         callsite    => scalar Devel::Chitin::Location::get_callsite(),
+        ( ref($Devel::Chitin::current_sub) ? ( subref => $Devel::Chitin::current_sub ) : () )
     );
 
     $_->notify_trace($current_location) foreach values(%trace_clients);

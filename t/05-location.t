@@ -7,7 +7,7 @@ use lib 't/lib';
 use Devel::Chitin::TestRunner;
 
 run_test(
-    5,
+    6,
     sub { $DB::single=1;
         foo(); 12;
         sub foo {
@@ -25,14 +25,21 @@ run_test(
             $DB::single=1;
             26;
         }
+        my $subref = sub {
+            $DB::single=1;
+            30;
+        };
+        $subref->();
     },
-    loc(filename => __FILE__, package => 'main', line => 12),
+    loc(filename => __FILE__, package => 'main', line => 12, subref => 1),
     'continue',
-    loc(filename => __FILE__, package => 'main', subroutine => 'main::foo', line => 15),
+    loc(filename => __FILE__, package => 'main', subroutine => 'main::foo', line => 15, subref => 0),
     'continue',
-    loc(filename => __FILE__, package => 'main', subroutine => 'Bar::bar', line => 20),
+    loc(filename => __FILE__, package => 'main', subroutine => 'Bar::bar', line => 20, subref => 0),
     'continue',
-    loc(filename => __FILE__, package => 'Bar', subroutine => 'Bar::baz', line => 26),
+    loc(filename => __FILE__, package => 'Bar', subroutine => 'Bar::baz', line => 26, subref => 0),
+    'continue',
+    loc(filename => __FILE__, package => 'Bar', subroutine => 'ANON', line => 30, subref => 1),
     \&check_current_location,
     'done',
 );
