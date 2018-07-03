@@ -110,33 +110,19 @@ sub notify_program_exit {
 sub _compare_locations {
     my($db, $got_loc, $expected_loc) = @_;
 
-    my @compare = (
-        sub {
-                my $expected_sub = $expected_loc->subroutine;
-                return ($expected_sub eq 'ANON')
-                        ? $got_loc->subroutine =~ m/__ANON__/
-                        : $got_loc->subroutine eq $expected_sub;
-            },
-        sub { return $expected_loc->package eq $got_loc->package },
-        sub { return $expected_loc->line == $got_loc->line },
-        sub { return $expected_loc->filename eq $got_loc->filename },
-    );
-
-    my $report_test; $report_test = sub {
-        Test::More::ok(shift, sprintf('Expected location %s:%d got %s:%d',
-                                    $expected_loc->filename, $expected_loc->line,
-                                    $got_loc->filename, $got_loc->line));
-        $report_test = sub {}; # only report the error once
-    };
-
-    foreach my $compare ( @compare ) {
-        unless ( $compare->() ) {
-            $report_test->(0);
+    Test::More::subtest(sprintf('%s:%d', $expected_loc->filename, $expected_loc->line) => sub {
+        my $expected_sub = $expected_loc->subroutine;
+        if ($expected_sub eq 'ANON') {
+            Test::More::like($got_loc->subroutine, qr/__ANON__/, 'subroutine');
+        } else {
+            Test::More::is($got_loc->subroutine, $expected_sub, 'subroutine');
         }
-    }
-    $report_test->(1);
+
+        foreach my $attr ( qw( package filename line ) ) {
+            Test::More::is($got_loc->$attr, $expected_loc->$attr, $attr);
+        }
+    });
 }
-            
 
 sub step {
     my $db = shift;
