@@ -10,7 +10,7 @@ use base 'Devel::Chitin';
 use Exporter 'import';
 our @EXPORT_OK = qw(ok_location
                     ok_at_end
-                    db_step
+                    db_step db_continue db_stepout
                 );
 
 my @TEST_QUEUE;
@@ -50,6 +50,8 @@ sub notify_stopped {
     while(my $test = shift @TEST_QUEUE) {
         $test->($location);
     }
+
+    __PACKAGE__->disable_debugger unless (@TEST_QUEUE);
 }
 
 # test-like functions
@@ -98,6 +100,21 @@ sub db_step {
     };
 }
 
+sub db_continue {
+    push @TEST_QUEUE, sub {
+        __PACKAGE__->continue;
+        no warnings 'exiting';
+        last TEST_QUEUE_LOOP;
+    }
+}
+
+sub db_stepout {
+    push @TEST_QUEUE, sub {
+        __PACKAGE__->stepout;
+        no warnings 'exiting';
+        last TEST_QUEUE_LOOP;
+    }
+}
 
 __PACKAGE__->attach();
 
