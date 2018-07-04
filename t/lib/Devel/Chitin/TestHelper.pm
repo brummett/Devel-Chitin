@@ -10,7 +10,7 @@ use base 'Devel::Chitin';
 use Exporter 'import';
 our @EXPORT_OK = qw(ok_location
                     ok_at_end
-                    db_step db_continue db_stepout
+                    db_step db_continue db_stepout db_stepover
                 );
 
 my @TEST_QUEUE;
@@ -111,6 +111,14 @@ sub db_continue {
 sub db_stepout {
     push @TEST_QUEUE, sub {
         __PACKAGE__->stepout;
+        no warnings 'exiting';
+        last TEST_QUEUE_LOOP;
+    }
+}
+
+sub db_stepover {
+    push @TEST_QUEUE, sub {
+        __PACKAGE__->stepover;
         no warnings 'exiting';
         last TEST_QUEUE_LOOP;
     }
