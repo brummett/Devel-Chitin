@@ -62,6 +62,7 @@ sub loc {
     defined($params{filename}) || do { $params{filename} = (caller)[1] };
     defined($params{package}) || do { $params{package} = 'main' };
     defined($params{callsite}) || do { $params{callsite} = has_callsite() ? Devel::Callsite::callsite(0) : undef };
+    exists($params{subref}) && do { my $ref = $params{subref}; $params{subref} = sub { $ref } };
     return Devel::Chitin::Location->new(%params);
 }
 
@@ -110,33 +111,25 @@ sub notify_program_exit {
 sub _compare_locations {
     my($db, $got_loc, $expected_loc) = @_;
 
-    my @compare = (
-        sub {
-                my $expected_sub = $expected_loc->subroutine;
-                return ($expected_sub eq 'ANON')
-                        ? $got_loc->subroutine =~ m/__ANON__/
-                        : $got_loc->subroutine eq $expected_sub;
-            },
-        sub { return $expected_loc->package eq $got_loc->package },
-        sub { return $expected_loc->line == $got_loc->line },
-        sub { return $expected_loc->filename eq $got_loc->filename },
-    );
-
-    my $report_test; $report_test = sub {
-        Test::More::ok(shift, sprintf('Expected location %s:%d got %s:%d',
-                                    $expected_loc->filename, $expected_loc->line,
-                                    $got_loc->filename, $got_loc->line));
-        $report_test = sub {}; # only report the error once
-    };
-
-    foreach my $compare ( @compare ) {
-        unless ( $compare->() ) {
-            $report_test->(0);
+    Test::More::subtest(sprintf('%s:%d', $expected_loc->filename, $expected_loc->line) => sub {
+        my $expected_sub = $expected_loc->subroutine;
+        if ($expected_sub eq 'ANON') {
+            Test::More::like($got_loc->subroutine, qr/__ANON__/, 'subroutine');
+        } else {
+            Test::More::is($got_loc->subroutine, $expected_sub, 'subroutine');
         }
-    }
-    $report_test->(1);
+
+        foreach my $attr ( qw( package filename line ) ) {
+            Test::More::is($got_loc->$attr, $expected_loc->$attr, $attr);
+        }
+
+        if (defined $expected_loc->subref) {
+            $expected_loc->subref->()
+                ? Test::More::ok($got_loc->subref, 'subref seen')
+                : Test::More::ok(! $got_loc->subref, 'subref missing');
+        }
+    });
 }
-            
 
 sub step {
     my $db = shift;
