@@ -197,7 +197,7 @@ sub remove_watchexpr {
 sub is_breakable {
     my($class, $filename, $line) = @_;
 
-    use vars qw(@dbline);
+    our @dbline;
     local(*dbline) = $main::{'_<' . $filename};
     return $dbline[$line] + 0;   # FIXME change to == 0
 }
@@ -474,7 +474,12 @@ sub _do_each_client {
 
 package DB;
 
-use vars qw( %dbline @dbline );
+# If we wanted to only support 5.20 and later, these could go away and be
+# replaced by a lexical glob $dbline in subs where it's needed.
+# see details in
+# https://metacpan.org/pod/release/RJBS/perl-5.20.0/pod/perldelta.pod
+# https://rt.perl.org/Public/Bug/Display.html?id=119799
+our(%dbline, @dbline);
 
 our($stack_depth,
     $single,
