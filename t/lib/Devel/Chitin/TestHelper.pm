@@ -8,8 +8,9 @@ use Test2::API qw( context_do context run_subtest test2_add_callback_testing_don
 use base 'Devel::Chitin';
 
 use Exporter 'import';
-our @EXPORT_OK = qw(ok_location
+our @EXPORT_OK = qw(ok_location ok_breakable ok_not_breakable ok_set_breakpoint ok_breakpoint
                     ok_at_end
+                    do_test
                     db_step db_continue db_stepout db_stepover
                 );
 
@@ -76,6 +77,31 @@ sub ok_location {
     push @TEST_QUEUE, $test;
 }
 
+sub ok_breakpoint {
+    my %params = @_;
+
+    my($file, $from_line) = (caller)[1, 2];
+    $params{file} = $file unless exists ($params{file});
+    my $bp_line = $params{line};
+
+    my $subtest = sub {
+        my @bp = Devel::Chitin::Breakpoint->get(%params);
+        if (@bp != 1) {
+            fail("Expected 1 breakpoint in ok_breakpoint($from_line), but got ".scalar(@bp));
+        }
+
+        ok($bp[0], 'Got breakpoint');
+        foreach my $attr ( keys %params ) {
+            is($bp[0]->$attr, $params{$attr}, $attr);
+        }
+    };
+    push @TEST_QUEUE, sub {
+        context_do {
+            run_subtest("breakpoint($from_line) ${file}:${bp_line}", $subtest);
+        }
+    };
+}
+
 sub ok_at_end {
     my $from_line = (caller)[2];
 
@@ -88,6 +114,50 @@ sub ok_at_end {
         __PACKAGE__->disable_debugger if (! @TEST_QUEUE and $AT_END);
     };
     push @TEST_QUEUE, $test;
+}
+
+sub ok_breakable {
+    my($file, $line) = @_;
+    my $from_line = (caller)[2];
+
+    my $test = sub {
+        context_do {
+            my $ctx = shift;
+            $ctx->ok( __PACKAGE__->is_breakable($file, $line), "${file}:${line} is breakable");
+        };
+    };
+    push @TEST_QUEUE, $test;
+}
+
+sub ok_not_breakable {
+    my($file, $line) = @_;
+
+    my $test = sub {
+        context_do {
+            my $ctx = shift;
+            $ctx->ok( ! __PACKAGE__->is_breakable($file, $line), "${file}:${line} is not breakable");
+        };
+    };
+    push @TEST_QUEUE, $test;
+}
+
+sub ok_set_breakpoint {
+    my $comment = pop;
+    my %params = @_;
+
+    $params{file} = (caller)[1] unless exists $params{file};
+
+    my $test = sub {
+        context_do {
+            my $ctx = shift;
+            $ctx->ok( Devel::Chitin::Breakpoint->new(%params), $comment);
+        };
+    };
+    push @TEST_QUEUE, $test;
+}
+
+sub do_test(&) {
+    push @TEST_QUEUE, shift();
 }
 
 # Debugger control functions
