@@ -52,12 +52,12 @@ sub get {
                     : ();
     }
             
-    if ($params{code}) {
+    if (exists $params{code}) {
         @candidates = grep { $_->{code} eq $params{code} }
                         @candidates;
     }
 
-    if ($params{inactive}) {
+    if (exists $params{inactive}) {
         @candidates = grep { $_->{inactive} eq $params{inactive} }
                         @candidates;
     }
