@@ -6,9 +6,11 @@ use warnings;
 use Test2::V0;
 use Test2::API qw( context_do context run_subtest test2_add_callback_testing_done);
 use base 'Devel::Chitin';
+use Carp;
 
 use Exporter 'import';
-our @EXPORT_OK = qw(ok_location ok_breakable ok_not_breakable ok_set_breakpoint ok_breakpoint
+our @EXPORT_OK = qw(ok_location ok_breakable ok_not_breakable
+                    ok_set_breakpoint ok_breakpoint ok_change_breakpoint ok_delete_breakpoint
                     ok_at_end
                     do_test
                     db_step db_continue db_stepout db_stepover
@@ -151,6 +153,51 @@ sub ok_set_breakpoint {
         context_do {
             my $ctx = shift;
             $ctx->ok( Devel::Chitin::Breakpoint->new(%params), $comment);
+        };
+    };
+    push @TEST_QUEUE, $test;
+}
+
+sub ok_change_breakpoint {
+    my $comment = pop;
+    my %params = @_;
+
+    my $changes = delete $params{change};
+    unless (ref($changes) eq 'HASH') {
+        Carp::croak("'change' is a required param to ok_change_breakpoint(), and must be a hashref");
+    }
+
+    my $test = sub {
+        context_do {
+            my $ctx = shift;
+
+            my @bp = Devel::Chitin::Breakpoint->get(%params);
+            unless (@bp) {
+                $ctx->fail('params matched no breakpoints: ', join(', ', map { "$_ => ".$params{$_} } keys(%params)));
+            }
+            foreach my $bp ( @bp ) {
+                foreach my $param (keys %$changes) {
+                    $bp->$param($changes->{$param});
+                }
+                $ctx->pass(sprintf('%s at %s:%d', $comment, $bp->file, $bp->line));
+            }
+        };
+    };
+    push @TEST_QUEUE, $test;
+}
+
+sub ok_delete_breakpoint {
+    my $comment = pop;
+    my %params = @_;
+
+    my $test = sub {
+        context_do {
+            my $ctx = shift;
+
+            my @bp = Devel::Chitin::Breakpoint->get(%params);
+            foreach my $bp ( @bp ) {
+                $ctx->ok($bp->delete, sprintf('Delete breakpoint at %s:%d', $bp->file, $bp->line));
+            }
         };
     };
     push @TEST_QUEUE, $test;
