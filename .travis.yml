@@ -32,7 +32,7 @@ install:
     - export RELEASE_TESTING=1 AUTOMATED_TESTING=1 AUTHOR_TESTING=1 HARNESS_OPTIONS=j10:c HARNESS_TIMER=1
     # This is the list from 'dzil listdeps', hardcoded here because Dist::Zilla::Plugin::Git
     # won't install on perl-5.8.
-    - cpanm --verbose --skip-satisfied --notest B Carp Devel::Callsite Digest::MD5 Exporter ExtUtils::MakeMaker Fcntl File::Basename IO::File IO::Pipe PadWalker POSIX Scalar::Util Socket Sub::Name Test::Builder Test::More
+    - cpanm --verbose --skip-satisfied --notest B Carp Devel::Callsite Digest::MD5 Exporter ExtUtils::MakeMaker Fcntl File::Basename IO::File IO::Pipe PadWalker POSIX Scalar::Util Socket Sub::Name Test::Builder Test::More List::Util~1.45
 
 script:
     - prove -l

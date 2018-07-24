@@ -11,9 +11,11 @@ use Carp;
 use Exporter 'import';
 our @EXPORT_OK = qw(ok_location ok_breakable ok_not_breakable
                     ok_set_breakpoint ok_breakpoint ok_change_breakpoint ok_delete_breakpoint
+                    ok_set_action
                     ok_at_end
                     do_test
                     db_step db_continue db_stepout db_stepover
+                    has_callsite
                 );
 
 my @TEST_QUEUE;
@@ -48,7 +50,7 @@ sub notify_stopped {
         __PACKAGE__->disable_debugger();
         return;
     }
-                
+
     TEST_QUEUE_LOOP:
     while(my $test = shift @TEST_QUEUE) {
         $test->($location);
@@ -138,6 +140,21 @@ sub ok_not_breakable {
         context_do {
             my $ctx = shift;
             $ctx->ok( ! __PACKAGE__->is_breakable($file, $line), "${file}:${line} is not breakable");
+        };
+    };
+    push @TEST_QUEUE, $test;
+}
+
+sub ok_set_action {
+    my $comment = pop;
+    my %params = @_;
+
+    $params{file} = (caller)[1] unless exists $params{file};
+
+    my $test = sub {
+        context_do {
+            my $ctx = shift;
+            $ctx->ok( Devel::Chitin::Action->new(%params), $comment);
         };
     };
     push @TEST_QUEUE, $test;
@@ -239,6 +256,15 @@ sub db_stepover {
         no warnings 'exiting';
         last TEST_QUEUE_LOOP;
     }
+}
+
+my $has_callsite;
+sub has_callsite {
+    unless (defined $has_callsite) {
+        my $test_callsite = ( sub { Devel::Chitin::Location::get_callsite(0) })->();
+        $has_callsite = !! $test_callsite;
+    }
+    $has_callsite;
 }
 
 __PACKAGE__->attach();
