@@ -9,12 +9,12 @@ use base 'Devel::Chitin';
 use Carp;
 
 use Exporter 'import';
-our @EXPORT_OK = qw(ok_location ok_breakable ok_not_breakable
+our @EXPORT_OK = qw(ok_location ok_breakable ok_not_breakable ok_trace_location
                     ok_set_breakpoint ok_breakpoint ok_change_breakpoint ok_delete_breakpoint
                     ok_set_action
                     ok_at_end
                     do_test
-                    db_step db_continue db_stepout db_stepover
+                    db_step db_continue db_stepout db_stepover db_trace
                     has_callsite
                 );
 
@@ -72,6 +72,27 @@ sub notify_stopped {
     __PACKAGE__->disable_debugger unless (@TEST_QUEUE);
 }
 
+my $IS_TRACE = 0;
+sub notify_trace {
+    my($self, $location) = @_;
+
+    my $guard = guard { $IS_TRACE = 0 };
+    $IS_TRACE=1;
+
+    unless (@TEST_QUEUE) {
+        my $ctx = context();
+        $ctx->fail(sprintf('notify_trace() at %s:%d with no trace tests remaining in the queue', $location->filename, $location->line));
+        $ctx->release;
+        __PACKAGE__->disable_debugger();
+        return;
+    }
+
+    my $test = shift @TEST_QUEUE;
+    $test->($location);
+
+    __PACKAGE__->disable_debugger unless (@TEST_QUEUE);
+}
+
 # test-like functions
 
 sub _test_location {
@@ -100,6 +121,10 @@ sub _test_location {
 
 sub ok_location {
     _test_location(\$IS_STOPPED, 'stopped', @_);
+}
+
+sub ok_trace_location {
+    _test_location(\$IS_TRACE, 'traced', @_);
 }
 
 sub ok_breakpoint {
@@ -276,6 +301,13 @@ sub db_stepover {
         __PACKAGE__->stepover;
         no warnings 'exiting';
         last TEST_QUEUE_LOOP;
+    }
+}
+
+sub db_trace {
+    my $val = shift;
+    push @TEST_QUEUE, sub {
+        __PACKAGE__->trace($val);
     }
 }
 
