@@ -58,7 +58,7 @@ sub notify_stopped {
 
     unless (@TEST_QUEUE) {
         my $ctx = context();
-        $ctx->fail('Stopped with no tests remaining in the queue');
+        $ctx->fail(sprintf('Stopped at %s:%d with no tests remaining in the queue', $location->filename, $location->line));
         $ctx->release;
         __PACKAGE__->disable_debugger();
         return;
