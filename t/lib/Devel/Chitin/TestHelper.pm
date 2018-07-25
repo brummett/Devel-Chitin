@@ -13,8 +13,8 @@ our @EXPORT_OK = qw(ok_location ok_breakable ok_not_breakable ok_trace_location
                     ok_set_breakpoint ok_breakpoint ok_change_breakpoint ok_delete_breakpoint
                     ok_set_action
                     ok_at_end
-                    do_test
-                    db_step db_continue db_stepout db_stepover db_trace
+                    do_test do_disable_auto_disable
+                    db_step db_continue db_stepout db_stepover db_trace db_disable
                     has_callsite
                 );
 
@@ -42,6 +42,7 @@ sub Devel::Chitin::TestHelper::Guard::DESTROY {
 my $START_TESTING = 0;
 my $AT_END = 0;
 my $IS_STOPPED = 0;
+my $CONTINUE_AFTER_TEST_QUEUE_IS_EMPTY = 0;
 sub notify_stopped {
     return unless $START_TESTING;
 
@@ -69,7 +70,7 @@ sub notify_stopped {
         $test->($location);
     }
 
-    __PACKAGE__->disable_debugger unless (@TEST_QUEUE);
+    __PACKAGE__->disable_debugger unless (@TEST_QUEUE or $CONTINUE_AFTER_TEST_QUEUE_IS_EMPTY);
 }
 
 my $IS_TRACE = 0;
@@ -270,6 +271,12 @@ sub do_test(&) {
     push @TEST_QUEUE, shift();
 }
 
+sub do_disable_auto_disable {
+    push @TEST_QUEUE, sub {
+        $CONTINUE_AFTER_TEST_QUEUE_IS_EMPTY = 1;
+    }
+}
+
 # Debugger control functions
 
 sub db_step {
@@ -308,6 +315,12 @@ sub db_trace {
     my $val = shift;
     push @TEST_QUEUE, sub {
         __PACKAGE__->trace($val);
+    }
+}
+
+sub db_disable {
+    push @TEST_QUEUE, sub {
+        __PACKAGE__->disable_debugger;
     }
 }
 
