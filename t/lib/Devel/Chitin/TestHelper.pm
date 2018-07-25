@@ -30,10 +30,23 @@ sub init {
     main::__tests__();
 }
 
+sub guard(&) {
+    my $code = shift;
+    bless $code, 'Devel::Chitin::TestHelper::Guard';
+}
+sub Devel::Chitin::TestHelper::Guard::DESTROY {
+    my $code = shift;
+    $code->();
+}
+
 my $START_TESTING = 0;
 my $AT_END = 0;
+my $IS_STOPPED = 0;
 sub notify_stopped {
     return unless $START_TESTING;
+
+    my $guard = guard { $IS_STOPPED = 0 };
+    $IS_STOPPED = 1;
 
     my($self, $location) = @_;
 
@@ -61,14 +74,18 @@ sub notify_stopped {
 
 # test-like functions
 
-sub ok_location {
-    my %params = @_;
+sub _test_location {
+    my($check_flag_ref, $check_flag_label, %params) = @_;
 
-    my $from_line = (caller)[2];
+    my $from_line = (caller(1))[2];
 
     my $test = sub {
         my $location = shift;
         my $subtest = sub {
+            unless ($$check_flag_ref) {
+                fail("Checking location when debugger is not $check_flag_label");
+                return;
+            }
             foreach my $key ( keys %params ) {
                 is($location->$key, $params{$key}, $key);
             }
@@ -79,6 +96,10 @@ sub ok_location {
         }
     };
     push @TEST_QUEUE, $test;
+}
+
+sub ok_location {
+    _test_location(\$IS_STOPPED, 'stopped', @_);
 }
 
 sub ok_breakpoint {
