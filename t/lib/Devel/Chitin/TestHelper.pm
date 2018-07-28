@@ -13,6 +13,7 @@ our @EXPORT_OK = qw(ok_location ok_breakable ok_not_breakable ok_trace_location
                     ok_set_breakpoint ok_breakpoint ok_change_breakpoint ok_delete_breakpoint
                     ok_set_action
                     ok_at_end
+                    is_eval is_eval_exception
                     do_test do_disable_auto_disable
                     db_step db_continue db_stepout db_stepover db_trace db_disable
                     has_callsite
@@ -322,6 +323,41 @@ sub db_disable {
     push @TEST_QUEUE, sub {
         __PACKAGE__->disable_debugger;
     }
+}
+
+my $should_poll = 0;
+sub poll { $should_poll }
+sub is_eval {
+    my($code_string, $wantarray, $expected, $msg) = @_;
+    _make_eval_tester($code_string, $wantarray, $expected, '', $msg);
+}
+
+sub is_eval_exception {
+    my($code_string, $wantarray, $expected_exception, $msg) = @_;
+    _make_eval_tester($code_string, $wantarray, undef, $expected_exception, $msg);
+}
+
+sub _make_eval_tester {
+    my($code_string, $wantarray, $expected_value, $expected_exception, $msg) = @_;
+
+    my($expected_value_msg, $expected_exception_msg) = $expected_exception
+            ? ( 'eval-ed undef', 'exception' )
+            : ( 'eval value', 'no exception' );
+    push @TEST_QUEUE, sub {
+        ++$should_poll;
+        __PACKAGE__->eval($code_string, $wantarray,
+            sub {
+                my($got, $exception) = @_;
+                $should_poll--;
+                context_do {
+                    run_subtest($msg, sub {
+                        is($got, $expected_value, $expected_value_msg);
+                        like($exception, $expected_exception, $expected_exception_msg);
+                    });
+                };
+            }
+        )
+    };
 }
 
 my $has_callsite;
