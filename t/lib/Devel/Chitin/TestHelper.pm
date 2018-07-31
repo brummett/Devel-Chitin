@@ -11,7 +11,7 @@ use Carp;
 use Exporter 'import';
 our @EXPORT_OK = qw(ok_location ok_breakable ok_not_breakable ok_trace_location
                     ok_set_breakpoint ok_breakpoint ok_change_breakpoint ok_delete_breakpoint
-                    ok_set_action
+                    ok_set_action ok_uncaught_exception
                     ok_at_end
                     is_eval is_eval_exception
                     do_test do_disable_auto_disable
@@ -102,6 +102,17 @@ sub notify_trace {
     _run_one_test($location, 'notify_trace');
 }
 
+my $IS_EXCEPTION = 0;
+sub notify_uncaught_exception {
+    my($self, $exception) = @_;
+
+    my $guard = guard { $IS_EXCEPTION = 0 };
+    $IS_EXCEPTION = 1;
+
+    _run_one_test($exception, 'notify_uncaught_exception');
+    $? = 0;
+}
+
 # test-like functions
 
 sub _test_location {
@@ -134,6 +145,10 @@ sub ok_location {
 
 sub ok_trace_location {
     _test_location(\$IS_TRACE, 'traced', @_);
+}
+
+sub ok_uncaught_exception {
+    _test_location(\$IS_EXCEPTION, 'stopped in exception', @_);
 }
 
 sub ok_breakpoint {

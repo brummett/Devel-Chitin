@@ -1,7 +1,7 @@
-#!/usr/bin/env perl
 use strict;
 use warnings; no warnings 'void';
-use lib 'lib';
+
+use Test2::V0; no warnings 'void';
 use lib 't/lib';
 use IO::Pipe;
 use Devel::Chitin::TestRunner;
