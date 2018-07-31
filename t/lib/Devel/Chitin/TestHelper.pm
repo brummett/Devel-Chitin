@@ -74,16 +74,13 @@ sub notify_stopped {
     __PACKAGE__->disable_debugger unless (@TEST_QUEUE or $CONTINUE_AFTER_TEST_QUEUE_IS_EMPTY);
 }
 
-my $IS_TRACE = 0;
-sub notify_trace {
-    my($self, $location) = @_;
 
-    my $guard = guard { $IS_TRACE = 0 };
-    $IS_TRACE=1;
+sub _run_one_test {
+    my($location, $kind) = @_;
 
     unless (@TEST_QUEUE) {
         my $ctx = context();
-        $ctx->fail(sprintf('notify_trace() at %s:%d with no trace tests remaining in the queue', $location->filename, $location->line));
+        $ctx->fail(sprintf('%s() at %s:%d with no tests remaining in the queue', $kind, $location->filename, $location->line));
         $ctx->release;
         __PACKAGE__->disable_debugger();
         return;
@@ -93,6 +90,16 @@ sub notify_trace {
     $test->($location);
 
     __PACKAGE__->disable_debugger unless (@TEST_QUEUE);
+}
+
+my $IS_TRACE = 0;
+sub notify_trace {
+    my($self, $location) = @_;
+
+    my $guard = guard { $IS_TRACE = 0 };
+    $IS_TRACE=1;
+
+    _run_one_test($location, 'notify_trace');
 }
 
 # test-like functions
