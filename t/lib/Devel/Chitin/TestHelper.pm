@@ -115,6 +115,13 @@ sub notify_uncaught_exception {
 
 # test-like functions
 
+sub _test_location_contents {
+    my($location, %params) = @_;
+    foreach my $key ( keys %params ) {
+        is($location->$key, $params{$key}, $key);
+    }
+}
+
 sub _test_location {
     my($check_flag_ref, $check_flag_label, %params) = @_;
 
@@ -127,9 +134,7 @@ sub _test_location {
                 fail("Checking location when debugger is not $check_flag_label");
                 return;
             }
-            foreach my $key ( keys %params ) {
-                is($location->$key, $params{$key}, $key);
-            }
+            _test_location_contents($location, %params);
         };
 
         context_do {
