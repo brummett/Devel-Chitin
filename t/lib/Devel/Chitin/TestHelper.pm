@@ -118,7 +118,11 @@ sub notify_uncaught_exception {
 sub _test_location_contents {
     my($location, %params) = @_;
     foreach my $key ( keys %params ) {
-        is($location->$key, $params{$key}, $key);
+        if (ref($params{$key}) eq 'Regexp') {
+            like($location->$key, $params{$key}, $key);
+        } else {
+            is($location->$key, $params{$key}, $key);
+        }
     }
 }
 
