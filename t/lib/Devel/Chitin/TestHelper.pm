@@ -11,7 +11,7 @@ use Carp;
 use Exporter 'import';
 our @EXPORT_OK = qw(ok_location ok_breakable ok_not_breakable ok_trace_location
                     ok_set_breakpoint ok_breakpoint ok_change_breakpoint ok_delete_breakpoint
-                    ok_set_action ok_uncaught_exception
+                    ok_set_action ok_uncaught_exception ok_subroutine_location
                     ok_at_end
                     is_eval is_eval_exception
                     do_test do_disable_auto_disable
@@ -158,6 +158,20 @@ sub ok_trace_location {
 
 sub ok_uncaught_exception {
     _test_location(\$IS_EXCEPTION, 'stopped in exception', @_);
+}
+
+sub ok_subroutine_location {
+    my($subname, %params) = @_;
+    push @TEST_QUEUE, sub {
+        my $sublocation = __PACKAGE__->subroutine_location($subname);
+        my $subtest = sub {
+            _test_location_contents($sublocation, %params);
+        };
+
+        context_do {
+            run_subtest("subroutine_location for $subname", $subtest);
+        };
+    };
 }
 
 sub ok_breakpoint {
