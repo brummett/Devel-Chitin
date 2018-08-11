@@ -13,7 +13,7 @@ our @EXPORT_OK = qw(ok_location ok_breakable ok_not_breakable ok_trace_location
                     ok_set_breakpoint ok_breakpoint ok_change_breakpoint ok_delete_breakpoint
                     ok_set_action ok_uncaught_exception ok_subroutine_location
                     ok_at_end
-                    is_eval is_eval_exception
+                    is_eval is_eval_exception is_var_at_level
                     do_test do_disable_auto_disable
                     db_step db_continue db_stepout db_stepover db_trace db_disable
                     has_callsite
@@ -315,6 +315,16 @@ sub ok_delete_breakpoint {
 
 sub do_test(&) {
     push @TEST_QUEUE, shift();
+}
+
+sub is_var_at_level {
+    my($var_expr, $level, $expected, $msg) = @_;
+
+    push @TEST_QUEUE, sub {
+        is(__PACKAGE__->get_var_at_level($var_expr, $level),
+            $expected,
+            $msg);
+    };
 }
 
 sub do_disable_auto_disable {
