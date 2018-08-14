@@ -12,6 +12,7 @@ use Exporter 'import';
 our @EXPORT_OK = qw(ok_location ok_breakable ok_not_breakable ok_trace_location
                     ok_set_breakpoint ok_breakpoint ok_change_breakpoint ok_delete_breakpoint
                     ok_set_action ok_uncaught_exception ok_subroutine_location
+                    ok_add_watchexpr ok_watched_expr_notification
                     ok_at_end
                     is_eval is_eval_exception is_var_at_level
                     do_test do_disable_auto_disable
@@ -76,7 +77,7 @@ sub notify_stopped {
 
 
 sub _run_one_test {
-    my($location, $kind) = @_;
+    my($location, $kind, @additional) = @_;
 
     unless (@TEST_QUEUE) {
         my $ctx = context();
@@ -87,7 +88,7 @@ sub _run_one_test {
     }
 
     my $test = shift @TEST_QUEUE;
-    $test->($location);
+    $test->($location, @additional);
 
     __PACKAGE__->disable_debugger unless (@TEST_QUEUE);
 }
@@ -111,6 +112,16 @@ sub notify_uncaught_exception {
 
     _run_one_test($exception, 'notify_uncaught_exception');
     $? = 0;
+}
+
+my $IS_WATCH_NOTIFICATION = 0;
+sub notify_watch_expr {
+    my($self, $location, $expr, $old, $new) = @_;
+
+    my $guard = guard { $IS_WATCH_NOTIFICATION = 0 };
+    $IS_WATCH_NOTIFICATION = 1;
+
+    _run_one_test($location, 'notify_watch_expr', $expr, $old, $new);
 }
 
 # test-like functions
@@ -158,6 +169,31 @@ sub ok_trace_location {
 
 sub ok_uncaught_exception {
     _test_location(\$IS_EXCEPTION, 'stopped in exception', @_);
+}
+
+sub ok_watched_expr_notification {
+    my %params = @_;
+
+    unless (exists $params{expr} and exists $params{old} and exists $params{new}) {
+        die "'expr', 'old' and 'new' are required args to ok_watched_expr";
+    }
+    my $expected_expr = delete $params{expr};
+    my $expected_old = delete $params{old};
+    my $expected_new = delete $params{new};
+
+    push @TEST_QUEUE, sub {
+        my($location, $expr, $old, $new) = @_;
+        run_subtest("notifying changed expr $expected_expr", sub {
+            unless ($IS_WATCH_NOTIFICATION) {
+                fail('Cheching for watched expr change when no notification was received');
+                return;
+            }
+            _test_location_contents($location, %params);
+            is($expr, $expected_expr, 'expr');
+            is($old, $expected_old, 'old value');
+            is($new, $expected_new, 'new value');
+        });
+    };
 }
 
 sub ok_subroutine_location {
@@ -233,6 +269,18 @@ sub ok_not_breakable {
         context_do {
             my $ctx = shift;
             $ctx->ok( ! __PACKAGE__->is_breakable($file, $line), "${file}:${line} is not breakable");
+        };
+    };
+    push @TEST_QUEUE, $test;
+}
+
+sub ok_add_watchexpr {
+    my($expr, $comment) = @_;
+
+    my $test = sub {
+        context_do {
+            my $ctx = shift;
+            $ctx->ok( __PACKAGE__->add_watchexpr($expr), $comment);
         };
     };
     push @TEST_QUEUE, $test;
