@@ -153,7 +153,7 @@ sub _test_location {
         };
 
         context_do {
-            run_subtest("location($from_line)", $subtest);
+            run_subtest("$check_flag_label location($from_line)", $subtest);
         }
     };
     push @TEST_QUEUE, $test;
