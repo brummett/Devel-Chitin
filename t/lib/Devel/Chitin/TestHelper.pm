@@ -91,6 +91,7 @@ sub _run_one_test {
     $test->($location, @additional);
 
     __PACKAGE__->disable_debugger unless (@TEST_QUEUE);
+    1;
 }
 
 my $IS_TRACE = 0;
@@ -110,7 +111,9 @@ sub notify_uncaught_exception {
     my $guard = guard { $IS_EXCEPTION = 0 };
     $IS_EXCEPTION = 1;
 
-    _run_one_test($exception, 'notify_uncaught_exception');
+    unless (_run_one_test($exception, 'notify_uncaught_exception')) {
+        print STDERR "exception was: ", $exception->exception;
+    }
     $? = 0;
 }
 
