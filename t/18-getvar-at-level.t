@@ -2,7 +2,7 @@ use Test2::V0;
 no warnings qw(void once);
 no strict 'vars';
 use lib 't/lib';
-use Devel::Chitin::TestHelper qw(is_var_at_level ok_location);
+use TestHelper qw(is_var_at_level ok_location);
 
 our $our_var = 'ourvar';
 @bare_array = ('barevar', 'barevar');

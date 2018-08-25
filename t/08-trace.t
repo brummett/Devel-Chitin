@@ -3,7 +3,7 @@ use warnings;
 
 use Test2::V0; no warnings 'void';
 use lib 't/lib';
-use Devel::Chitin::TestHelper qw(db_trace db_continue ok_location ok_trace_location);
+use TestHelper qw(db_trace db_continue ok_location ok_trace_location);
 
 $DB::single=1;
 9;

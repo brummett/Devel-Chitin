@@ -3,7 +3,7 @@ use warnings;
 
 use Test2::V0; no warnings 'void';
 use lib 't/lib';
-use Devel::Chitin::TestHelper qw(ok_location db_continue do_test);
+use TestHelper qw(ok_location db_continue do_test);
 
 $DB::single = 1; 8;
 foo();
@@ -41,7 +41,7 @@ sub __tests__ {
     ok_location filename => __FILE__, line => 20, package => 'Bar', subroutine => 'Bar::baz', subref => undef;
 
     do_test {
-        my $loc = Devel::Chitin::TestHelper->current_location;
+        my $loc = TestHelper->current_location;
         is($loc->filename, __FILE__, 'current location filename');
         is($loc->line, 20, 'current location line');
         is($loc->package, 'Bar', 'current location package');

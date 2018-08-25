@@ -3,7 +3,7 @@ use warnings;
 
 use Test2::V0;
 use lib 't/lib';
-use Devel::Chitin::TestHelper qw(db_continue do_test);
+use TestHelper qw(db_continue do_test);
 use Sub::Name;
 
 
@@ -39,12 +39,12 @@ sub __tests__ {
 
 sub is_stackframe_serial {
     my($serial, $message) = @_;
-    my $stackframe = Devel::Chitin::TestHelper->stack->frame(0);
+    my $stackframe = TestHelper->stack->frame(0);
     is($stackframe->serial, $serial, $message);
 }
 
 sub isnt_stackframe_serial {
     my($serial, $message) = @_;
-    my $stackframe = Devel::Chitin::TestHelper->stack->frame(0);
+    my $stackframe = TestHelper->stack->frame(0);
     isnt($stackframe->serial, $serial, $message);
 }

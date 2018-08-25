@@ -3,7 +3,7 @@ use warnings;
 
 use Test2::V0; no warnings 'void';
 use lib 't/lib';
-use Devel::Chitin::TestHelper qw(has_callsite ok_location db_continue do_test);
+use TestHelper qw(has_callsite ok_location db_continue do_test);
 use Devel::Chitin::Location;
 
 $DB::single=1;

@@ -4,7 +4,7 @@ use warnings;
 use Test2::V0;  no warnings 'void';
 use lib 't/lib';
 use File::Basename;
-use Devel::Chitin::TestHelper qw(db_continue);
+use TestHelper qw(db_continue);
 
 require SampleCode;  # in t/lib
 $DB::single=1;
@@ -14,12 +14,12 @@ sub __tests__ {
     plan tests => 2;
 
     my $was_called = 0;
-    Devel::Chitin::TestHelper->postpone($INC{'Devel/Chitin.pm'},
+    TestHelper->postpone($INC{'Devel/Chitin.pm'},
                   sub { $was_called++ });
     is($was_called, 1, 'posponed() on an already loaded file fires immediately');
 
     my $pathname = File::Basename::dirname(__FILE__) . '/lib/SampleCode.pm';
-    Devel::Chitin::TestHelper->postpone($pathname,
+    TestHelper->postpone($pathname,
                     sub {
                         my $got = shift;
                         is($got, $pathname, 'postponed() callback for SampleCode.pm');

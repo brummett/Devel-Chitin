@@ -1,4 +1,5 @@
-package Devel::Chitin::TestHelper;
+package   # CPAN, don't index
+    TestHelper;
 
 use strict;
 use warnings;

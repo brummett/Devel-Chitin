@@ -3,7 +3,7 @@ use warnings;
 
 use Test2::V0;  no warnings 'void';
 use lib 't/lib';
-use Devel::Chitin::TestHelper qw(has_callsite db_trace db_continue do_test);
+use TestHelper qw(has_callsite db_trace db_continue do_test);
 
 $DB::single=1;
 9;
@@ -77,15 +77,15 @@ sub __tests__ {
             my $location = shift;
             my $line = $location->line;
 
-            is(Devel::Chitin::TestHelper->next_statement,
+            is(TestHelper->next_statement,
                $expected_next_statement,
                "next_statement() $n for line $line") || print_errors($location);
 
-            is(Devel::Chitin::TestHelper->next_fragment,
+            is(TestHelper->next_fragment,
                $expected_next_fragment,
                "next_fragment() $n for line $line") || print_errors($location);
 
-            is(Devel::Chitin::TestHelper->next_fragment(1),
+            is(TestHelper->next_fragment(1),
                $expected_next_parent_frag,
                "next_fragment() parent $n for line $line") || print_errors($location);
         };

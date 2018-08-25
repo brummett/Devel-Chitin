@@ -3,7 +3,7 @@ use warnings;
 
 use Test2::V0; no warnings 'void';
 use lib 't/lib';
-use Devel::Chitin::TestHelper qw(ok_location db_continue db_stepout);
+use TestHelper qw(ok_location db_continue db_stepout);
 
 one();
 sub one {

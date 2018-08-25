@@ -3,7 +3,7 @@ use warnings;
 
 use Test2::V0; no warnings 'void';
 use lib 't/lib';
-use Devel::Chitin::TestHelper qw(ok_set_action db_continue do_test);
+use TestHelper qw(ok_set_action db_continue do_test);
 use SampleCode;
 
 $DB::single=1;

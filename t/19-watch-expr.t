@@ -3,7 +3,7 @@ use warnings;
 
 use Test2::V0;  no warnings 'void';
 use lib 't/lib';
-use Devel::Chitin::TestHelper qw(ok_add_watchexpr ok_location ok_watched_expr_notification db_continue);
+use TestHelper qw(ok_add_watchexpr ok_location ok_watched_expr_notification db_continue);
 
 my $a;
 $DB::single=1; 9;

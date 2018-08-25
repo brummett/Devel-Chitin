@@ -3,7 +3,7 @@ use warnings;
 
 use Test2::V0; no warnings 'void';
 use lib 't/lib';
-use Devel::Chitin::TestHelper qw(db_trace db_step db_disable ok_set_breakpoint do_test do_disable_auto_disable);
+use TestHelper qw(db_trace db_step db_disable ok_set_breakpoint do_test do_disable_auto_disable);
 use SampleCode;
 
 $DB::single=1;  # needed to get the tests defined in __test__ to run

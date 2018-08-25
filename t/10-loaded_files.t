@@ -3,17 +3,17 @@ use warnings;
 
 use Test2::V0; no warnings 'void';
 use lib 't/lib';
-use Devel::Chitin::TestHelper qw(db_disable db_continue);
+use TestHelper qw(db_disable db_continue);
 use SampleCode;
 
 plan tests => 6;
 
-ok( Devel::Chitin::TestHelper->is_loaded(__FILE__), 'main file is loaded');
-ok( Devel::Chitin::TestHelper->is_loaded($INC{'Devel/Chitin.pm'}), 'Devel::Chitin is loaded');
-ok( Devel::Chitin::TestHelper->is_loaded($INC{'SampleCode.pm'}), 'SampleCode is loaded');
-ok( ! Devel::Chitin::TestHelper->is_loaded('Non/Loaded/Module.pm'), 'Non::Loaded::Module not is_loaded');
+ok( TestHelper->is_loaded(__FILE__), 'main file is loaded');
+ok( TestHelper->is_loaded($INC{'Devel/Chitin.pm'}), 'Devel::Chitin is loaded');
+ok( TestHelper->is_loaded($INC{'SampleCode.pm'}), 'SampleCode is loaded');
+ok( ! TestHelper->is_loaded('Non/Loaded/Module.pm'), 'Non::Loaded::Module not is_loaded');
 
-my @files = Devel::Chitin::TestHelper->loaded_files();
+my @files = TestHelper->loaded_files();
 ok(scalar(@files), 'loaded_files()');
 is(\@files,
     bag {

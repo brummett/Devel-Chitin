@@ -3,7 +3,7 @@ use warnings;
 
 use Test2::V0;  no warnings 'void';
 use lib 't/lib';
-use Devel::Chitin::TestHelper qw(ok_location db_stepover);
+use TestHelper qw(ok_location db_stepover);
 
 do_goto();
 9;

@@ -3,7 +3,7 @@ use warnings;
 
 use Test2::V0;  no warnings 'void';
 use lib 't/lib';
-use Devel::Chitin::TestHelper qw(do_test has_callsite);
+use TestHelper qw(do_test has_callsite);
 
 foo(1,2,3);                 # line 8: void context
 sub foo {
@@ -34,7 +34,7 @@ sub __tests__ {
 
         my $filename = __FILE__;
         my $expected_callsite = has_callsite() ? T() : DNE();
-        my $stack = Devel::Chitin::TestHelper->stack;
+        my $stack = TestHelper->stack;
         ok($stack, 'Get execution stack');
 
         my $expected_stack = array {
@@ -200,7 +200,7 @@ sub __tests__ {
 
         # Get the stack again, serials should be the same
         Devel::Chitin::Stack::invalidate();  # force it to re-create it
-        my $stack2 = Devel::Chitin::TestHelper->stack();
+        my $stack2 = TestHelper->stack();
         is($stack2, $stack, 'Stack is the same the second time');
     };
 }

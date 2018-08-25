@@ -3,7 +3,7 @@ use warnings;
 
 use Test2::V0;  no warnings 'void';
 use lib 't/lib';
-use Devel::Chitin::TestHelper qw(ok_uncaught_exception );
+use TestHelper qw(ok_uncaught_exception );
 
 eval { die "trapped" };
 do_die();

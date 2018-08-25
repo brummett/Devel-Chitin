@@ -3,7 +3,7 @@ use warnings;
 
 use Test2::V0; no warnings 'void';
 use lib 't/lib';
-use Devel::Chitin::TestHelper qw(ok_set_breakpoint ok_location db_continue);
+use TestHelper qw(ok_set_breakpoint ok_location db_continue);
 use SampleCode;
 
 $DB::single=1;

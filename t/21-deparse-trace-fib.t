@@ -3,7 +3,7 @@ use warnings;
 
 use Test2::V0;  no warnings 'void';
 use lib 't/lib';
-use Devel::Chitin::TestHelper qw(has_callsite db_trace db_continue do_test);
+use TestHelper qw(has_callsite db_trace db_continue do_test);
 
 $DB::single=1;
 9;
@@ -50,7 +50,7 @@ sub __tests__ {
         my $expected = $expected[$i];
         do_test {
             my $location = shift;
-            my $next_statement = Devel::Chitin::TestHelper->next_statement;
+            my $next_statement = TestHelper->next_statement;
             is($next_statement, $expected, "statement $n")
                 || print_errors($location);
         };

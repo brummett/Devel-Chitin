@@ -3,7 +3,7 @@ use warnings;
 
 use Test2::V0;  no warnings 'void'; no warnings 'once';
 use lib 't/lib';
-use Devel::Chitin::TestHelper qw(is_eval is_eval_exception);
+use TestHelper qw(is_eval is_eval_exception);
 
 our $global = 'global';
 @Other::global = (1,2);  # different package

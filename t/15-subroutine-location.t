@@ -3,7 +3,7 @@ use warnings;
 
 use Test2::V0;  no warnings 'void';
 use lib 't/lib';
-use Devel::Chitin::TestHelper qw(do_test ok_subroutine_location);
+use TestHelper qw(do_test ok_subroutine_location);
 
 sub foo {
     9;
@@ -27,7 +27,7 @@ sub __tests__ {
     plan tests => 5;
 
     do_test {
-        is(Devel::Chitin::TestHelper->subroutine_location('not::there'),
+        is(TestHelper->subroutine_location('not::there'),
             undef,
             'subroutine_location() with non-existant sub returns undef');
     };

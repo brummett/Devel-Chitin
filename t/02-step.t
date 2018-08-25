@@ -3,7 +3,7 @@ use warnings;
 
 use Test2::V0;  no warnings 'void';
 use lib 't/lib';
-use Devel::Chitin::TestHelper qw(ok_location ok_at_end db_step);
+use TestHelper qw(ok_location ok_at_end db_step);
 
 $DB::single=1;
 9;
