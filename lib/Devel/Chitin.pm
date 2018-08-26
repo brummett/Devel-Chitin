@@ -693,6 +693,15 @@ sub DB {
     }
     $subroutine ||= 'MAIN';
 
+    $current_location = Devel::Chitin::Location->new(
+        'package'   => $package,
+        filename    => $filename,
+        line        => $line,
+        subroutine  => $subroutine,
+        callsite    => scalar Devel::Chitin::Location::get_callsite(),
+        ( ref($Devel::Chitin::current_sub) ? ( subref => $Devel::Chitin::current_sub ) : () )
+    );
+
     unless ($is_initialized) {
         $is_initialized = 1;
         Devel::Chitin::_do_each_client('init');
@@ -704,15 +713,6 @@ sub DB {
     save();
     local $usercontext =
         'no strict; no warnings; ($@, $!, $^E, $,, $/, $\, $^W) = @DB::saved;' . "package $package;";
-
-    $current_location = Devel::Chitin::Location->new(
-        'package'   => $package,
-        filename    => $filename,
-        line        => $line,
-        subroutine  => $subroutine,
-        callsite    => scalar Devel::Chitin::Location::get_callsite(),
-        ( ref($Devel::Chitin::current_sub) ? ( subref => $Devel::Chitin::current_sub ) : () )
-    );
 
     $_->notify_trace($current_location) foreach values(%trace_clients);
 
