@@ -16,6 +16,7 @@ sudo: false
 before_install:
     # Prevent "Please tell me who you are" errors for certain DZIL configs
     - git config --global user.name "TravisCI"
+    - perl -e 'print $],"\n"'
     - |
       if perl -e 'if ($] < "5.008009") { exit(0) } else { exit(1) }'; then
         perlbrew --notest install -v perl-5.8.9
