@@ -1,53 +1,33 @@
-#!/usr/bin/env perl
 use strict;
-use warnings; no warnings 'void';
+use warnings;
 
-use lib 'lib';
+use Test2::V0; no warnings 'void';
 use lib 't/lib';
-use Devel::Chitin::TestRunner;
+use TestHelper qw(ok_set_breakpoint ok_location db_continue);
+use SampleCode;
 
-run_test(
-    6,
-    sub { $DB::single=1;
-        my $a = 1;
-        13;
-        $a = 2;
-        15;
-        $a = 3;
-        17;
-        18;
-        19;
-    },
-    \&create_breakpoints,
-    'continue',
-    loc(line => 15),
-    'continue',
-    'at_end',
-    'done',
-);
-    
+$DB::single=1;
+SampleCode::takes_param(1);
+SampleCode::takes_param(2);
+SampleCode::takes_param(3);
+$DB::single=1;
+14;
 
-sub create_breakpoints {
-    my($db, $loc) = @_;
-    Test::More::ok(Devel::Chitin::Breakpoint->new(
-            file => $loc->filename,
-            line => 13,
-            code => '$a == 2',
-        ), 'Set conditional breakpoint on line 13');
-    Test::More::ok(Devel::Chitin::Breakpoint->new(
-            file => $loc->filename,
-            line => 15,
-            code => '$a == 2',
-        ), 'Set conditional breakpoint that will fire on line 15');
-    Test::More::ok(Devel::Chitin::Breakpoint->new(
-            file => $loc->filename,
-            line => 17,
-            code => '$a == 2',
-        ), 'Set conditional breakpoint on line 17');
-    Test::More::ok(Devel::Chitin::Breakpoint->new(
-            file => $loc->filename,
-            line => 10,
-            code => 0,
-        ), 'Set breakpoint that will never fire on line 17');
+sub __tests__ {
+    plan tests => 6;
+
+    my $file = 't/lib/SampleCode.pm';
+    ok_set_breakpoint line => 19, file => $file, code => '0', 'Set conditional breakpoint that will never fire';
+    ok_set_breakpoint line => 21, file => $file, code => '$a == 1', 'Set conditional breakpoint $a == 1';
+    ok_set_breakpoint line => 20, file => $file, code => '$a == 2', 'Set conditional breakpoint $a == 2';
+
+    db_continue;
+    ok_location filename => $file, line => 21;
+
+    db_continue;
+    ok_location filename => $file, line => 20;
+
+    db_continue;
+    ok_location filename => __FILE__, line => 14;
 }
 

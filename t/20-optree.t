@@ -3,12 +3,19 @@ use warnings;
 
 use Devel::Chitin::OpTree;
 use Devel::Chitin::Location;
-use Test::More tests => 35;
+
+use Test2::Tools::Basic;
+use Test2::Tools::Compare;
+use Test2::Tools::Subtest qw(subtest_buffered);
+sub subtest($&);
+*subtest = \&Test2::Tools::Subtest::subtest_buffered;
 
 use Fcntl qw(:flock :DEFAULT SEEK_SET SEEK_CUR SEEK_END);
 use POSIX qw(:sys_wait_h);
 use Socket;
-use Scalar::Util qw(blessed);
+use Scalar::Util qw(blessed refaddr);
+
+plan tests => 35;
 
 subtest construction => sub {
     plan tests => 5;
@@ -34,7 +41,7 @@ subtest construction => sub {
         join("\n", q($a = 1;), q($b = 2)),
         'multi_statement_scalar_assignment');
 
-    is($last_op->root_op, $ops, 'root_op property');
+    is(refaddr($last_op->root_op), refaddr($ops), 'root_op property');
 };
 
 subtest 'assignment' => sub {
@@ -1405,13 +1412,15 @@ sub _get_optree_for_sub_named {
     );
 }
 
-package Devel::Chitin::TestDirective;
+package
+    Devel::Chitin::TestDirective;
 sub new {
     my($class, $code) = @_;
     return bless \$code, $class;
 }
 
-package Devel::Chitin::RequireVersion;
+package
+    Devel::Chitin::RequireVersion;
 use base 'Devel::Chitin::TestDirective';
 use Test::More;
 
@@ -1430,7 +1439,8 @@ sub compose {
     return $preamble;
 }
 
-package Devel::Chitin::ExcludeVersion;
+package
+    Devel::Chitin::ExcludeVersion;
 use base 'Devel::Chitin::TestDirective';
 use Test::More;
 
@@ -1444,7 +1454,8 @@ sub compose {
     return '';
 }
 
-package Devel::Chitin::ExcludeOnlyVersion;
+package
+    Devel::Chitin::ExcludeOnlyVersion;
 use base 'Devel::Chitin::TestDirective';
 use Test::More;
 
@@ -1458,14 +1469,16 @@ sub compose {
     return '';
 }
 
-package Devel::Chitin::UseFeature;
+package
+    Devel::Chitin::UseFeature;
 use base 'Devel::Chitin::TestDirective';
 sub compose {
     my $self = shift;
     sprintf(q(use feature '%s';), $$self);
 }
 
-package Devel::Chitin::NoWarnings;
+package
+    Devel::Chitin::NoWarnings;
 use base 'Devel::Chitin::TestDirective';
 sub compose {
     my $self = shift;
