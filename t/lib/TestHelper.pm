@@ -43,7 +43,7 @@ sub Devel::Chitin::TestHelper::Guard::DESTROY {
 }
 
 my $START_TESTING = 0;
-my $AT_END = 0;
+our $AT_END = 0;
 my $IS_STOPPED = 0;
 my $CONTINUE_AFTER_TEST_QUEUE_IS_EMPTY = 0;
 sub notify_stopped {
@@ -54,7 +54,7 @@ sub notify_stopped {
 
     my($self, $location) = @_;
 
-    if ($location->subroutine =~ m/::END$/) {
+    if (substr($location->subroutine, -5) eq '::END') {
         # If we're running END blocks, then we're at the end.
         # Note that the Test2 framework's END blocks run before the debugger's
         $AT_END = 1;
