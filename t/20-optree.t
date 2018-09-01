@@ -15,34 +15,7 @@ use POSIX qw(:sys_wait_h);
 use Socket;
 use Scalar::Util qw(blessed refaddr);
 
-plan tests => 35;
-
-subtest construction => sub {
-    plan tests => 5;
-
-    sub scalar_assignment {
-        my $a = 1;
-    }
-
-    my $ops = _get_optree_for_sub_named('scalar_assignment');
-    ok($ops, 'create optree');
-    my $count = 0;
-    my $last_op;
-    $ops->walk_inorder(sub { $last_op = shift; $count++ });
-    ok($count > 1, 'More than one op is part of scalar_assignment');
-
-    is($ops->deparse, '$a = 1', 'scalar_assignment');
-
-    sub multi_statement_scalar_assignment {
-        my $a = 1;
-        my $b = 2;
-    }
-    is(_get_optree_for_sub_named('multi_statement_scalar_assignment')->deparse,
-        join("\n", q($a = 1;), q($b = 2)),
-        'multi_statement_scalar_assignment');
-
-    is(refaddr($last_op->root_op), refaddr($ops), 'root_op property');
-};
+plan tests => 34;
 
 subtest 'assignment' => sub {
     _run_tests(
