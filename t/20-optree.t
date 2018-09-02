@@ -15,50 +15,7 @@ use POSIX qw(:sys_wait_h);
 use Socket;
 use Scalar::Util qw(blessed refaddr);
 
-plan tests => 34;
-
-subtest 'assignment' => sub {
-    _run_tests(
-        list_assignment => join("\n", q(my @a = (1, 2);),
-                                      q(our @b = (3, 4);),
-                                      q(@a = @b;),
-                                      q(my($a, $b) = (@a, @b);),
-                                      q(@a = (@b, @a)),
-            ),
-        list_index_assignment => join("\n", q(my(@the_list, $idx);),
-                                            q($the_list[2] = 'foo';),
-                                            q($the_list[$idx] = 'bar')),
-
-        list_slice_assignment => join("\n", q(my(@the_list, $idx);),
-                                            q(my @other_list;),
-                                            q(@the_list[1, $idx, 3, @other_list] = @other_list[1, 2, 3])),
-        # These hash assigments are done with aassign, so there's no way to
-        # tell that the lists would look better as ( one => 1, two => 2 )
-        hash_assignment => join("\n",   q(my %a = ('one', 1, 'two', 2);),
-                                        q(our %b = ('three', 3, 'four', 4);),
-                                        q(%a = %b;),
-                                        q(%a = (%b, %a))),
-        hash_slice_assignment => join("\n", q(my(%the_hash, @indexes);),
-                                            q(@the_hash{'1', 'key', @indexes} = (1, 2, 3))),
-
-        scalar_ref_assignment => join("\n", q(my $a = 1;),
-                                            q(our $b = \$a;),
-                                            q($$b = 2)),
-
-        array_ref_assignment => join("\n",  q(my $a = [1, 2];),
-                                            q(@$a = (1, 2))),
-        array_ref_slice_assignment => join("\n",    q(my($list, $other_list);),
-                                                    q(@$list[1, @$other_list] = (1, 2, 3))),
-
-        hash_ref_assignment => join("\n",   q(my $a = {1 => 1, two => 2};),
-                                            q(%$a = ('one', 1, 'two', 2))),
-        hasf_ref_slice_assignment => join("\n", q(my $hash = {};),
-                                                q(my @list;),
-                                                q(@$hash{'one', @list, 'last'} = @list)),
-        list_slice => join("\n",    q(my $a = (1, 2, 3)[1];),
-                                    q($a = (caller(1))[2, 3])),
-    );
-};
+plan tests => 33;
 
 subtest 'conditional' => sub {
     _run_tests(
