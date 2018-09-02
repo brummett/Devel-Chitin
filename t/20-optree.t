@@ -15,40 +15,7 @@ use POSIX qw(:sys_wait_h);
 use Socket;
 use Scalar::Util qw(blessed refaddr);
 
-plan tests => 33;
-
-subtest 'conditional' => sub {
-    _run_tests(
-        'num_lt' => join("\n",  q(my $a = 1;),
-                                q(my $result = $a < 5)),
-        'num_gt' => join("\n",  q(my $a = 1;),
-                                q(my $result = $a > 5)),
-        'num_eq' => join("\n",  q(my $a = 1;),
-                                q(my $result = $a == 5)),
-        'num_ne' => join("\n",  q(my $a = 1;),
-                                q(my $result = $a != 5)),
-        'num_le' => join("\n",  q(my $a = 1;),
-                                q(my $result = $a <= 5)),
-        'num_cmp' => join("\n", q(my $a = 1;),
-                                q(my $result = $a <=> 5)),
-        'num_ge' => join("\n",  q(my $a = 1;),
-                                q(my $result = $a >= 5)),
-        'str_lt' => join("\n",  q(my $a = 'one';),
-                                q(my $result = $a lt 'five')),
-        'str_gt' => join("\n",  q(my $a = 'one';),
-                                q(my $result = $a gt 'five')),
-        'str_eq' => join("\n",  q(my $a = 'one';),
-                                q(my $result = $a eq 'five')),
-        'str_ne' => join("\n",  q(my $a = 'one';),
-                                q(my $result = $a ne 'five')),
-        'str_le' => join("\n",  q(my $a = 'one';),
-                                q(my $result = $a le 'five')),
-        'str_ge' => join("\n",  q(my $a = 'one';),
-                                q(my $result = $a ge 'five')),
-        'str_cmp' => join("\n", q(my $a = 1;),
-                                q(my $result = $a cmp 5)),
-    );
-};
+plan tests => 32;
 
 subtest 'subroutine call' => sub {
     _run_tests(
