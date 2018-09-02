@@ -15,30 +15,7 @@ use POSIX qw(:sys_wait_h);
 use Socket;
 use Scalar::Util qw(blessed refaddr);
 
-plan tests => 32;
-
-subtest 'subroutine call' => sub {
-    _run_tests(
-        'call_sub' => join("\n",    q(foo(1, 2, 3))),
-        'call_subref' => join("\n", q(my $a;),
-                                    q($a->(1, 'two', 3))),
-        'call_subref_from_array' => join("\n",  q(my @a;),
-                                                q($a[0]->(1, 'two', 3))),
-        'call_sub_from_package' => q(Some::Other::Package::foo(1, 2, 3)),
-        'call_class_method_from_package' => q(Some::Other::Package->foo(1, 2, 3)),
-        'call_instance_method' => join("\n",    q(my $obj;),
-                                                q($obj->foo(1, 2, 3))),
-        'call_instance_variable_method' => join("\n",   q(my($obj, $method);),
-                                                        q($obj->$method(1, 2, 3))),
-        'call_class_variable_method' => join("\n",  q(my $method;),
-                                                    q(Some::Other::Package->$method(1, 2, 3))),
-        'call_with_amp' => join("\n",   q(&foo(1, 2, 3);),
-                                        q(&foo();),
-                                        q(&foo)),
-        call_without_paren => join("\n",    q(my $a = _get_optree_for_sub_named;),
-                                            q($a = _get_optree_for_sub_named 1, 2, 3)),
-    );
-};
+plan tests => 31;
 
 subtest 'eval' => sub {
     _run_tests(
