@@ -70,6 +70,7 @@ sub run_one_test {
     }
 
     (my $expected = $test_code) =~ s/\b(?:my|our)\b\s*//mg;
+    $expected =~ s/^.*?# omit\n//m;  # remove lines that don't deparse to anything
     $expected =~ s/#.*?\n//g;  # remove comments
 
     my $ops = _get_optree_for_sub_named($subname);
