@@ -15,42 +15,7 @@ use POSIX qw(:sys_wait_h);
 use Socket;
 use Scalar::Util qw(blessed refaddr);
 
-plan tests => 29;
-
-subtest regex => sub {
-    _run_tests(
-        anon_regex => join("\n",    q(my $a = qr/abc\w(\s+)/ims;),
-                                    q(my $b = qr/abc),
-                                    q(           \w),
-                                    q(           $a),
-                                    q(           (\s+)/iox)),
-        match       => join("\n",   q(m/abc/;),
-                                    q(our $string = '123';),
-                                    q($string =~ m/abc/;),
-                                    q(my $rx = qr/def/;),
-                                    q(my($b) = $a !~ m/abc$rx/i;),
-                                    q(my($c) = m/$rx def/x;),
-                                    q($c = $1)),
-        substitute  => join("\n",   q(s/abc/def/i;),
-                                    q(my $a;),
-                                    q($a =~ s/abc/def/;),
-                                    q($a =~ s/abc/def$a/;),
-                                    q(my $rx = qr/def/;),
-                                    q(s/abd $rx/def/x;),
-                                    q($a =~ s/abd $rx/def/x)),
-        pos_fcn => join("\n",   q(my $a = pos();),
-                                q($a = pos($a);),
-                                q(pos($a) = 123)),
-        split_fcn => join("\n",     q(my $a;),
-                                    q(my $size = split(/abc/, $a);),
-                                    q(my $rx;),
-                                    q(my @strings = split(/$rx/, $a, 1);),
-                                    q(@strings = split(/a/, $a);),
-                                    q(@strings = split(//, $a);),
-                                    q(@strings = split(/ /, $a);),
-                                    q(my($v1, $v2) = split(/$rx/, $a, 3))),  # the 3 is implicit
-    );
-};
+plan tests => 28;
 
 subtest numeric => sub {
     _run_tests(
