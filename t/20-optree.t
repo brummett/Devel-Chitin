@@ -15,69 +15,7 @@ use POSIX qw(:sys_wait_h);
 use Socket;
 use Scalar::Util qw(blessed refaddr);
 
-plan tests => 30;
-
-subtest 'string functions' => sub {
-    _run_tests(
-        crypt_fcn => join("\n", q(my $a;),
-                                q(crypt($a, 'salt'))),
-        index_fcn => join("\n", q(my $a;),
-                                q($a = index($a, 'foo');),
-                                q(index($a, 'foo', 1);),
-                                q($a = index($a, 'foo') == -1;),
-                                q($a = index($a, 'foo') != -1)),
-        rindex_fcn  => join("\n",   q(my $a;),
-                                    q($a = rindex($a, 'foo');),
-                                    q(rindex($a, 'foo', 1);),
-                                    q($a = rindex($a, 'foo') == -1;),
-                                    q($a = rindex($a, 'foo') != -1)),
-        substr_fcn  => join("\n",   q(my $a;),
-                                    q($a = substr($a, 1, 2, 'foo');),
-                                    q(substr($a, 2, 3) = 'bar';),  # doubled because the first one triggers an optimized-out
-                                    q(substr($a, 2, 3) = 'bar')),  # sassign with a single child
-        sprintf_fcn => join("\n",   q(my $a;),
-                                    q($a = sprintf($a, 1, 2, 3))),
-        quote_qq    => join("\n",   q(my $a = 'hi there';),
-                                    q(my $b = qq(Joe, $a, this is a string blah blah\n\cP\x{1f});),
-                                    q($b = $a . $a;),
-                                    q($b = qq($b $b))),
-        pack_fcn  => join("\n", q(my $a;),
-                                q($a = pack($a, 1, 2, 3))),
-        unpack_fcn => join("\n",q(my $a;),
-                                q($a = unpack('%32b', $a);),
-                                q($a = unpack($a, $a))),
-        reverse_fcn => join("\n",   q(my $a;),
-                                    q($a = reverse(@_);),
-                                    q($a = reverse($a);),
-                                    q(scalar(reverse(@_));),
-                                    q(my @a;),
-                                    q(@a = reverse(@_);),
-                                    q(@a = reverse(@a))),
-        tr_operator => no_warnings('misc'),
-                       join("\n",   q(my $a;),
-                                    q($a = tr/$a/zyxw/cds)),
-        quotemeta_fcn => join("\n", q(my $a;),
-                                    q($a = quotemeta();),
-                                    q($a = quotemeta($a);),
-                                    q(quotemeta($a))),
-        vec_fcn => join("\n",       q(my $a = vec('abcdef', 1, 4);),
-                                    q(vec($a, 2, 2) = 4)),
-        formline_fcn => join("\n",  q(my($a, $b);),
-                                    q($a = formline('one', $b, 'three'))),
-
-        concat_op => join("\n", q(my $a;),
-                                q($a = qq(abc$a);),
-                                q(my $b = qq(123$a) . $a . qq(456$a) . $a . '789')),
-
-        map { ( "${_}_dfl"      => "$_()",
-                "${_}_to_var"   => join("\n",   q(my $a;),
-                                                "\$a = $_()"),
-                "${_}_on_val"   => join("\n",   q(my $a;),
-                                                "$_(\$a)")
-              )
-            } qw( chomp chop chr hex lc lcfirst uc ucfirst length oct ord ),
-    );
-};
+plan tests => 29;
 
 subtest regex => sub {
     _run_tests(
