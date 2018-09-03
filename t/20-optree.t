@@ -15,20 +15,7 @@ use POSIX qw(:sys_wait_h);
 use Socket;
 use Scalar::Util qw(blessed refaddr);
 
-plan tests => 28;
-
-subtest numeric => sub {
-    _run_tests(
-        atan2_func => join("\n",    q(my($a, $b);),
-                                    q($a = atan2($a, $b))),
-        map { ( "${_}_func" => join("\n", q(my $a;),
-                                        "\$a = $_();",
-                                        "\$a = $_(\$a);",
-                                        "$_(\$a)")
-              )
-            } qw(abs cos exp int log rand sin sqrt srand),
-    );
-};
+plan tests => 27;
 
 subtest 'array functions' => sub {
     _run_tests(
