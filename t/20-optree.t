@@ -15,38 +15,7 @@ use POSIX qw(:sys_wait_h);
 use Socket;
 use Scalar::Util qw(blessed refaddr);
 
-plan tests => 25;
-
-subtest 'hash functions' => sub {
-    _run_tests(
-        delete_hash => join("\n",   q(our %ourhash;),
-                                    q(my %myhash;),
-                                    q(my $a = delete($ourhash{'foo'});),
-                                    q(my @a = delete(@myhash{'foo', 'bar'});),
-                                    q(@a = delete(@ourhash{@a});),
-                                    q(delete(@myhash{@a});),
-                                    q(delete(local @ourhash{@a});),
-                                    q(delete(local $myhash{'foo'}))),
-        delete_array => join("\n",  q(our @ourarray;),
-                                    q(my @myarray;),
-                                    q(my $a = delete($ourarray[1]);),
-                                    q(my @a = delete(@myarray[1, 2]);),
-                                    q(@a = delete(@myarray[@a]);),
-                                    q(delete(local @ourarray[@a]);),
-                                    q(delete(local $myarray[3]))),
-        exists_hash => join("\n",   q(my %hash;),
-                                    q(my $a = exists($hash{'foo'}))),
-        exists_array => join("\n",  q(my @array;),
-                                    q(my $a = exists($array[1]))),
-        exists_sub => q(my $a = exists(&scalar_assignment)),
-        each_fcn => join("\n",  q(my %h;),
-                                q(my($k, $v) = each(%h))),
-        keys_fcn => join("\n",  q(my %h;),
-                                q(my @keys = keys(%h))),
-        values_fcn => join("\n",q(my %h;),
-                                q(my @vals = values(%h))),
-    );
-};
+plan tests => 24;
 
 subtest 'user/group/network info' => sub {
     _run_tests(
