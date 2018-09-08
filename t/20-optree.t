@@ -15,41 +15,7 @@ use POSIX qw(:sys_wait_h);
 use Socket;
 use Scalar::Util qw(blessed refaddr);
 
-plan tests => 27;
-
-subtest 'array functions' => sub {
-    _run_tests(
-        pop_fcn => join("\n",   q(my($a, @list);),
-                                q($a = pop(@list);),
-                                q(pop(@list);),
-                                q($a = pop)),
-        push_fcn => join("\n",  q(my($a, @list);),
-                                q(push(@list, 1, 2, 3);),
-                                q($a = push(@list, 1))),
-        shift_fcn => join("\n", q(my($a, @list);),
-                                q($a = shift(@list);),
-                                q(shift(@list);),
-                                q($a = shift)),
-        unshift_fcn => join("\n",   q(my($a, @list);),
-                                    q(unshift(@list, 1, 2, 3);),
-                                    q($a = unshift(@list, 1))),
-        splice_fcn => join("\n",q(my($a, @list, @rv);),
-                                q($a = splice(@list);),
-                                q(@rv = splice(@list, 1);),
-                                q(@rv = splice(@list, 1, 2);),
-                                q(@rv = splice(@list, 1, 2, @rv);),
-                                q(@rv = splice(@list, 1, 2, 3, 4, 5))),
-        array_len => join("\n", q(my($a, @list, $listref);),
-                                q($a = $#list;),
-                                q($a = $#$listref;),
-                                q($a = scalar(@list))),
-        join_fcn => join("\n",  q(my($a, @list);),
-                                q($a = join(',', 2, $a, 4);),
-                                q($a = join("\n", 2, $a, 4);),
-                                q($a = join(1, @list);),
-                                q(join(@list))),
-    );
-};
+plan tests => 26;
 
 subtest 'sort/map/grep' => sub {
     _run_tests(
