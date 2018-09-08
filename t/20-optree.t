@@ -15,65 +15,7 @@ use POSIX qw(:sys_wait_h);
 use Socket;
 use Scalar::Util qw(blessed refaddr);
 
-plan tests => 24;
-
-subtest 'user/group/network info' => sub {
-    _run_tests(
-        getgrent_fcn => join("\n",  q(my $a = getgrent();),
-                                    q($a = getgrent())),
-        endhostent_fcn =>   q(endhostent()),
-        endnetent_fcn =>    q(endnetent()),
-        endpwent_fcn =>     q(endpwent()),
-        endprotent_fcn =>   q(endprotent()),
-        endservent_fcn =>   q(endservent()),
-        setpwent_fcn =>     q(setpwent()),
-        endgrent_fcn =>     q(endgrent()),
-        setgrent_fcn =>     q(setgrent()),
-        sethostent_fcn =>   q(sethostent(1)),
-        setnetent_fcn =>    q(setnetent(0)),
-        setprotoent_fcn =>  q(setprotoent(undef)),
-        setservent_fcn =>   q(setservent(1)),
-        getlogin_fcn =>     q(my $a = getlogin()),
-        getgrgid_fcn => join("\n",  q(my $gid;),
-                                    q(my $a = getgrgid($gid))),
-        getgrnam_fcn => join("\n",  q(my $name;),
-                                    q(my $a = getgrnam($name))),
-        getpwent_fcn => join("\n",  q(my $name = getpwent();),
-                                    q(my @info = getpwent();),
-                                    q(my($n, $pass, $uid, $gid) = getpwent())),
-        gethostent_fcn => join("\n",q(my $name = gethostent();),
-                                    q(my @info = gethostent())),
-        getnetent_fcn => join("\n", q(my $name = getnetent();),
-                                    q(my @info = getnetent())),
-        getprotoent_fcn => join("\n",   q(my $name = getprotoent();),
-                                        q(my @info = getprotoent())),
-        getservent_fcn => join("\n",q(my $name = getservent();),
-                                    q(my @info = getservent())),
-        getpwnam_fcn => join("\n",  q(my $gid = getpwnam('root');),
-                                    q(my @info = getpwnam('root');),
-                                    q(my($name, $pass, $uid, $g) = getpwnam('root'))),
-        getpwuid_fcn => join("\n",  q(my $name = getpwuid(0);),
-                                    q(my @info = getpwuid(0);),
-                                    q(my($n, $pass, $uid, $gid) = getpwuid(0))),
-        gethostbyaddr_fcn => join("\n", q(my $name = gethostbyaddr(inet_aton('127.1'), AF_INET);),
-                                        q(my @info = gethostbyaddr(inet_aton('127.2'), AF_UNIX))),
-        gethostbyname_fcn => join("\n", q(my $addr = gethostbyname('example.org');),
-                                        q(my @info = gethostbyname('example.com'))),
-        getnetbyaddr_fcn => join("\n",  q(my $name = getnetbyaddr(inet_aton('127.1'), AF_INET);),
-                                        q(my @info = getnetbyaddr(inet_aton('127.2'), AF_UNIX))),
-        getnetbyname_fcn => join("\n",  q(my $addr = getnetbyname('example.org');),
-                                        q(my @info = getnetbyname('example.com'))),
-        getprotobyname_fcn => join("\n",q(my $num = getprotobtname('tcp');),
-                                        q(my @info = getprotobyname('udp'))),
-        getprotobynumber_fcn => join("\n",q(my $a;),
-                                        q(my $num = getprotobynumber($a);),
-                                        q(my @info = getprotobynumber($a))),
-        getservbyname_fcn => join("\n", q(my $port = getservbyname('ftp', 'tcp');),
-                                        q(my @info = getservbyname('echo', 'udp'))),
-        getservbyport_fcn => join("\n", q(my $port = getservbyport(21, 'tcp');),
-                                        q(my @info = getservbyport(7, 'udp'))),
-    );
-};
+plan tests => 23;
 
 subtest 'I/O' => sub {
     _run_tests(
