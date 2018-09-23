@@ -15,58 +15,13 @@ use POSIX qw(:sys_wait_h);
 use Socket;
 use Scalar::Util qw(blessed refaddr);
 
-plan tests => 19;
+plan tests => 18;
 
 #subtest 'misc stuff' => sub {
 #    _run_tests(
 #        # lock prototype reset
 #    );
 #};
-
-subtest process => sub {
-    _run_tests(
-        alarm_fcn => q(alarm(4)),
-        exec_fcn => no_warnings('exec'),
-                    join("\n",  q(my $rv = exec('/bin/echo', 'hi', 'there');),
-                                q($rv = exec('/bin/echo | cat');),
-                                q($rv = exec { '/bin/echo' } ('hi', 'there');),
-                                q(my $a = exec $rv ('hi', 'there'))),
-        system_fcn => join("\n",q(my $rv = system('/bin/echo', 'hi', 'there');),
-                                q($rv = system('/bin/echo | cat');),
-                                q($rv = system { '/bin/echo' } ('hi', 'there');),
-                                q(my $a = system $rv ('hi', 'there'))),
-        fork_fcn => join("\n",  q(fork();),
-                                q(my $a = fork())),
-        getpgrp_fcn => join("\n",   q(my $a = getpgrp(0);),
-                                    q($a = getpgrp(1234))),
-        getppid_fcn => join("\n",   q(my $a = getppid();),
-                                    q(getppid())),
-        kill_fcn => join("\n",  q(my $rv = kill(0);),
-                                q($rv = kill('HUP', $$);),
-                                q($rv = kill(-9, 1, 2, 3);),
-                                q($rv = kill('TERM', -1, -2, -3))),
-        pipe_fcn => join("\n",  q(my($a, $b);),
-                                q(pipe($a, $b))),
-        readpipe_fcn => join("\n",  q(my $rv = `/bin/echo 'hi','there'`;),
-                                    q($rv = `$rv`;),
-                                    q($rv = readpipe('/bin/echo "hi","there"');),
-                                    q($rv = readpipe($rv);),
-                                    q($rv = readpipe(foo()))),
-        sleep_fcn => join("\n",     q(my $a = sleep();),
-                                    q($a = sleep(10))),
-        times_fcn => join("\n",     q(my @a = times();),
-                                    q(my $a = times())),
-        wait_fcn => join("\n",      q(my $a = wait();),
-                                    q(wait())),
-        getpriority_fcn => join("\n",   q(my $a = getpriority(1, 2);),
-                                        q($a = getpriority(0, 0))),
-        setpriority_fcn => join("\n",   q($a = setpriority(1, 2, 3);),
-                                        q($a = setpriority(0, 0, -2))),
-        setpgrp_fcn => join("\n",   q(my $a = setpgrp();),
-                                    q($a = setpgrp(0, 0);),
-                                    q($a = setpgrp(9, 10))),
-    );
-};
 
 subtest 'process waitpid' => sub {
     plan skip_all => q(WNOHANG isn't defined on Windows) if $^O eq 'MSWin32';
