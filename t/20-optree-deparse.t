@@ -48,6 +48,11 @@ sub _contents_under_dir {
     grep { ! m/^\./ } glob("${dir}/*");
 }
 
+my $should_skip;
+{ no warnings 'redefine';
+  sub skip { $should_skip = shift; die $should_skip }
+}
+
 sub run_one_test {
     my $file = shift;
 
@@ -60,12 +65,15 @@ sub run_one_test {
 
     (my $subname = $file) =~ s#/|-|\.#_#g;
     my $test_as_sub = sprintf('sub %s { %s }', $subname, $test_code);
+    $should_skip = '';
     my $exception = do {
         local $@;
         eval $test_as_sub;
         $@;
     };
-    if ($exception) {
+    if ($should_skip) {
+        return pass("$file skipped: $should_skip");
+    } elsif ($exception) {
         die "Couldn't compile code for $file: $exception";
     }
 
