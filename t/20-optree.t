@@ -15,48 +15,13 @@ use POSIX qw(:sys_wait_h);
 use Socket;
 use Scalar::Util qw(blessed refaddr);
 
-plan tests => 16;
+plan tests => 15;
 
 #subtest 'misc stuff' => sub {
 #    _run_tests(
 #        # lock prototype reset
 #    );
 #};
-
-subtest sockets => sub {
-    _run_tests(
-        accept_fcn => join("\n",q(my($a, $b);),
-                                q(my $rv = accept($a, $b))),
-        bind_fcn => join("\n",  q(my($sock, $name);),
-                                q(my $rv = bind($sock, $name))),
-        connect_fcn => join("\n",   q(my($sock, $name);),
-                                    q(my $rv = connect($sock, $name))),
-        listen_fcn => join("\n",    q(my $sock;),
-                                    q(my $rv = listen($sock, 5))),
-        getpeername_fcn => join("\n",   q(my $sock;),
-                                        q(my $rv = getpeername($sock))),
-        getsockname_fcn => join("\n",   q(my $sock;),
-                                        q(my $rv = getsockname($sock))),
-        getsockopt_fcn => join("\n",    q(my $sock;),
-                                        q(my $rv = getsockopt($sock, 1, 2))),
-        setsockopt_fcn => join("\n",    q(my $sock;),
-                                        q(my $rv = setsockopt($sock, 1, 2, 3))),
-        send_fcn => join("\n",  q(my($sock, $dest);),
-                                q(my $rv = send($sock, 'themessage', 1);),
-                                q($rv = send($sock, $rv, 1, $dest))),
-        recv_fcn => join("\n",  q(my($sock, $buf);),
-                                q(my $rv = recv($sock, $buf, 123, 456))),
-        shutdown_fcn => join("\n",  q(my $sock;),
-                                    q(my $rv = shutdown($sock, 2))),
-        socket_fcn => join("\n",    q(my $sock;),
-                                    q(my $rv = socket(SOCK, PF_INET, SOCK_STREAM, 3);),
-                                    q($rv = socket(*SOCK, PF_UNIX, SOCK_DGRAM, 2);),
-                                    q($rv = socket($sock, PF_INET, SOCK_RAW, 1))),
-        socketpair_fcn => join("\n",q(my($a, $b);),
-                                    q(my $rv = socketpair(SOCK, $a, AF_UNIX, SOCK_STREAM, PF_UNSPEC);),
-                                    q($rv = socketpair($b, *SOCK, AF_INET6, SOCK_DGRAM, 1234))),
-    );
-};
 
 subtest 'sysV ipc' => sub {
     _run_tests(
