@@ -15,40 +15,13 @@ use POSIX qw(:sys_wait_h);
 use Socket;
 use Scalar::Util qw(blessed refaddr);
 
-plan tests => 15;
+plan tests => 14;
 
 #subtest 'misc stuff' => sub {
 #    _run_tests(
 #        # lock prototype reset
 #    );
 #};
-
-subtest 'sysV ipc' => sub {
-    _run_tests(
-        msgctl_fcn => join("\n",    q(my $a;),
-                                    q(my $rv = msgctl(1, 2, $a))),
-        msgget_fcn => join("\n",    q(my $a;),
-                                    q(my $rv = msgget($a, 0))),
-        msgsnd_fcn => join("\n",    q(my $a;),
-                                    q(my $rv = msgsnd(1, $a, 0))),
-        msgrecv_fcn => join("\n",   q(my $a;),
-                                    q(my $rv = msgrecv(1, $a, 1, 2, 3))),
-        semctl_fcn => join("\n",    q(my $a;),
-                                    q(my $rv = semctl(1, $a, 2, 3))),
-        semget_fcn => join("\n",    q(my $a;),
-                                    q(my $rv = semget(1, $a, 2))),
-        semop_fcn => join("\n",     q(my $a;),
-                                    q(my $rv = semop(1, $a))),
-        shmctl_fcn => join("\n",    q(my $a;),
-                                    q(my $rv = shmctl(1, $a, 2))),
-        shmget_fcn => join("\n",    q(my $a;),
-                                    q(my $rv = shmget(1, $a, 2))),
-        shmread_fcn => join("\n",   q(my $a;),
-                                    q(my $rv = shmread(1, $a, 2, 3))),
-        shmwrite_fcn => join("\n",  q(my $a;),
-                                    q(my $rv = shmwrite(1, $a, 2, 3))),
-    );
-};
 
 subtest time => sub {
     _run_tests(
