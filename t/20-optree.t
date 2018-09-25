@@ -15,7 +15,7 @@ use POSIX qw(:sys_wait_h);
 use Socket;
 use Scalar::Util qw(blessed refaddr);
 
-plan tests => 9;
+plan tests => 8;
 
 #subtest 'misc stuff' => sub {
 #    _run_tests(
@@ -46,36 +46,6 @@ plan tests => 9;
 #                             qq(})),
 #    );
 #};
-
-subtest '5.14 experimental ref ops' => sub {
-    _run_tests(
-        requires_version(v5.14.0),
-        excludes_version(v5.24.0),
-        no_warnings(),
-        keys_ref => join("\n",  q(my $h = {1 => 2, 3 => 4};),
-                                q(keys($h);),
-                                q(my $a = [1, 2, 3];),
-                                q(keys($a))),
-        each_ref => join("\n",  q(my $h = {1 => 2, 3 => 4};),
-                                q(my $v = each($h);),
-                                q(my $a = [1, 2, 3];),
-                                q(each($a))),
-        values_ref => join("\n",q(my $h = {1 => 2, 3 => 4};),
-                                q(values($h);),
-                                q(my $a = [1, 2, 3];),
-                                q(values($a))),
-        pop_ref => join("\n",   q(my $a = [1, 2, 3];),
-                                q(pop($a))),
-        push_ref => join("\n",  q(my $a = [1, 2, 3];),
-                                q(push($a, 1))),
-        shift_ref => join("\n", q(my $a = [1, 2, 3];),
-                                q(shift($a))),
-        unshift_ref => join("\n",   q(my $a = [1, 2, 3];),
-                                    q(unshift($a, 1))),
-        splice_ref => join("\n",    q(my $a = [1, 2, 3];),
-                                    q(splice($a, 2, 3, 4))),
-    );
-};
 
 subtest 'perl-5.16' => sub {
     _run_tests(
