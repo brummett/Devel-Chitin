@@ -1,4 +1,5 @@
 use Test2::V0;
+use Test2::Tools::Subtest qw(subtest_streamed);
 
 # When this test is run with no args, it runs all tests if finds under
 # a subdirectory of the name of this test.  You can also run one or more
@@ -35,7 +36,7 @@ sub make_subdir_test {
     my $subdir = shift;
     sub {
         my @tests = _contents_under_dir($subdir);
-        subtest $subdir => sub {
+        subtest_streamed $subdir => sub {
             plan tests => scalar(@tests);
 
             run_one_test($_) foreach @tests;
