@@ -84,6 +84,7 @@ sub run_one_test {
     $expected =~ s/^\n//mg; # remove empty lines
 
     my $ops = _get_optree_for_sub_named($subname);
+    local $@;
     my $got = eval { $ops->deparse };
     is("$got\n", $expected, $file)
         || do {
