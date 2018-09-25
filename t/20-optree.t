@@ -15,24 +15,13 @@ use POSIX qw(:sys_wait_h);
 use Socket;
 use Scalar::Util qw(blessed refaddr);
 
-plan tests => 14;
+plan tests => 13;
 
 #subtest 'misc stuff' => sub {
 #    _run_tests(
 #        # lock prototype reset
 #    );
 #};
-
-subtest time => sub {
-    _run_tests(
-        localtime_fcn => join("\n", q(my $a = localtime();),
-                                    q(my @a = localtime(12345))),
-        gmtime_fcn => join("\n",    q(my $a = gmtime();),
-                                    q(my @a = gmtime(12345))),
-        time_fcn => join("\n",      q(my $a = time();),
-                                    q(time())),
-    );
-};
 
 subtest 'perl-5.10.1' => sub {
     _run_tests(
