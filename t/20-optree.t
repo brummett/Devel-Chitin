@@ -15,21 +15,13 @@ use POSIX qw(:sys_wait_h);
 use Socket;
 use Scalar::Util qw(blessed refaddr);
 
-plan tests => 18;
+plan tests => 17;
 
 #subtest 'misc stuff' => sub {
 #    _run_tests(
 #        # lock prototype reset
 #    );
 #};
-
-subtest 'process waitpid' => sub {
-    plan skip_all => q(WNOHANG isn't defined on Windows) if $^O eq 'MSWin32';
-    _run_tests(
-        waitpid_fcn => join("\n",   q(my $a = waitpid(123, WNOHANG | WUNTRACED);),
-                                    q($a = waitpid($a, 0))),
-    );
-};
 
 subtest classes => sub {
     _run_tests(
