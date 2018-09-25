@@ -15,56 +15,13 @@ use POSIX qw(:sys_wait_h);
 use Socket;
 use Scalar::Util qw(blessed refaddr);
 
-plan tests => 13;
+plan tests => 11;
 
 #subtest 'misc stuff' => sub {
 #    _run_tests(
 #        # lock prototype reset
 #    );
 #};
-
-subtest 'perl-5.10.1' => sub {
-    _run_tests(
-        requires_version(v5.10.1),
-        unpack_one_arg => join("\n", q($a = unpack($a))),
-        mkdir_no_args => join("\n",  q(mkdir())),
-        say_fcn => join("\n",   q(my $a = say();),
-                                q(say('foo bar', 'baz', "\n");),
-                                q(say F ('foo bar', 'baz', "\n");),
-                                q(say "Hello\n";),
-                                q(say F "Hello\n";),
-                                q(my $f;),
-                                q(say { $f } ('foo bar', 'baz', "\n");),
-                                q(say { *$f } ('foo bar', 'baz', "\n"))),
-        stacked_file_tests =>   q(-r -x -d '/tmp'),
-        defined_or => join("\n",q(my $a;),
-                                q(my $rv = $a // 1;),
-                                q($a //= 4)),
-    );
-};
-
-subtest 'given-when-5.10.1' => sub {
-    _run_tests(
-        requires_version(v5.10.1),
-        excludes_only_version(v5.27.7),
-        given_when_5_10 => join("\n",
-                                q(my $a;),
-                                q(given ($a) {),
-                               qq(\twhen (1) { print 'one' }),
-                               qq(\twhen (2) {),
-                               qq(\t\tprint 'two';),
-                               qq(\t\tprint 'more';),
-                               qq(\t\tcontinue),
-                               qq(\t}),
-                               qq(\twhen (3) {),
-                               qq(\t\tprint 'three';),
-                               qq(\t\tbreak;),
-                               qq(\t\tprint 'will not run'),
-                               qq(\t}),
-                               qq(\tdefault { print 'something else' }),
-                                q(})),
-    );
-};
 
 # from the reverted given/whereso/whereis from 5.27.7
 #subtest 'given-when-5.27.7' => sub {
