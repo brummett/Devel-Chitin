@@ -15,30 +15,13 @@ use POSIX qw(:sys_wait_h);
 use Socket;
 use Scalar::Util qw(blessed refaddr);
 
-plan tests => 17;
+plan tests => 16;
 
 #subtest 'misc stuff' => sub {
 #    _run_tests(
 #        # lock prototype reset
 #    );
 #};
-
-subtest classes => sub {
-    _run_tests(
-        bless_fcn => join("\n", q(my $obj = bless({}, 'Some::Package');),
-                                q($obj = bless([]))),
-        ref_fcn => join("\n",   q(my $r = ref(1);),
-                                q($r = ref($r);),
-                                q($r = ref())),
-        tie_fcn => join("\n",   q(my $a;),
-                                q(my $r = tie($a, 'Some::Package', 1, 2, 3);),
-                                q($r = tie($r, 'Other::Package', $a))),
-        tied_fcn => join("\n",  q(my $a;),
-                                q(my $r = tied($a))),
-        untie_fcn => join("\n", q(my $a;),
-                                q(untie($a))),
-    );
-};
 
 subtest sockets => sub {
     _run_tests(
