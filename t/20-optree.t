@@ -15,7 +15,7 @@ use POSIX qw(:sys_wait_h);
 use Socket;
 use Scalar::Util qw(blessed refaddr);
 
-plan tests => 8;
+plan tests => 7;
 
 #subtest 'misc stuff' => sub {
 #    _run_tests(
@@ -46,17 +46,6 @@ plan tests => 8;
 #                             qq(})),
 #    );
 #};
-
-subtest 'perl-5.16' => sub {
-    _run_tests(
-        requires_version(v5.16.0),
-        foldcase => join("\n",  q(my $a = 'aAbBcC';),
-                                q($a = fc($a);),
-                                q(fc($a);),
-                                q($a = fc();),
-                                q(print qq(ab\F$a\E))),
-    );
-};
 
 subtest 'perl-5.18' => sub {
     _run_tests(
