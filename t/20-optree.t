@@ -15,7 +15,7 @@ use POSIX qw(:sys_wait_h);
 use Socket;
 use Scalar::Util qw(blessed refaddr);
 
-plan tests => 6;
+plan tests => 4;
 
 #subtest 'misc stuff' => sub {
 #    _run_tests(
@@ -46,41 +46,6 @@ plan tests => 6;
 #                             qq(})),
 #    );
 #};
-
-subtest 'perl-5.20 incompatibilities' => sub {
-    _run_tests(
-        excludes_version(v5.20.0),
-        do_sub =>   q(my $val = do some_sub_name(1, 2)), # deprecated sub call
-    );
-};
-
-subtest 'perl-5.20' => sub {
-    _run_tests(
-        requires_version(v5.20.0),
-        hash_slice_hash => join("\n",   q(my(%h, $h);),
-                                        q(my %slice = %h{'key1', 'key2'};),
-                                        q(%slice = %$h{'key1', 'key2'})),
-        hash_slice_array=> join("\n",   q(my(@a, $a);),
-                                        q(my %slice = %a[1, 2];),
-                                        q(%slice = %$a[1, 2])),
-        # although there's no way to distinguish @$a from $a->@*, it checks whether
-        # the "postderef" feature is on and uses it if it is
-        # commented out for now because it messed with the two slice tests above
-#        postderef => join("\n",         q(my $a = 1;),
-#                                        q(our $b = 2;),
-#                                        q($a->[1]->$*;),
-#                                        q($a->{'one'}->@*;),
-#                                        q($b->[1]->$#*;),
-#                                        q($b->{'one'}->%*;),
-#                                        q($a->[1]->&*;),
-#                                        q($a->[1]->**;)),
-# postfix dereferencing
-# $a->@*
-# $a->@[1,2]
-# $a->%{'one', 'two'}
-# check warning bits for "use experimental 'postderef'
-    );
-};
 
 subtest 'perl-5.22 differences' => sub {
     _run_tests(
