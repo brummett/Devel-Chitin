@@ -15,7 +15,7 @@ use POSIX qw(:sys_wait_h);
 use Socket;
 use Scalar::Util qw(blessed refaddr);
 
-plan tests => 2;
+plan tests => 1;
 
 #subtest 'misc stuff' => sub {
 #    _run_tests(
@@ -46,14 +46,6 @@ plan tests => 2;
 #                             qq(})),
 #    );
 #};
-
-subtest 'perl-5.25.6 split changes' => sub {
-    _run_tests(
-        excludes_version(v5.25.6),
-        split_specials => join("\n",    q(our @s = split('', $a);),
-                                        q(my @strings = split(' ', $a))),
-    );
-};
 
 subtest 'perl-5.28.0' => sub {
     _run_tests(
