@@ -15,7 +15,7 @@ use POSIX qw(:sys_wait_h);
 use Socket;
 use Scalar::Util qw(blessed refaddr);
 
-plan tests => 4;
+plan tests => 2;
 
 #subtest 'misc stuff' => sub {
 #    _run_tests(
@@ -46,58 +46,6 @@ plan tests => 4;
 #                             qq(})),
 #    );
 #};
-
-subtest 'perl-5.22 differences' => sub {
-    _run_tests(
-        excludes_version(v5.22.0),
-        readline_with_brackets => join("\n",    q(my $fh;),
-                                                q(my $line = <$fh>;),
-                                                q(my @lines = <$fh>)),
-        hash_key_assignment => join("\n",   q(my(%a, $a);),
-                                            q($a{key} = 1;),
-                                            q($a{'key'} = 1;),
-                                            q($a{'1'} = 1;),
-                                            q($a->{key} = 1;),
-                                            q($a->{'key'} = 1;),
-                                            q($a->{'1'} = 1)),
-    );
-};
-
-subtest 'perl-5.22' => sub {
-    _run_tests(
-        requires_version(v5.22.0),
-        use_feature('bitwise'),
-        use_feature('refaliasing'),
-        string_bitwise  => join("\n",   q(my($a, $b);),
-                                        q($a = $a &. $b;),
-                                        q($a &.= $b;),
-                                        q($a = $a |. 'str';),
-                                        q($a |.= 'str';),
-                                        q($a = $a ^. 1;),
-                                        q($a ^.= $b;),
-                                        q($a = ~.$a)),
-        regex_n_flag => join("\n",  q(my $str;),
-                                    q($str =~ m/(hi|hello)/n)),
-        list_repeat => join("\n",   q(my @a = (1, 2) x 5)),
-        ref_alias => join("\n",     q(my($a, $b) = (1, 2);),
-                                    q(\$a = \$b;),
-                                    q[\($a) = \$b;],
-                                    q(our @array = (1, 2);),
-                                    q(\$array[1] = \$a;),
-                                    q(my %hash = (1, 1);),
-                                    q(\$hash{'1'} = \$b)),
-        listref_alias => join("\n", q(my($a, $b, @array);),
-                                    q(\@array[1, 2] = (\$a, \$b);),
-                                    q[\(@array) = (\$a, \$b)]),
-        alias_whole_array => join("\n", q(my @array = (1, 2);),
-                                        q(our @ar2 = (1, 2);),
-                                        q[\(@array) = \(@ar2);],
-                                        q[\(@ar2) = \(@array)]),
-        double_diamond => join("\n",    q(while (defined($_ = <<>>)) {),
-                                       qq(\tprint()),
-                                        q(})),
-    );
-};
 
 subtest 'perl-5.25.6 split changes' => sub {
     _run_tests(
