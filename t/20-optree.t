@@ -15,7 +15,7 @@ use POSIX qw(:sys_wait_h);
 use Socket;
 use Scalar::Util qw(blessed refaddr);
 
-plan tests => 1;
+plan tests => 0;
 
 #subtest 'misc stuff' => sub {
 #    _run_tests(
@@ -46,14 +46,6 @@ plan tests => 1;
 #                             qq(})),
 #    );
 #};
-
-subtest 'perl-5.28.0' => sub {
-    _run_tests(
-        requires_version(v5.28.0),
-        delete_hash_slice => join("\n", q(my %myhash;),
-                                        q(my %a = delete(%myhash{'baz', 'quux'}))),
-    );
-};
 
 sub requires_version {
     my $ver = shift;
