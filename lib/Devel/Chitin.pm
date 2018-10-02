@@ -98,6 +98,49 @@ sub continue {
     return 1;
 }
 
+sub continue_to {
+    my $self = shift;
+    my($file, $line);
+    if (@_ == 1) {
+        # passed in a subname
+        ($file, $line) = $self->_determine_first_breakable_line_of_sub($_[0]);
+    } elsif (@_ == 2) {
+        ($file, $line) = @_;
+    } else {
+        return;  # bad args
+    }
+
+    my $rv = Devel::Chitin::Breakpoint->new(file => $file, line => $line, once => 1, code => 1);
+    $DB::single=0 if $rv;
+    return $rv;
+}
+
+sub _determine_first_breakable_line_of_sub {
+    my($self, $sub) = @_;
+
+    my $subref;
+    if (! ref($sub)) {
+        $subref = do {
+            no strict 'refs';
+            \&$sub;
+        };
+
+    } elsif (Scalar::Util::reftype($sub) eq 'CODE') {
+        $subref = $sub;
+    } else {
+        return;
+    }
+    my $cv = B::svref_2object($subref);
+    my $op = $cv->START;
+    while($op && !$op->isa('B::NULL')) {
+        if ($op->isa('B::COP')) {
+            return ($op->file, $op->line);
+        }
+        $op = $op->next;
+    }
+    return;
+}
+
 sub trace {
     local $DB::in_debugger = 1;
     my $class = shift;

@@ -17,7 +17,7 @@ our @EXPORT_OK = qw(ok_location ok_breakable ok_not_breakable ok_trace_location
                     ok_at_end
                     is_eval is_eval_exception is_var_at_level
                     do_test do_disable_auto_disable
-                    db_step db_continue db_stepout db_stepover db_trace db_disable
+                    db_step db_continue db_continue_to db_stepout db_stepover db_trace db_disable
                     has_callsite
                 );
 
@@ -398,6 +398,16 @@ sub db_step {
 sub db_continue {
     push @TEST_QUEUE, sub {
         __PACKAGE__->continue;
+        no warnings 'exiting';
+        last TEST_QUEUE_LOOP;
+    }
+}
+
+sub db_continue_to {
+    my @params = @_;
+
+    push @TEST_QUEUE, sub {
+        __PACKAGE__->continue_to( @params );
         no warnings 'exiting';
         last TEST_QUEUE_LOOP;
     }
