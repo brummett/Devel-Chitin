@@ -628,8 +628,13 @@ sub is_breakpoint {
         foreach my $condition ( @{ $dbline{$line}->{$breakpoint_key} }) {
             next if $condition->inactive;
             my $code = $condition->code;
+
+            no warnings 'uninitialized';
             if ($code eq '1') {
                 $should_break = 1;
+            } elsif (Scalar::Util::reftype($code) eq 'CODE') {
+                local $@;
+                $should_break = eval { $code->() };
             } else {
                 ($should_break) = _eval_in_program_context($condition->code, 0);
             }
