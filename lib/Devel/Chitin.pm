@@ -239,10 +239,7 @@ sub remove_watchexpr {
 
 sub is_breakable {
     my($class, $filename, $line) = @_;
-
-    our @dbline;
-    local(*dbline) = $main::{'_<' . $filename};
-    return $dbline[$line] + 0;   # FIXME change to == 0
+    Devel::Chitin::Actionable->is_breakable($filename, $line);
 }
 
 sub add_break {
