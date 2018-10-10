@@ -16,9 +16,18 @@ $DB::single=1;
 SampleCode::foo();
 
 sub __tests__ {  # 15
-    plan tests => 17;
+    plan tests => 20;
 
     my $file = 't/lib/SampleCode.pm';
+    do_test {
+        ok ! Devel::Chitin::Breakpoint->new(file => 'garbage_file_name', line => 1, code => 1),
+            q(Can't create breakpoint in non-existent file);
+        ok ! Devel::Chitin::Breakpoint->new(file => $file, line => 99, code => 1),
+            q(Can't create breakpoint on non-existent line');
+        ok ! Devel::Chitin::Breakpoint->new(file => $file, line => 1, code => 1),
+            q(Can't create breakpoint on non-breakable line);
+    };
+
     ok_breakable $file, 5;
     ok_not_breakable $file, 4;
     ok_not_breakable $file, 10;

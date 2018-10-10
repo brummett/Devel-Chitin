@@ -12,11 +12,22 @@ sub new {
     my $class = shift;
 
     my %params = __required([qw(file line code)], @_);
+    return unless $class->is_breakable($params{file}, $params{line});
 
     my $self = \%params;
     bless $self, $class;
     $self->_insert();
     return $self;
+}
+
+sub is_breakable {
+    my($class, $file, $line) = @_;
+
+    return unless exists $main::{'_<' . $file};
+    our @dbline;
+    local(*dbline) = $main::{'_<' . $file};
+    return unless defined $dbline[$line];
+    return ($dbline[$line] + 0);
 }
 
 sub __required {
