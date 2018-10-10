@@ -106,9 +106,9 @@ sub continue_to {
         ($file, $line) = $self->_determine_first_breakable_line_of_sub($_[0]);
     } elsif (@_ == 2) {
         ($file, $line) = @_;
-    } else {
-        return;  # bad args
     }
+
+    return unless $file;  # bad args
 
     my $rv = Devel::Chitin::Breakpoint->new(file => $file, line => $line, once => 1, code => 1);
     $DB::single=0 if $rv;
@@ -239,10 +239,7 @@ sub remove_watchexpr {
 
 sub is_breakable {
     my($class, $filename, $line) = @_;
-
-    our @dbline;
-    local(*dbline) = $main::{'_<' . $filename};
-    return $dbline[$line] + 0;   # FIXME change to == 0
+    Devel::Chitin::Actionable->is_breakable($filename, $line);
 }
 
 sub add_break {
