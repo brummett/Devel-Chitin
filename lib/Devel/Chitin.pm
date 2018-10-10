@@ -881,6 +881,40 @@ sub sub {
     return wantarray ? @rv : $rv[0];
 }
 
+sub lsub : lvalue {
+    no strict 'refs';
+    goto &$sub if (! $ready or index($sub, 'Devel::Chitin::StackTracker') == 0 or $debugger_disabled);
+
+    local $Devel::Chitin::current_sub = $sub unless $in_debugger;
+
+    local @AUTOLOAD_names = @AUTOLOAD_names;
+    if (index($sub, '::AUTOLOAD', -10) >= 0) {
+        my $caller_pkg = substr($sub, 0, length($sub)-8);
+        my $caller_AUTOLOAD = ${ $caller_pkg . 'AUTOLOAD'};
+        unshift @AUTOLOAD_names, $caller_AUTOLOAD;
+    }
+    my $stack_tracker;
+    local @Devel::Chitin::stack_serial = @Devel::Chitin::stack_serial;
+    unless ($in_debugger) {
+        $stack_depth++;
+        $stack_tracker = _new_stack_tracker(_allocate_sub_serial());
+
+        my $subname = $sub;
+        if (ref $sub) {
+            my $cv = B::svref_2object($sub);
+            my $gv = $cv->GV;
+            if (my $name = $gv->NAME) {
+                my $package = $gv->STASH->NAME;
+                $subname = join('::', $package, $name);
+            }
+        }
+
+        push(@Devel::Chitin::stack_serial, [ $subname, $$stack_tracker]);
+    }
+
+    &$sub;
+}
+
 sub _new_stack_tracker {
     my $token = shift;
     my $self = bless \$token, 'Devel::Chitin::StackTracker';
