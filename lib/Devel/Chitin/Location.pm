@@ -3,7 +3,7 @@ package Devel::Chitin::Location;
 use strict;
 use warnings;
 
-our $VERSION = '0.17';
+our $VERSION = '0.18';
 
 use Carp;
 use Scalar::Util qw(weaken reftype);

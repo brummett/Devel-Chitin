@@ -1,7 +1,7 @@
 package Devel::Chitin::OpTree::SVOP;
 use base 'Devel::Chitin::OpTree';
 
-our $VERSION = '0.17';
+our $VERSION = '0.18';
 
 use strict;
 use warnings;
