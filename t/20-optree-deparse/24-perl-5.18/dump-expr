@@ -3,5 +3,5 @@ use v5.18.0; # omit
 no warnings 'misc'; # omit
 no warnings 'deprecated'; # omit
 my $expr;
-dump $expr;
-dump 'foo' . $expr
+CORE::dump $expr;
+CORE::dump 'foo' . $expr

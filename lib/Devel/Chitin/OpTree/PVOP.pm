@@ -9,7 +9,7 @@ use warnings;
 use Config;
 
 sub pp_dump {
-    'dump ' . shift->op->pv;
+    'CORE::dump ' . shift->op->pv;
 }
 
 sub pp_goto {

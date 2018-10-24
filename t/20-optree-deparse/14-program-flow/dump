@@ -1,4 +1,4 @@
 no warnings 'misc'; # omit
 no warnings 'deprecated'; # omit
-dump;
-dump DUMP_LABEL
+CORE::dump;
+CORE::dump DUMP_LABEL

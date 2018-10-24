@@ -484,7 +484,7 @@ sub pp_stub { ';' }
 sub pp_unstack { '' }
 sub pp_undef { 'undef' }
 sub pp_wantarray { 'wantarray' }
-sub pp_dump { 'dump' }
+sub pp_dump { 'CORE::dump' }
 sub pp_next { 'next' }
 sub pp_last { 'last' }
 sub pp_redo { 'redo' }
