@@ -1,6 +1,8 @@
 package   # CPAN, don't index
     TestHelper;
 
+BEGIN { $^P = 0x400 }  # Turn on source code saving into @main::{"_<$filename"}
+
 use strict;
 use warnings;
 
@@ -488,5 +490,5 @@ sub has_callsite {
 
 __PACKAGE__->attach();
 
-$^P = 0x73f;  # Turn on all the debugging stuff
+BEGIN { $^P = 0x73f }  # Turn on all the debugging stuff
 INIT { $START_TESTING = 1 }
