@@ -24,7 +24,7 @@ sub AUTOLOAD {
 }
 
 package main;
-use List::Util 1.45, 'uniq';
+use List::Util 1.45 'uniq';
 
 sub __tests__ {
     plan tests => 13;

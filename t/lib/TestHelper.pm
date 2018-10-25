@@ -7,7 +7,7 @@ use strict;
 use warnings;
 
 use Test2::V0;
-use Test2::API 1.302136, qw( context_do context run_subtest test2_add_callback_testing_done);
+use Test2::API 1.302136 qw( context_do context run_subtest test2_add_callback_testing_done);
 use base 'Devel::Chitin';
 use Carp;
 
