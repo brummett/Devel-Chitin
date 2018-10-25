@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-use Test2::V0;
+use Test2::V0; no warnings 'void';
 use lib 't/lib';
 use TestHelper qw(db_continue do_test);
 use Sub::Name;
