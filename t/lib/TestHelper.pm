@@ -1,11 +1,13 @@
 package   # CPAN, don't index
     TestHelper;
 
+BEGIN { $^P = 0x400 }  # Turn on source code saving into @main::{"_<$filename"}
+
 use strict;
 use warnings;
 
 use Test2::V0;
-use Test2::API qw( context_do context run_subtest test2_add_callback_testing_done);
+use Test2::API 1.302136, qw( context_do context run_subtest test2_add_callback_testing_done);
 use base 'Devel::Chitin';
 use Carp;
 
@@ -488,5 +490,5 @@ sub has_callsite {
 
 __PACKAGE__->attach();
 
-$^P = 0x73f;  # Turn on all the debugging stuff
+BEGIN { $^P = 0x73f }  # Turn on all the debugging stuff
 INIT { $START_TESTING = 1 }
