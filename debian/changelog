@@ -1,3 +1,9 @@
+libdevel-chitin-perl (0.18-1) unstable; urgency=low
+
+    * Test fixes to work on threaded perls, and to force minimum required versions of some modules
+
+ -- Anthony Brummett <brummett@cpan.org>   Wed, 25 Oct 2018  17:46:00 -0500
+
 libdevel-chitin-perl (0.17-1) unstable; urgency=low
 
     * Deparser supports fc() and \F (foldcase) in double-quoted strings
