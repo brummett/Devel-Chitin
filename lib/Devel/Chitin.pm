@@ -92,7 +92,6 @@ sub stepout {
     return 1;
 }
 
-# Should support running to a subname, or file+line
 sub continue {
     $DB::single=0;
     return 1;
