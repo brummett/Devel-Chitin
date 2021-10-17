@@ -52,7 +52,9 @@ sub new {
 
         #next if $skip;
 
-        $caller{args} = [ @DB::args ];
+        # For eval frames, @DB::args is actually @_ for the enclosing sub's
+        # frame, and doesn't have a @_ of its own.
+        $caller{args} = $caller{subroutine} eq '(eval)' ? undef : [ @DB::args ];
         $caller{callsite} = Devel::Chitin::Location::get_callsite($level);
 
         # subname is the subroutine without the package part
