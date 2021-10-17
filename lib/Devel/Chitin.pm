@@ -15,6 +15,7 @@ use Devel::Chitin::Eval;
 use Devel::Chitin::Stack;
 use Devel::Chitin::Location;
 use Devel::Chitin::SubroutineLocation;
+use Devel::Chitin::SubroutineReturn;
 use Devel::Chitin::Exception;
 use Devel::Chitin::OpTree;
 
@@ -87,6 +88,12 @@ sub stepover {
 }
 
 sub stepout {
+    my $self = shift;
+    if (@_) {
+        my %args = @_;
+        DB::_queue_on_sub_return($args{'cb'}) if $args{'cb'};
+    }
+
     $DB::single=0;
     $DB::step_over_depth = $DB::stack_depth - 1;
     return 1;
@@ -837,6 +844,7 @@ sub sub {
     #goto &$sub if (! $ready or $in_debugger or index($sub, 'Devel::Chitin::StackTracker') == 0 or $debugger_disabled);
 
     local $Devel::Chitin::current_sub = $sub unless $in_debugger;
+    local @Devel::Chitin::on_sub_return_queue;
 
     local @AUTOLOAD_names = @AUTOLOAD_names;
     if (index($sub, '::AUTOLOAD', -10) >= 0) {
@@ -866,15 +874,33 @@ sub sub {
     my @rv;
     if (wantarray) {
         @rv = &$sub;
+        _trigger_on_sub_return_queue(wantarray, \@rv) if @Devel::Chitin::on_sub_return_queue;
     } elsif (defined wantarray) {
         $rv[0] = &$sub;
+        _trigger_on_sub_return_queue(0, $rv[0]) if @Devel::Chitin::on_sub_return_queue;
     } else {
         &$sub;
+        _trigger_on_sub_return_queue(undef, undef) if @Devel::Chitin::on_sub_return_queue;
     }
 
     delete $Devel::Chitin::eval_serial{$$stack_tracker} if $stack_tracker;
 
     return wantarray ? @rv : $rv[0];
+}
+
+sub _queue_on_sub_return {
+    my $cb = shift;
+    push @Devel::Chitin::on_sub_return_queue, $cb;
+}
+
+sub _trigger_on_sub_return_queue {
+    my($wantarray, @rv) = @_;
+    my $rv = $wantarray ? \@rv : $rv[0];
+
+    my $subreturn = Devel::Chitin::SubroutineReturn->new(wantarray => $wantarray,
+                                                         rv => $rv,
+                                                         map { $_ => $previous_location->$_ } qw(package subroutine filename line));
+    $_->($subreturn) foreach @Devel::Chitin::on_sub_return_queue;
 }
 
 sub lsub : lvalue {
