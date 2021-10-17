@@ -1135,6 +1135,19 @@ after that subroutine call returns.
 Continue running the debugged program until the current subroutine returns
 or until the next breakpoint, whichever comes first.
 
+=item CLIENT->stepout(cb => $subref);
+
+This form of stepout() allows registering a callback to be invoked when the
+current subroutine returns.  The callback's first argument is an instance of
+L<Devel::Chitin::SubroutineReturn>, which provides access to the location
+the function is returning from, its wantarray status, and the function's
+return value.  The C<rv> property of the SubroutineReturn object is mutable,
+and actually changes the value being returned from the function.
+
+Callbacks are invoked in the order they are queued, and a return value changed
+in this way is presented as the return value to the next callback.  The final
+callback gets the last say about the ultimate return value from the function.
+
 =item CLIENT->continue()
 
 Continue running the debugged program until the next breakpoint.

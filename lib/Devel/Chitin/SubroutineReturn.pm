@@ -82,6 +82,11 @@ should be self-explanatory.  All parameters except callsite are required.
 
 Each construction parameter also has a read-only method to retrieve the value.
 
+The C<rv()> method is special - it can be changed by passing a new value as
+the method argument.  When this behavior is used as part of a callback from
+a C<stepout()>, the actual return value from the function can be changed in
+the running program.
+
 =head1 SEE ALSO
 
 L<Devel::Chitin::Location>, L<Devel::Chitin>
