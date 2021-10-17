@@ -3,17 +3,17 @@ use warnings;
 
 use Test2::V0; no warnings 'void';
 use lib 't/lib';
-use TestHelper qw(ok_location db_continue db_stepout ok_sub_return);
+use TestHelper qw(ok_location db_continue db_stepout);
 
 my $one_rv = one();
-
+is $one_rv, 'it was changed', "stepout callback changed the return value";
 sub one {
     $DB::single=1;
     12;
 }
 
 sub __tests__ {
-    plan tests => 5;
+    plan tests => 6;
 
     ok_location subroutine => 'main::one', line => 12;
     db_stepout(cb => sub {

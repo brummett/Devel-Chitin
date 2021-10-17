@@ -9,8 +9,17 @@ use base 'Devel::Chitin::Location';
 sub _required_properties {
     my $class = shift;
     my @inh_props = $class->SUPER::_required_properties;
-    push @inh_props, 'wantarray', 'rv';
+    push @inh_props, 'wantarray';
     return @inh_props;
+}
+
+# This is a custom accessor because it's read/write
+sub rv {
+    my $self = shift;
+    if (@_) {
+        $self->{rv} = shift;
+    };
+    return $self->{rv};
 }
 
 BEGIN {

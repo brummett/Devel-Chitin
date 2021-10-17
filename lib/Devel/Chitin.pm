@@ -874,10 +874,20 @@ sub sub {
     my @rv;
     if (wantarray) {
         @rv = &$sub;
-        _trigger_on_sub_return_queue(wantarray, \@rv) if @Devel::Chitin::on_sub_return_queue;
+        if (@Devel::Chitin::on_sub_return_queue) {
+            my $subreturn = _trigger_on_sub_return_queue(wantarray, \@rv);
+            if (Scalar::Util::reftype($subreturn->rv) eq 'ARRAY') {
+                @rv = @{ $subreturn->rv };
+            } else {
+                @rv = ( $subreturn->rv );
+            }
+        }
     } elsif (defined wantarray) {
         $rv[0] = &$sub;
-        _trigger_on_sub_return_queue(0, $rv[0]) if @Devel::Chitin::on_sub_return_queue;
+        if (@Devel::Chitin::on_sub_return_queue) {
+            my $subreturn = _trigger_on_sub_return_queue(0, $rv[0]);
+            $rv[0] = $subreturn->rv;
+        }
     } else {
         &$sub;
         _trigger_on_sub_return_queue(undef, undef) if @Devel::Chitin::on_sub_return_queue;
@@ -901,6 +911,7 @@ sub _trigger_on_sub_return_queue {
                                                          rv => $rv,
                                                          map { $_ => $previous_location->$_ } qw(package subroutine filename line));
     $_->($subreturn) foreach @Devel::Chitin::on_sub_return_queue;
+    return $subreturn;
 }
 
 sub lsub : lvalue {
