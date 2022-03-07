@@ -20,7 +20,7 @@ sub pp_const {
             return $mg->PTR if $mg->TYPE eq 'V';
         }
 
-    } elsif ($sv->isa('B::PV')) {
+    } elsif ($sv->isa('B::PV') and $sv->FLAGS & B::SVf_POK) {
         return $self->_quote_sv($sv, %params);
     } elsif ($sv->isa('B::NV')) {
         return $sv->NV;
