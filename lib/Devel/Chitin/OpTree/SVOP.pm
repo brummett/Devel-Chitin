@@ -20,11 +20,11 @@ sub pp_const {
             return $mg->PTR if $mg->TYPE eq 'V';
         }
 
-    } elsif ($sv->isa('B::PV')) {
+    } elsif ($sv->FLAGS & B::SVf_POK) {
         return $self->_quote_sv($sv, %params);
-    } elsif ($sv->isa('B::NV')) {
+    } elsif ($sv->FLAGS & B::SVf_NOK) {
         return $sv->NV;
-    } elsif ($sv->isa('B::IV')) {
+    } elsif ($sv->FLAGS & B::SVf_IOK) {
         return $sv->int_value;
     } elsif ($sv->isa('B::SPECIAL')) {
         '<???pp_const B::SPECIAL ' .  $B::specialsv_name[$$sv] . '>';
