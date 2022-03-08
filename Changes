@@ -1,4 +1,5 @@
 {{$NEXT}}
+    * Fix dual-var deparse bug exposed in 5.35.10
 
 0.18      2018-10-25 17:54:58-05:00 America/Chicago
     * Test fixes to work on threaded perls, and to force minimum required
