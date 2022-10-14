@@ -476,6 +476,14 @@ sub pp_require {
     shift->first->deparse;
 };
 
+sub pp_padsv_store {
+    my $self = shift;
+
+    my $var = $self->_padname_sv->PV;
+    my $value = $self->first->deparse;
+    join(' = ', $var, $value);
+}
+
 sub pp_sassign {
     my $self = shift;
     # This is likely an optimized-out assignment where substr is being
