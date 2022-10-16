@@ -484,6 +484,15 @@ sub pp_padsv_store {
     join(' = ', $var, $value);
 }
 
+sub pp_aelemfastlex_store {
+    my $self = shift;
+    my $var = $self->_padname_sv->PV;
+    my $idx = $self->op->private;
+    my $value = $self->first->deparse;
+    substr($var, 0, 1) = '$';
+    "${var}[${idx}] = $value";
+}
+
 sub pp_sassign {
     my $self = shift;
     # This is likely an optimized-out assignment where substr is being
