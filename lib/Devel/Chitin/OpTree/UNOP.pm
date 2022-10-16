@@ -262,9 +262,16 @@ sub pp_readline {
 sub pp_undef {
     #'undef(' . shift->first->deparse . ')'
     my $self = shift;
-    my $arg = $self->first->deparse;
-    if ($arg =~ m/::/) {
+
+    my $arg;
+    if ($self->first->is_null and $self->op->private & B::OPpTARGET_MY) {
+        # This is an optimized undef($myvar)
+        $arg = $self->_padname_sv->PV;
+    } else {
         $arg = $self->first->deparse;
+        if ($arg =~ m/::/) {
+            $arg = $self->first->deparse;
+        }
     }
     "undef($arg)";
 }
