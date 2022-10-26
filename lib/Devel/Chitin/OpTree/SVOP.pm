@@ -42,6 +42,19 @@ sub pp_gv {
 }
 *pp_gvsv = \&pp_gv;
 
+sub pp_anoncode {
+    my $self = shift;
+
+    my $subref = $self->_padval_sv($self->op->targ);
+    my $deparser = Devel::Chitin::OpTree->build_from_location($subref->object_2svref);
+    my $deparsed = $deparser->deparse;
+    if ($deparsed =~ m/\n/) {
+        return join('', 'sub {', $self->_indent_block_text($deparsed), '}');
+    } else {
+        return join('', 'sub { ', $deparsed, ' }');
+    }
+}
+
 1;
 
 __END__
