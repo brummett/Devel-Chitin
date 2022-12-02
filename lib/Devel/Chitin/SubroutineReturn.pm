@@ -3,7 +3,7 @@ package Devel::Chitin::SubroutineReturn;
 use strict;
 use warnings;
 
-our $VERSION = '0.22';
+our $VERSION = '0.23';
 use base 'Devel::Chitin::Location';
 
 sub _required_properties {
