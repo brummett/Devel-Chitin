@@ -24,8 +24,16 @@ sub pp_sassign {
         and
         ( $self->last->is_null and $self->last->_ex_name eq 'pp_padsv')
     ) {
-        # This is an optimised undef-assignment
+        # This is an optimized undef-assignment
         $self->first->deparse();
+
+    } elsif ($self->is_null
+        and
+        $self->first->op->name eq 'emptyavhv'
+    ) {
+        # This is an optimized empty hash- or array-ref assignment
+        $self->first->deparse();
+
     } else {
         # normally, the args are ordered: value, variable
         my($var, $value) = $params{is_swapped}

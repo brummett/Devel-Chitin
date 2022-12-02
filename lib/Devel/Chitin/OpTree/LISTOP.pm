@@ -130,6 +130,13 @@ sub pp_list {
         . ($params{skip_parens} ? '' :')');
 }
 
+sub pp_emptyavhv {
+    my $self = shift;
+    my $deparsed = ($self->op->private & B::OPpEMPTYAVHV_IS_HV()) ? '{}' : '[]';
+    my $target = $self->_maybe_targmy;
+    "${target}${deparsed}";
+}
+
 sub pp_aslice {
     push(@_, '[', ']'),
     goto &_aslice_hslice_builder;
